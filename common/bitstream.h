@@ -1,7 +1,7 @@
 /*****************************************************************************
  * bitstream.h: bitstream writing
  *****************************************************************************
- * Copyright (C) 2003-2012 x264 project
+ * Copyright (C) 2003-2013 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Jason Garrett-Glaser <darkshikari@gmail.com>
