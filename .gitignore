@@ -11,6 +11,7 @@
 [Dd]ebug/
 [Rr]elease/
 x64/
+build/
 [Bb]in/
 [Oo]bj/
 
@@ -202,3 +203,6 @@ dataDec.txt
 log.dec
 common/oclobj.h
 x264_lookahead.clbin
+
+#Ensure files required by SMC msvc builds are included
+!SMC/*.h
