@@ -13,7 +13,7 @@ YASM is required to compile all x264 assembly files.
 1) Download yasm for Visual Studio from here:
 http://yasm.tortall.net/Download.html
 
-Currently only up to VS2010 in supported on the web page so just download that.
+Currently only up to VS2010 is supported on the web page so just download that.
 
 2) Follow the instructions found within the downloaded archive for installing YASM
 	Note: With newer version of VS the BuildCustomization path should be the version specific to the VS version you are using.

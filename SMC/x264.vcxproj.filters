@@ -227,6 +227,9 @@
     <ClInclude Include="..\encoder\analyse.h">
       <Filter>Header Files\encoder</Filter>
     </ClInclude>
+    <ClInclude Include="oclobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\common\opencl\intra.cl">

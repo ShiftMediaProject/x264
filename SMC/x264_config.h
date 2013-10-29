@@ -4,5 +4,5 @@
 #define X264_CHROMA_FORMAT 0
 #define X264_REV SMC
 #define X264_REV_DIFF 0
-#define X264_VERSION " SMC version"
+#define X264_VERSION "SMC version"
 #define X264_POINTVER "SMC version"
