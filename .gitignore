@@ -206,3 +206,5 @@ x264_lookahead.clbin
 
 #Ensure files required by SMC msvc builds are included
 !SMC/*.h
+!SMC/*.def
+!common/oclobj.h

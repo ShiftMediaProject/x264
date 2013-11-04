@@ -33,3 +33,4 @@
 #define HAVE_GF_MALLOC 0
 #define HAVE_VECTOREXT 0
 #define HAVE_CPU_COUNT 0
+#define HAVE_THP 0

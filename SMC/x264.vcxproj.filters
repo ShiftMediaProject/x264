@@ -132,6 +132,9 @@
     <ClCompile Include="..\common\x86\mc-c.c">
       <Filter>Source Files\common\x86</Filter>
     </ClCompile>
+    <ClCompile Include="..\x264dll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\bitstream.h">
@@ -227,8 +230,11 @@
     <ClInclude Include="..\encoder\analyse.h">
       <Filter>Header Files\encoder</Filter>
     </ClInclude>
-    <ClInclude Include="oclobj.h">
+    <ClInclude Include="..\x264.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="oclobj.h">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -312,5 +318,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\x264res.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

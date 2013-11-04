@@ -27,3 +27,16 @@ Currently only up to VS2010 is supported on the web page so just download that.
 4) ???
 
 5) Profit
+
+
+*** Generating OpenCl header file ***
+
+The build system by default will generate the OpenCL required header file 'oclobj.h'.
+This should already be generated. If it for some reason is not or needs to be regenerated then perl is required.
+
+1) Download Strawberry Perl for windows from here:
+http://strawberryperl.com/
+
+2) Install Perl using the provided installer (you may have to restart to allow Visual Studio to pick up the modifications to PATH)
+
+3) Build project as normal (If regenerating oclobj.h then simply delete the old one then rebuild). 

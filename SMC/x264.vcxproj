@@ -158,7 +158,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -166,6 +166,8 @@
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -181,10 +183,27 @@
       <ErrorFile>
       </ErrorFile>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -192,6 +211,8 @@
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -205,17 +226,36 @@
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/Qms0 %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -229,7 +269,6 @@
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
-copy ..\SMC\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -237,10 +276,21 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -248,6 +298,8 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -261,7 +313,6 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
-copy ..\SMC\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -269,10 +320,21 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>MaxSpeedHighLevel</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -293,6 +355,7 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -308,10 +371,27 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>MaxSpeedHighLevel</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -332,6 +412,7 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -347,30 +428,46 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeedHighLevel</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <UseProcessorExtensions>SSE3</UseProcessorExtensions>
+      <C99Support>true</C99Support>
+      <Optimization>MaxSpeedHighLevel</Optimization>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <OmitFramePointers>true</OmitFramePointers>
-      <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <FloatingPointExceptions>false</FloatingPointExceptions>
-      <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
-      <UseProcessorExtensions>SSE3</UseProcessorExtensions>
-      <C99Support>true</C99Support>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -387,10 +484,27 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>MaxSpeedHighLevel</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -411,6 +525,8 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
+      <ExceptionHandling>false</ExceptionHandling>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -427,6 +543,23 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
     </YASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if not exist ../common/oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; ..\common\oclobj.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>mkdir $(OutputPath)\include
+copy ..\x264.h $(OutputPath)\include
+mkdir $(OutputPath)\licenses
+copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\bitstream.c" />
@@ -488,6 +621,12 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">$(IntDir)\setEnc.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\encoder\slicetype-cl.c" />
+    <ClCompile Include="..\x264dll.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\bitstream.h" />
@@ -519,6 +658,7 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     <ClInclude Include="..\encoder\me.h" />
     <ClInclude Include="..\encoder\ratecontrol.h" />
     <ClInclude Include="..\encoder\set.h" />
+    <ClInclude Include="..\x264.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="oclobj.h" />
     <ClInclude Include="x264_config.h" />
@@ -530,6 +670,7 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     <None Include="..\common\opencl\motionsearch.cl" />
     <None Include="..\common\opencl\subpel.cl" />
     <None Include="..\common\opencl\weightp.cl" />
+    <None Include="x264.def" />
     <YASM Include="..\common\x86\bitstream-a.asm">
       <FileType>Document</FileType>
     </YASM>
@@ -596,14 +737,69 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </YASM>
     <YASM Include="..\common\x86\x86inc.asm">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">true</ExcludedFromBuild>
     </YASM>
     <YASM Include="..\common\x86\x86util.asm">
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">true</ExcludedFromBuild>
     </YASM>
-    <None Include="x264.def" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\x264res.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+      </ExcludedFromBuild>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">DLL;_MSC_VER=1800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IgnoreStandardIncludePath Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">true</IgnoreStandardIncludePath>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+      </ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
