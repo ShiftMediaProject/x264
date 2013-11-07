@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E4CCBFE2-5DC2-44B2-92A8-447EFE6DDB6E}</ProjectGuid>
+    <ProjectGuid>{20179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
     <RootNamespace>xvidcore</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -197,6 +197,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -240,6 +241,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -269,6 +271,7 @@ copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -313,6 +316,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -385,6 +389,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -442,6 +447,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -498,6 +504,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
@@ -557,6 +564,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     <PostBuildEvent>
       <Command>mkdir $(OutputPath)\include
 copy ..\x264.h $(OutputPath)\include
+copy .\x264_config.h $(OutputPath)\include
 mkdir $(OutputPath)\licenses
 copy ..\COPYING $(OutputPath)\licenses\x264.txt</Command>
     </PostBuildEvent>
