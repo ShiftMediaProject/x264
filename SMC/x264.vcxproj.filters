@@ -34,6 +34,9 @@
     <Filter Include="Source Files\common\opencl">
       <UniqueIdentifier>{a6ce58a1-9122-46af-96c2-b72f36749479}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\x264">
+      <UniqueIdentifier>{b6d71a01-1aa0-4011-884a-a32258e46159}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\common\pixel.c">
@@ -230,11 +233,11 @@
     <ClInclude Include="..\encoder\analyse.h">
       <Filter>Header Files\encoder</Filter>
     </ClInclude>
-    <ClInclude Include="..\x264.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="oclobj.h">
       <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264.h">
+      <Filter>Header Files\x264</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
