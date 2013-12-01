@@ -3,7 +3,11 @@
 #define HAVE_32B_STACK_ALIGNMENT 1
 #if defined(_M_X64)
 #   define ARCH_X86_64 1
+#   define ARCH_X86_32 0
+#   define ARCH_X86 0
 #else
+#   define ARCH_X86_64 0
+#   define ARCH_X86_32 1
 #   define ARCH_X86 1
 #endif
 #define SYS_WINDOWS 1
