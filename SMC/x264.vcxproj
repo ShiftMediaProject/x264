@@ -160,7 +160,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
@@ -206,7 +206,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
@@ -247,7 +247,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <SDLCheck>false</SDLCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Qms0 %(AdditionalOptions)</AdditionalOptions>
@@ -294,7 +294,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <C99Support>true</C99Support>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
@@ -349,7 +349,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
@@ -407,7 +407,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
@@ -453,7 +453,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
       <Optimization>MaxSpeedHighLevel</Optimization>
@@ -521,7 +521,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;..\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
