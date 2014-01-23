@@ -468,6 +468,10 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <OmitFramePointers>true</OmitFramePointers>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
