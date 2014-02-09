@@ -142,16 +142,8 @@ static int get_argv_utf8( int *argc_ptr, char ***argv_ptr )
 
 /* Ctrl-C handler */
 static volatile int b_ctrl_c = 0;
-static int          b_exit_on_ctrl_c = 0;
 static void sigint_handler( int a )
 {
-    if( b_exit_on_ctrl_c )
-    {
-#ifdef _WIN32
-        SetConsoleTitleW( org_console_title );
-#endif
-        exit( 0 );
-    }
     b_ctrl_c = 1;
 }
 
@@ -196,7 +188,7 @@ static const char * const muxer_names[] =
     "raw",
     "mkv",
     "flv",
-#if HAVE_GPAC
+#if HAVE_GPAC || HAVE_LSMASH
     "mp4",
 #endif
     0
@@ -437,7 +429,7 @@ static void print_csp_names( int longhelp )
     printf( "                              - valid csps for `lavf' demuxer:\n" );
     printf( INDENT );
     size_t line_len = strlen( INDENT );
-    for( enum PixelFormat i = PIX_FMT_NONE+1; i < PIX_FMT_NB; i++ )
+    for( enum PixelFormat i = AV_PIX_FMT_NONE+1; i < AV_PIX_FMT_NB; i++ )
     {
         const char *pfname = av_get_pix_fmt_name( i );
         if( pfname )
@@ -450,7 +442,7 @@ static void print_csp_names( int longhelp )
             }
             printf( "%s", pfname );
             line_len += name_len;
-            if( i+1 < PIX_FMT_NB )
+            if( i+1 < AV_PIX_FMT_NB )
             {
                 printf( ", " );
                 line_len += 2;
@@ -478,7 +470,7 @@ static void help( x264_param_t *defaults, int longhelp )
         " .264 -> Raw bytestream\n"
         " .mkv -> Matroska\n"
         " .flv -> Flash Video\n"
-        " .mp4 -> MP4 if compiled with GPAC support (%s)\n"
+        " .mp4 -> MP4 if compiled with GPAC or L-SMASH support (%s)\n"
         "Output bit depth: %d (configured at compile time)\n"
         "\n"
         "Options:\n"
@@ -504,7 +496,9 @@ static void help( x264_param_t *defaults, int longhelp )
         "no",
 #endif
 #if HAVE_GPAC
-        "yes",
+        "gpac",
+#elif HAVE_LSMASH
+        "lsmash",
 #else
         "no",
 #endif
@@ -853,6 +847,8 @@ static void help( x264_param_t *defaults, int longhelp )
 
     H2( "      --nal-hrd <string>      Signal HRD information (requires vbv-bufsize)\n"
         "                                  - none, vbr, cbr (cbr not allowed in .mp4)\n" );
+    H2( "      --filler                Force hard-CBR and generate filler (implied by\n"
+        "                              --nal-hrd cbr)\n" );
     H2( "      --pic-struct            Force pic_struct in Picture Timing SEI\n" );
     H2( "      --crop-rect <string>    Add 'left,top,right,bottom' to the bitstream-level\n"
         "                              cropping rectangle\n" );
@@ -906,7 +902,6 @@ static void help( x264_param_t *defaults, int longhelp )
     H2( "      --opencl                Enable use of OpenCL\n" );
     H2( "      --opencl-clbin <string> Specify path of compiled OpenCL kernel cache\n" );
     H2( "      --opencl-device <integer> Specify OpenCL device ordinal\n" );
-    H2( "      --visualize             Show MB types overlayed on the encoded video\n" );
     H2( "      --dump-yuv <string>     Save reconstructed frames\n" );
     H2( "      --sps-id <integer>      Set SPS and PPS id numbers [%d]\n", defaults->i_sps_id );
     H2( "      --aud                   Use access unit delimiters\n" );
@@ -938,7 +933,6 @@ typedef enum
     OPT_THREAD_INPUT,
     OPT_QUIET,
     OPT_NOPROGRESS,
-    OPT_VISUALIZE,
     OPT_LONGHELP,
     OPT_PROFILE,
     OPT_PRESET,
@@ -1088,7 +1082,6 @@ static struct option long_options[] =
     { "verbose",           no_argument, NULL, 'v' },
     { "log-level",   required_argument, NULL, OPT_LOG_LEVEL },
     { "no-progress",       no_argument, NULL, OPT_NOPROGRESS },
-    { "visualize",         no_argument, NULL, OPT_VISUALIZE },
     { "dump-yuv",    required_argument, NULL, 0 },
     { "sps-id",      required_argument, NULL, 0 },
     { "aud",               no_argument, NULL, 0 },
@@ -1132,6 +1125,7 @@ static struct option long_options[] =
     { "output-csp",  required_argument, NULL, OPT_OUTPUT_CSP },
     { "input-range", required_argument, NULL, OPT_INPUT_RANGE },
     { "stitchable",        no_argument, NULL, 0 },
+    { "filler",            no_argument, NULL, 0 },
     {0, 0, 0, 0}
 };
 
@@ -1143,7 +1137,7 @@ static int select_output( const char *muxer, char *filename, x264_param_t *param
 
     if( !strcasecmp( ext, "mp4" ) )
     {
-#if HAVE_GPAC
+#if HAVE_GPAC || HAVE_LSMASH
         cli_output = mp4_output;
         param->b_annexb = 0;
         param->b_repeat_headers = 0;
@@ -1457,14 +1451,6 @@ static int parse( int argc, char **argv, x264_param_t *param, cli_opt_t *opt )
             case OPT_NOPROGRESS:
                 opt->b_progress = 0;
                 break;
-            case OPT_VISUALIZE:
-#if HAVE_VISUALIZE
-                param->b_visualize = 1;
-                b_exit_on_ctrl_c = 1;
-#else
-                x264_cli_log( "x264", X264_LOG_WARNING, "not compiled with visualization support\n" );
-#endif
-                break;
             case OPT_TUNE:
             case OPT_PRESET:
                 break;
@@ -1589,8 +1575,11 @@ generic_option:
     info.fps_den    = param->i_fps_den;
     info.fullrange  = input_opt.input_range == RANGE_PC;
     info.interlaced = param->b_interlaced;
-    info.sar_width  = param->vui.i_sar_width;
-    info.sar_height = param->vui.i_sar_height;
+    if( param->vui.i_sar_width > 0 && param->vui.i_sar_height > 0 )
+    {
+        info.sar_width  = param->vui.i_sar_width;
+        info.sar_height = param->vui.i_sar_height;
+    }
     info.tff        = param->b_tff;
     info.vfr        = param->b_vfr_input;
 
@@ -1633,7 +1622,7 @@ generic_option:
 #endif
 
     /* override detected values by those specified by the user */
-    if( param->vui.i_sar_width && param->vui.i_sar_height )
+    if( param->vui.i_sar_width > 0 && param->vui.i_sar_height > 0 )
     {
         info.sar_width  = param->vui.i_sar_width;
         info.sar_height = param->vui.i_sar_height;

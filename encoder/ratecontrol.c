@@ -101,7 +101,7 @@ struct x264_ratecontrol_t
     double vbv_max_rate;        /* # of bits added to buffer_fill per second */
     predictor_t *pred;          /* predict frame size from satd */
     int single_frame_vbv;
-    double rate_factor_max_increment; /* Don't allow RF above (CRF + this value). */
+    float rate_factor_max_increment; /* Don't allow RF above (CRF + this value). */
 
     /* ABR stuff */
     int    last_satd;
@@ -699,8 +699,6 @@ void x264_ratecontrol_init_reconfigurable( x264_t *h, int b_init )
             x264_log( h, X264_LOG_WARNING, "VBV parameters cannot be changed when NAL HRD is in use\n" );
             return;
         }
-        if( h->param.b_avcintra_compat )
-            h->sps->vui.hrd.b_cbr_hrd = 1;
         h->sps->vui.hrd.i_bit_rate_unscaled = vbv_max_bitrate;
         h->sps->vui.hrd.i_cpb_size_unscaled = vbv_buffer_size;
 
@@ -913,7 +911,7 @@ int x264_ratecontrol_new( x264_t *h )
              * so we'll at least try to roughly approximate this effect. */
             res_factor_bits = powf( res_factor, 0.7 );
 
-            if( ( p = strstr( opts, "timebase=" ) ) && sscanf( p, "timebase=%u/%u", &k, &l ) != 2 )
+            if( !( p = strstr( opts, "timebase=" ) ) || sscanf( p, "timebase=%u/%u", &k, &l ) != 2 )
             {
                 x264_log( h, X264_LOG_ERROR, "timebase specified in stats file not valid\n" );
                 return -1;
@@ -1398,7 +1396,7 @@ void x264_ratecontrol_start( x264_t *h, int i_force_qp, int overhead )
     x264_emms();
 
     if( zone && (!rc->prev_zone || zone->param != rc->prev_zone->param) )
-        x264_encoder_reconfig( h, zone->param );
+        x264_encoder_reconfig_apply( h, zone->param );
     rc->prev_zone = zone;
 
     if( h->param.rc.b_stat_read )
@@ -2108,7 +2106,13 @@ static int update_vbv( x264_t *h, int bits )
     rct->buffer_fill_final -= (uint64_t)bits * h->sps->vui.i_time_scale;
 
     if( rct->buffer_fill_final < 0 )
-        x264_log( h, X264_LOG_WARNING, "VBV underflow (frame %d, %.0f bits)\n", h->i_frame, (double)rct->buffer_fill_final / h->sps->vui.i_time_scale );
+    {
+        double underflow = (double)rct->buffer_fill_final / h->sps->vui.i_time_scale;
+        if( rcc->rate_factor_max_increment && rcc->qpm >= rcc->qp_novbv + rcc->rate_factor_max_increment )
+            x264_log( h, X264_LOG_DEBUG, "VBV underflow due to CRF-max (frame %d, %.0f bits)\n", h->i_frame, underflow );
+        else
+            x264_log( h, X264_LOG_WARNING, "VBV underflow (frame %d, %.0f bits)\n", h->i_frame, underflow );
+    }
     rct->buffer_fill_final = X264_MAX( rct->buffer_fill_final, 0 );
 
     if( h->param.b_avcintra_compat )
@@ -2116,7 +2120,7 @@ static int update_vbv( x264_t *h, int bits )
     else
         rct->buffer_fill_final += (uint64_t)bitrate * h->sps->vui.i_num_units_in_tick * h->fenc->i_cpb_duration;
 
-    if( h->sps->vui.hrd.b_cbr_hrd && rct->buffer_fill_final > buffer_size )
+    if( h->param.rc.b_filler && rct->buffer_fill_final > buffer_size )
     {
         int64_t scale = (int64_t)h->sps->vui.i_time_scale * 8;
         filler = (rct->buffer_fill_final - buffer_size + scale - 1) / scale;

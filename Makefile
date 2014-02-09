@@ -69,9 +69,8 @@ ifneq ($(findstring HAVE_GPAC 1, $(CONFIG)),)
 SRCCLI += output/mp4.c
 endif
 
-# Visualization sources
-ifneq ($(findstring HAVE_VISUALIZE 1, $(CONFIG)),)
-SRCS   += common/visualize.c common/display-x11.c
+ifneq ($(findstring HAVE_LSMASH 1, $(CONFIG)),)
+SRCCLI += output/mp4_lsmash.c
 endif
 
 # MMX/SSE optims

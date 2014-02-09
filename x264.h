@@ -41,7 +41,7 @@
 
 #include "x264_config.h"
 
-#define X264_BUILD 138
+#define X264_BUILD 140
 
 /* Application developers planning to link against a shared library version of
  * libx264 from a Microsoft Visual Studio or similar development environment
@@ -348,7 +348,6 @@ typedef struct x264_param_t
     void        (*pf_log)( void *, int i_level, const char *psz, va_list );
     void        *p_log_private;
     int         i_log_level;
-    int         b_visualize;
     int         b_full_recon;   /* fully reconstruct frames, even when not necessary for encoding.  Implied by psz_dump_yuv */
     char        *psz_dump_yuv;  /* filename (in UTF-8) for reconstructed frames */
 
@@ -408,6 +407,10 @@ typedef struct x264_param_t
         float       f_vbv_buffer_init; /* <=1: fraction of buffer_size. >1: kbit */
         float       f_ip_factor;
         float       f_pb_factor;
+
+        /* VBV filler: force CBR VBV and use filler bytes to ensure hard-CBR.
+         * Implied by NAL-HRD CBR. */
+        int         b_filler;
 
         int         i_aq_mode;      /* psy adaptive QP. (X264_AQ_*) */
         float       f_aq_strength;

@@ -30,7 +30,6 @@ Configuration options:
   --disable-thread         disable multithreaded encoding
   --enable-win32thread     use win32threads (windows only)
   --disable-interlaced     disable interlaced encoding support
-  --enable-visualize       enable visualization (X11 only)
   --bit-depth=BIT_DEPTH    set output bit depth (8-10) [8]
   --chroma-format=FORMAT   output chroma format (420, 422, 444, all) [all]
 
@@ -52,6 +51,7 @@ External library support:
   --disable-lavf           disable libavformat support
   --disable-ffms           disable ffmpegsource support
   --disable-gpac           disable gpac support
+  --disable-lsmash         disable lsmash support
 
 EOF
 exit 1
@@ -264,6 +264,8 @@ avs="auto"
 lavf="auto"
 ffms="auto"
 gpac="auto"
+lsmash="auto"
+mp4="no"
 gpl="yes"
 thread="auto"
 swscale="auto"
@@ -273,7 +275,6 @@ debug="no"
 gprof="no"
 strip="no"
 pic="no"
-vis="no"
 bit_depth="8"
 chroma_format="all"
 compiler="GNU"
@@ -290,8 +291,8 @@ cross_prefix=""
 EXE=""
 
 # list of all preprocessor HAVE values we can define
-CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F VISUALIZE SWSCALE \
-             LAVF FFMS GPAC GF_MALLOC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP"
+CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
+             LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH"
 
 # parse options
 
@@ -343,6 +344,9 @@ for opt do
         --disable-gpac)
             gpac="no"
             ;;
+        --disable-lsmash)
+            lsmash="no"
+            ;;
         --disable-gpl)
             gpl="no"
             ;;
@@ -380,9 +384,6 @@ for opt do
             ;;
         --enable-pic)
             pic="yes"
-            ;;
-        --enable-visualize)
-            vis="yes"
             ;;
         --host=*)
             host="$optarg"
@@ -837,18 +838,6 @@ if [ "$SYS" = "LINUX" -a \( "$ARCH" = "X86" -o "$ARCH" = "X86_64" \) ] && cc_che
     define HAVE_THP
 fi
 
-if [ "$vis" = "yes" ] ; then
-    save_CFLAGS="$CFLAGS"
-    CFLAGS="$CFLAGS -I/usr/X11R6/include"
-    if cc_check "X11/Xlib.h" "-L/usr/X11R6/lib -lX11" "XOpenDisplay(0);" ; then
-        LDFLAGS="-L/usr/X11R6/lib -lX11 $LDFLAGS"
-        define HAVE_VISUALIZE
-    else
-        vis="no"
-        CFLAGS="$save_CFLAGS"
-   fi
-fi
-
 if [ "$swscale" = "auto" ] ; then
     swscale="no"
     if ${cross_prefix}pkg-config --exists libswscale 2>/dev/null; then
@@ -858,10 +847,10 @@ if [ "$swscale" = "auto" ] ; then
     [ -z "$SWSCALE_LIBS" ] && SWSCALE_LIBS="-lswscale -lavutil"
 
     if cc_check "libswscale/swscale.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "sws_init_context(0,0,0);" ; then
-        if cpp_check "libavutil/pixdesc.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "defined(PIX_FMT_RGB)" ; then
+        if cpp_check "libavutil/pixdesc.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "defined(AV_PIX_FMT_FLAG_RGB)" ; then
             swscale="yes"
         else
-            echo "Warning: PIX_FMT_RGB is missing from libavutil, update for swscale support"
+            echo "Warning: AV_PIX_FMT_FLAG_RGB is missing from libavutil, update for swscale support"
         fi
     fi
 fi
@@ -874,7 +863,7 @@ if [ "$lavf" = "auto" ] ; then
     fi
     if [ -z "$LAVF_LIBS" -a -z "$LAVF_CFLAGS" ]; then
         LAVF_LIBS="-lavformat"
-        for lib in -lpostproc -lavcodec -lavcore -lswscale -lavutil -lm -lz -lbz2 $libpthread -lavifil32; do
+        for lib in -lpostproc -lavcodec -lavcore -lswscale -lavutil -lm -lz -lbz2 $libpthread -lavifil32 -lws2_32; do
             cc_check "" $lib && LAVF_LIBS="$LAVF_LIBS $lib"
         done
     fi
@@ -932,11 +921,30 @@ if [ "$swscale" = "yes" ]; then
     fi
 fi
 
-if [ "$gpac" = "auto" ] ; then
+if [ "$lsmash" = "auto" ] ; then
+    lsmash="no"
+    if ${cross_prefix}pkg-config --exists liblsmash 2>/dev/null; then
+        LSMASH_LIBS="$LSMASH_LIBS $(${cross_prefix}pkg-config --libs liblsmash)"
+        LSMASH_CFLAGS="$LSMASH_CFLAGS $(${cross_prefix}pkg-config --cflags liblsmash)"
+    fi
+    [ -z "$LSMASH_LIBS" ] && LSMASH_LIBS="-llsmash"
+
+    if cc_check lsmash.h "$LSMASH_CFLAGS $LSMASH_LIBS" ; then
+        if cpp_check lsmash.h "$LSMASH_CFLAGS" "LSMASH_VERSION_MAJOR > 0 || (LSMASH_VERSION_MAJOR == 0 && LSMASH_VERSION_MINOR >= 1)" ; then
+            lsmash="yes"
+        else
+            echo "Warning: lsmash is too old, update to rev.751 or later"
+        fi
+    fi
+fi
+
+if [ "$gpac" = "auto" -a "$lsmash" != "yes" ] ; then
     gpac="no"
-    cc_check "" -lz && GPAC_LIBS="-lgpac_static -lz" || GPAC_LIBS="-lgpac_static"
+    GPAC_LIBS="-lgpac_static"
+    cc_check "" -lz && GPAC_LIBS="$GPAC_LIBS -lz"
     if [ "$SYS" = "WINDOWS" ] ; then
-        GPAC_LIBS="$GPAC_LIBS -lwinmm"
+        cc_check "" -lws2_32 && GPAC_LIBS="$GPAC_LIBS -lws2_32"
+        cc_check "" -lwinmm && GPAC_LIBS="$GPAC_LIBS -lwinmm"
     fi
     if cc_check gpac/isomedia.h "$GPAC_LIBS" ; then
         if cc_check gpac/isomedia.h "$GPAC_LIBS" "gf_isom_set_pixel_aspect_ratio(0,0,0,0,0);" ; then
@@ -946,11 +954,15 @@ if [ "$gpac" = "auto" ] ; then
         fi
     fi
 fi
-if [ "$gpac" = "yes" ] ; then
+
+if [ "$lsmash" = "yes" ] ; then
+    mp4="lsmash"
+    LDFLAGSCLI="$LSMASH_LIBS $LDFLAGSCLI"
+    CFLAGS="$CFLAGS $LSMASH_CFLAGS"
+    define HAVE_LSMASH
+elif [ "$gpac" = "yes" ] ; then
+    mp4="gpac"
     define HAVE_GPAC
-    if cc_check gpac/isomedia.h "-Werror $GPAC_LIBS" "void *p; p = gf_malloc(1); gf_free(p);" ; then
-        define HAVE_GF_MALLOC
-    fi
     LDFLAGSCLI="$GPAC_LIBS $LDFLAGSCLI"
 fi
 
@@ -1237,8 +1249,8 @@ includedir=$includedir
 Name: x264
 Description: H.264 (MPEG4 AVC) encoder library
 Version: $(grep POINTVER < x264_config.h | sed -e 's/.* "//; s/".*//')
-Libs: -L$libdir -lx264
-Libs.private: $libpthread $libm $libdl
+Libs: -L$libdir -lx264 $([ "$shared" = "yes" ] || echo $libpthread $libm $libdl)
+Libs.private: $([ "$shared" = "yes" ] && echo $libpthread $libm $libdl)
 Cflags: -I$includedir
 EOF
 
@@ -1259,7 +1271,7 @@ interlaced:    $interlaced
 avs:           $avs
 lavf:          $lavf
 ffms:          $ffms
-gpac:          $gpac
+mp4:           $mp4
 gpl:           $gpl
 thread:        $thread
 opencl:        $opencl
@@ -1268,7 +1280,6 @@ debug:         $debug
 gprof:         $gprof
 strip:         $strip
 PIC:           $pic
-visualize:     $vis
 bit depth:     $bit_depth
 chroma format: $chroma_format
 EOF

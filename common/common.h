@@ -517,6 +517,9 @@ struct x264_t
     uint8_t *nal_buffer;
     int      nal_buffer_size;
 
+    x264_t          *reconfig_h;
+    int             reconfig;
+
     /**** thread synchronization starts here ****/
 
     /* frame number/poc */
@@ -964,9 +967,6 @@ struct x264_t
     x264_deblock_function_t loopf;
     x264_bitstream_function_t bsf;
 
-#if HAVE_VISUALIZE
-    struct visualize_t *visualize;
-#endif
     x264_lookahead_t *lookahead;
 
 #if HAVE_OPENCL
