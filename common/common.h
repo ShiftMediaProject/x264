@@ -1,7 +1,7 @@
 /*****************************************************************************
  * common.h: misc common functions
  *****************************************************************************
- * Copyright (C) 2003-2013 x264 project
+ * Copyright (C) 2003-2014 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -109,7 +109,7 @@ do {\
 
 #define NALU_OVERHEAD 5 // startcode + NAL type costs 5 bytes per frame
 #define FILLER_OVERHEAD (NALU_OVERHEAD+1)
-#define SEI_OVERHEAD (NALU_OVERHEAD - (h->param.b_annexb && !h->param.b_avcintra_compat && (h->out.i_nal-1)))
+#define SEI_OVERHEAD (NALU_OVERHEAD - (h->param.b_annexb && !h->param.i_avcintra_class && (h->out.i_nal-1)))
 
 /****************************************************************************
  * Includes
@@ -552,15 +552,15 @@ struct x264_t
     int             (*dequant4_mf[4])[16];   /* [4][6][16] */
     int             (*dequant8_mf[4])[64];   /* [4][6][64] */
     /* quantization matrix for trellis, [cqm][qp][coef] */
-    int             (*unquant4_mf[4])[16];   /* [4][52][16] */
-    int             (*unquant8_mf[4])[64];   /* [4][52][64] */
+    int             (*unquant4_mf[4])[16];   /* [4][QP_MAX_SPEC][16] */
+    int             (*unquant8_mf[4])[64];   /* [4][QP_MAX_SPEC][64] */
     /* quantization matrix for deadzone */
-    udctcoef        (*quant4_mf[4])[16];     /* [4][52][16] */
-    udctcoef        (*quant8_mf[4])[64];     /* [4][52][64] */
-    udctcoef        (*quant4_bias[4])[16];   /* [4][52][16] */
-    udctcoef        (*quant8_bias[4])[64];   /* [4][52][64] */
-    udctcoef        (*quant4_bias0[4])[16];  /* [4][52][16] */
-    udctcoef        (*quant8_bias0[4])[64];  /* [4][52][64] */
+    udctcoef        (*quant4_mf[4])[16];     /* [4][QP_MAX_SPEC][16] */
+    udctcoef        (*quant8_mf[4])[64];     /* [4][QP_MAX_SPEC][64] */
+    udctcoef        (*quant4_bias[4])[16];   /* [4][QP_MAX_SPEC][16] */
+    udctcoef        (*quant8_bias[4])[64];   /* [4][QP_MAX_SPEC][64] */
+    udctcoef        (*quant4_bias0[4])[16];  /* [4][QP_MAX_SPEC][16] */
+    udctcoef        (*quant8_bias0[4])[64];  /* [4][QP_MAX_SPEC][64] */
     udctcoef        (*nr_offset_emergency)[4][64];
 
     /* mv/ref cost arrays. */

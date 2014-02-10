@@ -1,7 +1,7 @@
 /*****************************************************************************
  * common.c: misc common functions
  *****************************************************************************
- * Copyright (C) 2003-2013 x264 project
+ * Copyright (C) 2003-2014 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -671,8 +671,8 @@ int x264_param_parse( x264_param_t *p, const char *name, const char *value )
     }
     OPT("bluray-compat")
         p->b_bluray_compat = atobool(value);
-    OPT("avcintra-compat")
-        p->b_avcintra_compat = atobool(value);
+    OPT("avcintra-class")
+        p->i_avcintra_class = atoi(value);
     OPT("sar")
     {
         b_error = ( 2 != sscanf( value, "%d:%d", &p->vui.i_sar_width, &p->vui.i_sar_height ) &&
@@ -1144,7 +1144,7 @@ int x264_picture_alloc( x264_picture_t *pic, int i_csp, int i_width, int i_heigh
     };
 
     int csp = i_csp & X264_CSP_MASK;
-    if( csp <= X264_CSP_NONE || csp >= X264_CSP_MAX )
+    if( csp <= X264_CSP_NONE || csp >= X264_CSP_MAX || csp == X264_CSP_V210 )
         return -1;
     x264_picture_init( pic );
     pic->img.i_csp = i_csp;
