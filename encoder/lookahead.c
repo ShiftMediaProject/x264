@@ -126,6 +126,7 @@ static void *x264_lookahead_thread( x264_t *h )
 int x264_lookahead_init( x264_t *h, int i_slicetype_length )
 {
     x264_lookahead_t *look;
+    x264_t *look_h;
     CHECKED_MALLOCZERO( look, sizeof(x264_lookahead_t) );
     for( int i = 0; i < h->param.i_threads; i++ )
         h->thread[i]->lookahead = look;
@@ -144,7 +145,7 @@ int x264_lookahead_init( x264_t *h, int i_slicetype_length )
     if( !h->param.i_sync_lookahead )
         return 0;
 
-    x264_t *look_h = h->thread[h->param.i_threads];
+    look_h = h->thread[h->param.i_threads];
     *look_h = *h;
     if( x264_macroblock_cache_allocate( look_h ) )
         goto fail;

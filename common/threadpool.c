@@ -75,10 +75,10 @@ static void *x264_threadpool_thread( x264_threadpool_t *pool )
 int x264_threadpool_init( x264_threadpool_t **p_pool, int threads,
                           void (*init_func)(void *), void *init_arg )
 {
+    x264_threadpool_t *pool;
     if( threads <= 0 )
         return -1;
 
-    x264_threadpool_t *pool;
     CHECKED_MALLOCZERO( pool, sizeof(x264_threadpool_t) );
     *p_pool = pool;
 
