@@ -183,7 +183,7 @@
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
+      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
       <ErrorFile>
       </ErrorFile>
     </YASM>
@@ -229,7 +229,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
+      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -280,7 +280,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
+      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -324,7 +324,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
+      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -374,7 +374,7 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
+      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -431,7 +431,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
+      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -490,7 +490,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0</Defines>
+      <Defines>PREFIX;HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -548,7 +548,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1</Defines>
+      <Defines>HAVE_ALIGNED_STACK=0;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
