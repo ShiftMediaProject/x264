@@ -122,12 +122,13 @@ static int x264_detect_switchable_graphics( void );
 static cl_program x264_opencl_cache_load( x264_t *h, const char *dev_name, const char *dev_vendor, const char *driver_version )
 {
     /* try to load cached program binary */
-    x264_opencl_function_t *ocl = h->opencl.ocl;
-    cl_program program = NULL;
-    uint8_t *binary = NULL;
     FILE *fp = x264_fopen( h->param.psz_clbin_file, "rb" );
     if( !fp )
         return NULL;
+
+    x264_opencl_function_t *ocl = h->opencl.ocl;
+    cl_program program = NULL;
+    uint8_t *binary = NULL;
 
     fseek( fp, 0, SEEK_END );
     size_t size = ftell( fp );

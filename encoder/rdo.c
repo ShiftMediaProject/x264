@@ -683,18 +683,7 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
     }
 
     int last_nnz = h->quantf.coeff_last[ctx_block_cat]( quant_coefs+b_ac )+b_ac;
-    uint8_t *cabac_state = &h->cabac.state[x264_coeff_abs_level_m1_offset[ctx_block_cat]];
-
-    // (# of coefs) * (# of ctx) * (# of levels tried) = 1024
-    // we don't need to keep all of those: (# of coefs) * (# of ctx) would be enough,
-    // but it takes more time to remove dead states than you gain in reduced memory.
-    trellis_level_t level_tree[64 * 8 * 2];
-    int levels_used = 1;
-    /* init trellis */
-    trellis_node_t nodes[2][8];
-    trellis_node_t *nodes_cur = nodes[0];
-    trellis_node_t *nodes_prev = nodes[1];
-    trellis_node_t *bnode;
+    uint8_t *cabac_state = &h->cabac.state[ x264_coeff_abs_level_m1_offset[ctx_block_cat] ];
 
     /* shortcut for dc-only blocks.
      * this doesn't affect the output, but saves some unnecessary computation. */
@@ -725,6 +714,16 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
         return h->quantf.trellis_cabac_dc( TRELLIS_ARGS, num_coefs-1 );
 #endif
 
+    // (# of coefs) * (# of ctx) * (# of levels tried) = 1024
+    // we don't need to keep all of those: (# of coefs) * (# of ctx) would be enough,
+    // but it takes more time to remove dead states than you gain in reduced memory.
+    trellis_level_t level_tree[64*8*2];
+    int levels_used = 1;
+    /* init trellis */
+    trellis_node_t nodes[2][8];
+    trellis_node_t *nodes_cur = nodes[0];
+    trellis_node_t *nodes_prev = nodes[1];
+    trellis_node_t *bnode;
     for( int j = 1; j < 4; j++ )
         nodes_cur[j].score = TRELLIS_SCORE_MAX;
     nodes_cur[0].score = TRELLIS_SCORE_BIAS;
