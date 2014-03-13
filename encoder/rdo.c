@@ -711,7 +711,9 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
     else if( num_coefs == 8 && dc )
         return h->quantf.trellis_cabac_chroma_422_dc( TRELLIS_ARGS );
     else if( dc )
-        return h->quantf.trellis_cabac_dc( TRELLIS_ARGS, num_coefs-1 );
+    {
+        return h->quantf.trellis_cabac_dc( TRELLIS_ARGS, num_coefs - 1 );
+    }
 #endif
 
     // (# of coefs) * (# of ctx) * (# of levels tried) = 1024

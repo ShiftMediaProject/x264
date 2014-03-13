@@ -124,7 +124,9 @@ static cl_program x264_opencl_cache_load( x264_t *h, const char *dev_name, const
     /* try to load cached program binary */
     FILE *fp = x264_fopen( h->param.psz_clbin_file, "rb" );
     if( !fp )
+    {
         return NULL;
+    }
 
     x264_opencl_function_t *ocl = h->opencl.ocl;
     cl_program program = NULL;

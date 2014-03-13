@@ -158,7 +158,9 @@ int x264_pthread_cond_destroy( x264_pthread_cond_t *cond )
 {
     /* native condition variables do not destroy */
     if( thread_control.cond_init )
+    {
         return 0;
+    }
 
     /* non native condition variables */
     x264_win32_cond_t *win32_cond = cond->ptr;
@@ -231,7 +233,9 @@ int x264_pthread_cond_signal( x264_pthread_cond_t *cond )
 int x264_pthread_cond_wait( x264_pthread_cond_t *cond, x264_pthread_mutex_t *mutex )
 {
     if( thread_control.cond_wait )
+    {
         return !thread_control.cond_wait( cond, mutex, INFINITE );
+    }
 
     /* non native condition variables */
     x264_win32_cond_t *win32_cond = cond->ptr;

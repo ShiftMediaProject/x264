@@ -142,7 +142,9 @@ int x264_lookahead_init( x264_t *h, int i_slicetype_length )
         goto fail;
 
     if( !h->param.i_sync_lookahead )
+    {
         return 0;
+    }
 
     x264_t *look_h = h->thread[h->param.i_threads];
     *look_h = *h;
