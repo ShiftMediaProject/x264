@@ -197,9 +197,11 @@ static int open_file( char *psz_filename, hnd_t *p_handle, video_info_t *info, c
     h->frame_size     = h->frame_header_len;
 
     if( h->bit_depth > 8 )
+    {
         info->csp |= X264_CSP_HIGH_DEPTH;
+    }
 
-    const x264_cli_csp_t *csp = x264_cli_get_csp( info->csp );
+    x264_cli_csp_t *csp = x264_cli_get_csp( info->csp );
 
     for( i = 0; i < csp->planes; i++ )
     {
