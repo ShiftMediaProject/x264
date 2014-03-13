@@ -28,7 +28,8 @@
 
 uint64_t flv_dbl2int( double value )
 {
-    return (union {double f; uint64_t i;}){value}.i;
+    union { double f; uint64_t i; } ullD = { value };
+    return ullD.i;
 }
 
 /* Put functions  */

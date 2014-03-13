@@ -56,9 +56,10 @@ int x264_cli_csp_depth_factor( int csp )
 uint64_t x264_cli_pic_plane_size( int csp, int width, int height, int plane )
 {
     int csp_mask = csp & X264_CSP_MASK;
+    uint64_t size;
     if( x264_cli_csp_is_invalid( csp ) || plane < 0 || plane >= x264_cli_csps[csp_mask].planes )
         return 0;
-    uint64_t size = (uint64_t)width * height;
+    size = (uint64_t)width * height;
     size *= x264_cli_csps[csp_mask].width[plane] * x264_cli_csps[csp_mask].height[plane];
     size *= x264_cli_csp_depth_factor( csp );
     return size;
@@ -66,9 +67,10 @@ uint64_t x264_cli_pic_plane_size( int csp, int width, int height, int plane )
 
 uint64_t x264_cli_pic_size( int csp, int width, int height )
 {
+    uint64_t size;
     if( x264_cli_csp_is_invalid( csp ) )
         return 0;
-    uint64_t size = 0;
+    size = 0;
     int csp_mask = csp & X264_CSP_MASK;
     for( int i = 0; i < x264_cli_csps[csp_mask].planes; i++ )
         size += x264_cli_pic_plane_size( csp, width, height, i );
