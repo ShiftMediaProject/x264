@@ -45,11 +45,10 @@ cli_vid_filter_t cache_filter;
 static int init( hnd_t *handle, cli_vid_filter_t *filter, video_info_t *info, x264_param_t *param, char *opt_string )
 {
     intptr_t size = (intptr_t)opt_string;
-    cache_hnd_t *h;
     /* upon a <= 0 cache request, do nothing */
     if( size <= 0 )
         return 0;
-    h = calloc( 1, sizeof(cache_hnd_t) );
+    cache_hnd_t *h = calloc( 1, sizeof(cache_hnd_t) );
     if( !h )
         return -1;
 

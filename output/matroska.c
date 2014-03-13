@@ -170,7 +170,6 @@ static int write_headers( hnd_t handle, x264_nal_t *p_nal )
 static int write_frame( hnd_t handle, uint8_t *p_nalu, int i_size, x264_picture_t *p_picture )
 {
     mkv_hnd_t *p_mkv = handle;
-    int64_t i_stamp;
 
     if( !p_mkv->b_writing_frame )
     {
@@ -182,7 +181,7 @@ static int write_frame( hnd_t handle, uint8_t *p_nalu, int i_size, x264_picture_
     if( mk_add_frame_data( p_mkv->w, p_nalu, i_size ) < 0 )
         return -1;
 
-    i_stamp = (int64_t)((p_picture->i_pts * 1e9 * p_mkv->i_timebase_num / p_mkv->i_timebase_den) + 0.5);
+    int64_t i_stamp = (int64_t)((p_picture->i_pts * 1e9 * p_mkv->i_timebase_num / p_mkv->i_timebase_den) + 0.5);
 
     p_mkv->b_writing_frame = 0;
 
