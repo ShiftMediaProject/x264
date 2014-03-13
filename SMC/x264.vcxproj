@@ -36,7 +36,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{20179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
-    <RootNamespace>xvidcore</RootNamespace>
+    <RootNamespace>x264</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
