@@ -16,26 +16,26 @@
     <Filter Include="Source Files\encoder">
       <UniqueIdentifier>{8e13f554-52a8-4e7d-a1fe-d208a84e7ea8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\common">
-      <UniqueIdentifier>{4ca40a58-f38f-46cf-9cf0-14a17adbbf71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\encoder">
-      <UniqueIdentifier>{bd0dc0c9-1336-4cec-90e6-8275ab412aae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\common\x86">
       <UniqueIdentifier>{7e3927b1-018f-4cb1-9bfc-6b66b16a30b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\common\x86">
-      <UniqueIdentifier>{5a1ab630-e4ce-41c9-98c1-b09ffdfba9d2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\common\opencl">
-      <UniqueIdentifier>{e5117c26-5cc2-4054-9723-a8e365fadb02}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\common\opencl">
       <UniqueIdentifier>{a6ce58a1-9122-46af-96c2-b72f36749479}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x264">
       <UniqueIdentifier>{b6d71a01-1aa0-4011-884a-a32258e46159}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\encoder">
+      <UniqueIdentifier>{bd0dc0c9-1336-4cec-90e6-8275ab412aae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\common">
+      <UniqueIdentifier>{4ca40a58-f38f-46cf-9cf0-14a17adbbf71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\common\x86">
+      <UniqueIdentifier>{5a1ab630-e4ce-41c9-98c1-b09ffdfba9d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\common\opencl">
+      <UniqueIdentifier>{e5117c26-5cc2-4054-9723-a8e365fadb02}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -141,88 +141,88 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\bitstream.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\cabac.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\common.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\cpu.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\dct.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\frame.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\macroblock.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\mc.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\osdep.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\pixel.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\predict.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\quant.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\rectangle.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\set.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\threadpool.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\win32thread.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\encoder\macroblock.h">
-      <Filter>Header Files\encoder</Filter>
+      <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
     <ClInclude Include="..\encoder\me.h">
-      <Filter>Header Files\encoder</Filter>
+      <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
     <ClInclude Include="..\encoder\ratecontrol.h">
-      <Filter>Header Files\encoder</Filter>
+      <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
     <ClInclude Include="..\encoder\set.h">
-      <Filter>Header Files\encoder</Filter>
+      <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
     <ClInclude Include="..\common\opencl.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\dct.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\mc.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\pixel.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\quant.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\predict.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\x86\util.h">
-      <Filter>Header Files\common\x86</Filter>
+      <Filter>Header Files\x264\common\x86</Filter>
     </ClInclude>
     <ClInclude Include="..\common\opencl\x264-cl.h">
-      <Filter>Header Files\common\opencl</Filter>
+      <Filter>Header Files\x264\common\opencl</Filter>
     </ClInclude>
     <ClInclude Include="x264_config.h">
       <Filter>Header Files</Filter>
@@ -231,10 +231,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\encoder\analyse.h">
-      <Filter>Header Files\encoder</Filter>
+      <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
     <ClInclude Include="oclobj.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
     <ClInclude Include="..\x264.h">
       <Filter>Header Files\x264</Filter>

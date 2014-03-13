@@ -1,7 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x264", "x264.vcxproj", "{20179127-853B-4FE9-B7C0-9E817E6A3A72}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Programs", "Programs", "{16CED89F-4922-466B-ACF0-AC206850DCA1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x264cli", "x264cli.vcxproj", "{DF0E4003-C938-4CE6-A06A-F7741512B46C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{20179127-853B-4FE9-B7C0-9E817E6A3A72} = {20179127-853B-4FE9-B7C0-9E817E6A3A72}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,8 +40,27 @@ Global
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|Win32.Build.0 = ReleaseDLL|Win32
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|Win32.Build.0 = Debug|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|x64.ActiveCfg = Debug|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|x64.Build.0 = Debug|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.DebugDLL|Win32.ActiveCfg = DebugDLL|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.DebugDLL|Win32.Build.0 = DebugDLL|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.DebugDLL|x64.Build.0 = DebugDLL|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Release|Win32.ActiveCfg = Release|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Release|Win32.Build.0 = Release|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Release|x64.ActiveCfg = Release|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Release|x64.Build.0 = Release|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|Win32.ActiveCfg = ReleaseDLL|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|Win32.Build.0 = ReleaseDLL|Win32
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DF0E4003-C938-4CE6-A06A-F7741512B46C} = {16CED89F-4922-466B-ACF0-AC206850DCA1}
 	EndGlobalSection
 EndGlobal
