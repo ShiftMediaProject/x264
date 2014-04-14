@@ -67,14 +67,12 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
@@ -357,10 +355,10 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
       <ExceptionHandling>false</ExceptionHandling>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -414,10 +412,10 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
       <ExceptionHandling>false</ExceptionHandling>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -471,12 +469,11 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <OmitFramePointers>true</OmitFramePointers>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
-      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -530,7 +527,6 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <PreprocessorDefinitions>__ICL;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
       <ExceptionHandling>false</ExceptionHandling>
