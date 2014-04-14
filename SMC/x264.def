@@ -18,9 +18,9 @@ x264_encoder_delayed_frames
 x264_encoder_maximum_delayed_frames
 x264_encoder_intra_refresh
 x264_encoder_invalidate_reference
-x264_levels ;DATA
-x264_bit_depth ;DATA
-x264_chroma_format ;DATA
+x264_levels DATA
+x264_bit_depth DATA
+x264_chroma_format DATA
 ;;exports required for cli
 x264_frame_push
 x264_frame_shift
@@ -33,8 +33,6 @@ x264_threadpool_delete
 x264_threadpool_wait
 x264_threadpool_run
 x264_threading_init
-x264_bit_depth
-x264_levels
 x264_cpu_num_processors
 x264_vfprintf
 x264_mdate
