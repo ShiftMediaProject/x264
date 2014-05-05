@@ -304,7 +304,7 @@ uint32_t x264_cpu_detect( void )
             x264_log( NULL, X264_LOG_WARNING, "unable to determine cacheline size\n" );
     }
 
-#if BROKEN_STACK_ALIGNMENT
+#if STACK_ALIGNMENT < 16
     cpu |= X264_CPU_STACK_MOD4;
 #endif
 
@@ -338,6 +338,9 @@ uint32_t x264_cpu_detect( void )
 
 uint32_t x264_cpu_detect( void )
 {
+#ifdef __NO_FPRS__
+    return 0;
+#else
     static void (*oldsig)( int );
 
     oldsig = signal( SIGILL, sigill_handler );
@@ -357,6 +360,7 @@ uint32_t x264_cpu_detect( void )
     signal( SIGILL, oldsig );
 
     return X264_CPU_ALTIVEC;
+#endif
 }
 #endif
 

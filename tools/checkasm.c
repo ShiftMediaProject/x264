@@ -1451,6 +1451,37 @@ static int check_mc( int cpu_ref, int cpu_new )
                 }
         }
     }
+
+    if( mc_a.plane_copy_deinterleave_rgb != mc_ref.plane_copy_deinterleave_rgb )
+    {
+        set_func_name( "plane_copy_deinterleave_rgb" );
+        used_asm = 1;
+        for( int i = 0; i < sizeof(plane_specs)/sizeof(*plane_specs); i++ )
+        {
+            int w = (plane_specs[i].w + 2) >> 2;
+            int h = plane_specs[i].h;
+            intptr_t src_stride = plane_specs[i].src_stride;
+            intptr_t dst_stride = ALIGN( w, 16 );
+            intptr_t offv = dst_stride*h + 16;
+
+            for( int pw = 3; pw <= 4; pw++ )
+            {
+                memset( pbuf3, 0, 0x1000 );
+                memset( pbuf4, 0, 0x1000 );
+                call_c( mc_c.plane_copy_deinterleave_rgb, pbuf3, dst_stride, pbuf3+offv, dst_stride, pbuf3+2*offv, dst_stride, pbuf1, src_stride, pw, w, h );
+                call_a( mc_a.plane_copy_deinterleave_rgb, pbuf4, dst_stride, pbuf4+offv, dst_stride, pbuf4+2*offv, dst_stride, pbuf1, src_stride, pw, w, h );
+                for( int y = 0; y < h; y++ )
+                    if( memcmp( pbuf3+y*dst_stride+0*offv, pbuf4+y*dst_stride+0*offv, w ) ||
+                        memcmp( pbuf3+y*dst_stride+1*offv, pbuf4+y*dst_stride+1*offv, w ) ||
+                        memcmp( pbuf3+y*dst_stride+2*offv, pbuf4+y*dst_stride+2*offv, w ) )
+                    {
+                        ok = 0;
+                        fprintf( stderr, "plane_copy_deinterleave_rgb FAILED: w=%d h=%d stride=%d pw=%d\n", w, h, (int)src_stride, pw );
+                        break;
+                    }
+            }
+        }
+    }
     report( "plane_copy :" );
 
     if( mc_a.plane_copy_deinterleave_v210 != mc_ref.plane_copy_deinterleave_v210 )
@@ -1567,16 +1598,17 @@ static int check_mc( int cpu_ref, int cpu_new )
     INTEGRAL_INIT( integral_init8v, 9, sum, stride );
     report( "integral init :" );
 
+    ok = 1; used_asm = 0;
     if( mc_a.mbtree_propagate_cost != mc_ref.mbtree_propagate_cost )
     {
-        ok = 1; used_asm = 1;
+        used_asm = 1;
         x264_emms();
         for( int i = 0; i < 10; i++ )
         {
-            float fps_factor = (rand()&65535) / 256.;
-            set_func_name( "mbtree_propagate" );
-            int *dsta = (int*)buf3;
-            int *dstc = dsta+400;
+            float fps_factor = (rand()&65535) / 65535.0f;
+            set_func_name( "mbtree_propagate_cost" );
+            int16_t *dsta = (int16_t*)buf3;
+            int16_t *dstc = dsta+400;
             uint16_t *prop = (uint16_t*)buf1;
             uint16_t *intra = (uint16_t*)buf4;
             uint16_t *inter = intra+128;
@@ -1598,11 +1630,59 @@ static int check_mc( int cpu_ref, int cpu_new )
             {
                 ok &= abs( dstc[j]-dsta[j] ) <= 1 || fabs( (double)dstc[j]/dsta[j]-1 ) < 1e-4;
                 if( !ok )
-                    fprintf( stderr, "mbtree_propagate FAILED: %f !~= %f\n", (double)dstc[j], (double)dsta[j] );
+                    fprintf( stderr, "mbtree_propagate_cost FAILED: %f !~= %f\n", (double)dstc[j], (double)dsta[j] );
             }
         }
-        report( "mbtree propagate :" );
     }
+
+    if( mc_a.mbtree_propagate_list != mc_ref.mbtree_propagate_list )
+    {
+        used_asm = 1;
+        for( int i = 0; i < 8; i++ )
+        {
+            set_func_name( "mbtree_propagate_list" );
+            x264_t h;
+            int height = 4;
+            int width = 128;
+            int size = width*height;
+            h.mb.i_mb_stride = width;
+            h.mb.i_mb_width = width;
+            h.mb.i_mb_height = height;
+
+            uint16_t *ref_costsc = (uint16_t*)buf3;
+            uint16_t *ref_costsa = (uint16_t*)buf4;
+            int16_t (*mvs)[2] = (int16_t(*)[2])(ref_costsc + size);
+            int16_t *propagate_amount = (int16_t*)(mvs + width);
+            uint16_t *lowres_costs = (uint16_t*)(propagate_amount + width);
+            h.scratch_buffer2 = (uint8_t*)(ref_costsa + size);
+            int bipred_weight = (rand()%63)+1;
+            int list = i&1;
+            for( int j = 0; j < size; j++ )
+                ref_costsc[j] = ref_costsa[j] = rand()&32767;
+            for( int j = 0; j < width; j++ )
+            {
+                static const uint8_t list_dist[2][8] = {{0,1,1,1,1,1,1,1},{1,1,3,3,3,3,3,2}};
+                for( int k = 0; k < 2; k++ )
+                    mvs[j][k] = (rand()&127) - 64;
+                propagate_amount[j] = rand()&32767;
+                lowres_costs[j] = list_dist[list][rand()&7] << LOWRES_COST_SHIFT;
+            }
+
+            call_c1( mc_c.mbtree_propagate_list, &h, ref_costsc, mvs, propagate_amount, lowres_costs, bipred_weight, 0, width, list );
+            call_a1( mc_a.mbtree_propagate_list, &h, ref_costsa, mvs, propagate_amount, lowres_costs, bipred_weight, 0, width, list );
+
+            for( int j = 0; j < size && ok; j++ )
+            {
+                ok &= abs(ref_costsa[j] - ref_costsc[j]) <= 1;
+                if( !ok )
+                    fprintf( stderr, "mbtree_propagate_list FAILED at %d: %d !~= %d\n", j, ref_costsc[j], ref_costsa[j] );
+            }
+
+            call_c2( mc_c.mbtree_propagate_list, &h, ref_costsc, mvs, propagate_amount, lowres_costs, bipred_weight, 0, width, list );
+            call_a2( mc_a.mbtree_propagate_list, &h, ref_costsa, mvs, propagate_amount, lowres_costs, bipred_weight, 0, width, list );
+        }
+    }
+    report( "mbtree :" );
 
     if( mc_a.memcpy_aligned != mc_ref.memcpy_aligned )
     {
@@ -2530,7 +2610,7 @@ static int add_flags( int *cpu_ref, int *cpu_new, int flags, const char *name )
 {
     *cpu_ref = *cpu_new;
     *cpu_new |= flags;
-#if BROKEN_STACK_ALIGNMENT
+#if STACK_ALIGNMENT < 16
     *cpu_new |= X264_CPU_STACK_MOD4;
 #endif
     if( *cpu_new & X264_CPU_SSE2_IS_FAST )
