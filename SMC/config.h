@@ -1,6 +1,4 @@
-#define BROKEN_STACK_ALIGNMENT 1
 #define HAVE_MMX 1
-#define HAVE_32B_STACK_ALIGNMENT 1
 #if defined(_M_X64)
 #   define ARCH_X86_64 1
 #   define ARCH_X86_32 0
@@ -11,6 +9,7 @@
 #   define ARCH_X86 1
 #endif
 #define SYS_WINDOWS 1
+#define STACK_ALIGNMENT 4
 #define HAVE_WIN32THREAD 1
 #define HAVE_THREAD 1
 #define HAVE_LOG2F 1
