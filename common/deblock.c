@@ -5,7 +5,7 @@
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
- *          Jason Garrett-Glaser <darkshikari@gmail.com>
+ *          Fiona Glaser <fiona@x264.com>
  *          Henrik Gramner <henrik@gramner.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -607,9 +607,7 @@ void x264_macroblock_deblock( x264_t *h )
     int qp = h->mb.i_qp;
     int qpc = h->mb.i_chroma_qp;
     if( (h->mb.i_partition == D_16x16 && !h->mb.i_cbp_luma && !intra_cur) || qp <= qp_thresh )
-    {
         return;
-    }
 
     uint8_t (*bs)[8][4] = h->mb.cache.deblock_strength;
     if( intra_cur )

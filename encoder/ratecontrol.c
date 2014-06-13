@@ -6,7 +6,7 @@
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Michael Niedermayer <michaelni@gmx.at>
  *          Gabriel Bouvigne <gabriel.bouvigne@joost.com>
- *          Jason Garrett-Glaser <darkshikari@gmail.com>
+ *          Fiona Glaser <fiona@x264.com>
  *          Måns Rullgård <mru@mru.ath.cx>
  *
  * This program is free software; you can redistribute it and/or modify

@@ -3,7 +3,7 @@
  *****************************************************************************
  * Copyright (C) 2008-2014 x264 project
  *
- * Authors: Jason Garrett-Glaser <darkshikari@gmail.com>
+ * Authors: Fiona Glaser <fiona@x264.com>
  *          Loren Merritt <lorenm@u.washington.edu>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -121,7 +121,6 @@ static ALWAYS_INLINE uint16_t x264_cabac_mvd_sum_mmx2(uint8_t *mvdleft, uint8_t 
     return amvd;
 }
 
-#if !( defined(__INTEL_COMPILER) && defined(_DEBUG) && defined(_M_IX86) )
 #define x264_predictor_clip x264_predictor_clip_mmx2
 static int ALWAYS_INLINE x264_predictor_clip_mmx2( int16_t (*dst)[2], int16_t (*mvc)[2], int i_mvc, int16_t mv_limit[2][2], uint32_t pmv )
 {
@@ -249,7 +248,6 @@ static int ALWAYS_INLINE x264_predictor_roundclip_mmx2( int16_t (*dst)[2], int16
     );
     return i;
 }
-#endif
 
 #endif
 

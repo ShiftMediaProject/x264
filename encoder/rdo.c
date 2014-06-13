@@ -4,7 +4,7 @@
  * Copyright (C) 2005-2014 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
- *          Jason Garrett-Glaser <darkshikari@gmail.com>
+ *          Fiona Glaser <fiona@x264.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -694,6 +694,7 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
         dct[0] = trellis_dc_shortcut( orig_coefs[0], quant_coefs[0], unquant_mf[0], coef_weight2[0], lambda2, cabac_state, cost_sig );
         return !!dct[0];
     }
+#endif
 
 #if HAVE_MMX && ARCH_X86_64
 #define TRELLIS_ARGS unquant_mf, zigzag, lambda2, last_nnz, orig_coefs, quant_coefs, dct,\
@@ -711,9 +712,7 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
     else if( num_coefs == 8 && dc )
         return h->quantf.trellis_cabac_chroma_422_dc( TRELLIS_ARGS );
     else if( dc )
-    {
-        return h->quantf.trellis_cabac_dc( TRELLIS_ARGS, num_coefs - 1 );
-    }
+        return h->quantf.trellis_cabac_dc( TRELLIS_ARGS, num_coefs-1 );
 #endif
 
     // (# of coefs) * (# of ctx) * (# of levels tried) = 1024

@@ -52,9 +52,7 @@ static int init( hnd_t *handle, cli_vid_filter_t *filter, video_info_t *info, x2
 {
     /* if the input is not vfr, we don't do anything */
     if( !info->vfr )
-    {
         return 0;
-    }
     fix_vfr_pts_hnd_t *h = calloc( 1, sizeof(fix_vfr_pts_hnd_t) );
     if( !h )
         return -1;

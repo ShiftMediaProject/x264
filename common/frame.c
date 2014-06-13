@@ -5,7 +5,7 @@
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
- *          Jason Garrett-Glaser <darkshikari@gmail.com>
+ *          Fiona Glaser <fiona@x264.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -550,9 +550,7 @@ void x264_frame_expand_border( x264_t *h, x264_frame_t *frame, int mb_y )
         int padv = PADV >> v_shift;
         // buffer: 2 chroma, 3 luma (rounded to 4) because deblocking goes beyond the top of the mb
         if( b_end && !b_start )
-        {
             height += 4 >> (v_shift + SLICE_MBAFF);
-        }
         pixel *pix;
         int starty = 16*mb_y - 4*!b_start;
         if( SLICE_MBAFF )

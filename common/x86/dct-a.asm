@@ -7,7 +7,7 @@
 ;*          Loren Merritt <lorenm@u.washington.edu>
 ;*          Laurent Aimar <fenrir@via.ecp.fr>
 ;*          Min Chen <chenm001.163.com>
-;*          Jason Garrett-Glaser <darkshikari@gmail.com>
+;*          Fiona Glaser <fiona@x264.com>
 ;*
 ;* This program is free software; you can redistribute it and/or modify
 ;* it under the terms of the GNU General Public License as published by

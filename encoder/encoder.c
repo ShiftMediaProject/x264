@@ -5,7 +5,7 @@
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
- *          Jason Garrett-Glaser <darkshikari@gmail.com>
+ *          Fiona Glaser <fiona@x264.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1866,9 +1866,7 @@ static int x264_check_encapsulated_buffer( x264_t *h, x264_t *h0, int start,
         if( !buf )
             return -1;
         if( previous_nal_size )
-        {
             memcpy( buf, h0->nal_buffer, previous_nal_size );
-        }
 
         intptr_t delta = buf - h0->nal_buffer;
         for( int i = 0; i < start; i++ )
@@ -1905,9 +1903,7 @@ static int x264_encoder_encapsulate_nals( x264_t *h, int start )
     for( int i = start; i < h->out.i_nal; i++ )
         necessary_size += h->out.nal[i].i_padding;
     if( x264_check_encapsulated_buffer( h, h0, start, previous_nal_size, necessary_size ) )
-    {
         return -1;
-    }
 
     uint8_t *nal_buffer = h0->nal_buffer + previous_nal_size;
 
@@ -2722,9 +2718,7 @@ reencode:
         {
             /* Count the skip run, just in case. */
             if( !h->param.b_cabac )
-            {
                 total_bits += bs_size_ue_big( i_skip );
-            }
             /* Check for escape bytes. */
             uint8_t *end = h->param.b_cabac ? h->cabac.p : h->out.bs.p;
             for( ; last_emu_check < end - 2; last_emu_check++ )

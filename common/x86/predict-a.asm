@@ -5,7 +5,7 @@
 ;*
 ;* Authors: Loren Merritt <lorenm@u.washington.edu>
 ;*          Holger Lubitz <holger@lubitz.org>
-;*          Jason Garrett-Glaser <darkshikari@gmail.com>
+;*          Fiona Glaser <fiona@x264.com>
 ;*          Henrik Gramner <henrik@gramner.com>
 ;*
 ;* This program is free software; you can redistribute it and/or modify
