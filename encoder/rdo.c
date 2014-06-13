@@ -694,7 +694,6 @@ int quant_trellis_cabac( x264_t *h, dctcoef *dct,
         dct[0] = trellis_dc_shortcut( orig_coefs[0], quant_coefs[0], unquant_mf[0], coef_weight2[0], lambda2, cabac_state, cost_sig );
         return !!dct[0];
     }
-#endif
 
 #if HAVE_MMX && ARCH_X86_64
 #define TRELLIS_ARGS unquant_mf, zigzag, lambda2, last_nnz, orig_coefs, quant_coefs, dct,\
