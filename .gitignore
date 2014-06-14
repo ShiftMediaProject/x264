@@ -51,13 +51,13 @@ x264_lookahead.clbin
 *.obj
 *.pch
 *.pdb
-.builds
 *.pidb
 *.tlog
 *.manifest
 *.sdf
 *.suo
 *.user
+*.opensdf
 
 #Ensure files required by SMC msvc builds are included
 !SMC/*.h
