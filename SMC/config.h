@@ -15,6 +15,7 @@
 #define HAVE_LOG2F 1
 #define HAVE_AVS 1
 #define USE_AVXSYNTH 0
+#define HAVE_VECTOREXT 1
 #define fseek _fseeki64
 #define ftell _ftelli64
 #define HAVE_GPL 1
@@ -28,12 +29,9 @@
 #define HAVE_NEON 0
 #define HAVE_BEOSTHREAD 0
 #define HAVE_POSIXTHREAD 0
-#define HAVE_VISUALIZE 0
 #define HAVE_SWSCALE 0
 #define HAVE_LAVF 0
 #define HAVE_FFMS 0
 #define HAVE_GPAC 0
-#define HAVE_GF_MALLOC 0
-#define HAVE_VECTOREXT 0
 #define HAVE_CPU_COUNT 0
 #define HAVE_THP 0
