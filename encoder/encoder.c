@@ -818,6 +818,8 @@ static int x264_validate_parameters( x264_t *h, int b_open )
         /* 8x8dct is not useful without RD in CAVLC lossless */
         if( !h->param.b_cabac && h->param.analyse.i_subpel_refine < 6 )
             h->param.analyse.b_transform_8x8 = 0;
+        h->param.analyse.inter &= ~X264_ANALYSE_I8x8;
+        h->param.analyse.intra &= ~X264_ANALYSE_I8x8;
     }
     if( h->param.rc.i_rc_method == X264_RC_CQP )
     {
@@ -1403,7 +1405,11 @@ x264_t *x264_encoder_open( x264_param_t *param )
     /* Init x264_t */
     h->i_frame = -1;
     h->i_frame_num = 0;
-    h->i_idr_pic_id = 0;
+
+    if( h->param.i_avcintra_class )
+        h->i_idr_pic_id = 5;
+    else
+        h->i_idr_pic_id = 0;
 
     if( (uint64_t)h->param.i_timebase_den * 2 > UINT32_MAX )
     {
@@ -2154,6 +2160,31 @@ static inline void x264_reference_build_list( x264_t *h, int i_poc )
             h->fref[1][h->i_ref[1]++] = h->frames.reference[i];
     }
 
+    if( h->sh.i_mmco_remove_from_end )
+    {
+        /* Order ref0 for MMCO remove */
+        do
+        {
+            b_ok = 1;
+            for( int i = 0; i < h->i_ref[0] - 1; i++ )
+            {
+                if( h->fref[0][i]->i_frame < h->fref[0][i+1]->i_frame )
+                {
+                    XCHG( x264_frame_t*, h->fref[0][i], h->fref[0][i+1] );
+                    b_ok = 0;
+                    break;
+                }
+            }
+        } while( !b_ok );
+
+        for( int i = h->i_ref[0]-1; i >= h->i_ref[0] - h->sh.i_mmco_remove_from_end; i-- )
+        {
+            int diff = h->i_frame_num - h->fref[0][i]->i_frame_num;
+            h->sh.mmco[h->sh.i_mmco_command_count].i_poc = h->fref[0][i]->i_poc;
+            h->sh.mmco[h->sh.i_mmco_command_count++].i_difference_of_pic_nums = diff;
+        }
+    }
+
     /* Order reference lists by distance from the current frame. */
     for( int list = 0; list < 2; list++ )
     {
@@ -2175,14 +2206,6 @@ static inline void x264_reference_build_list( x264_t *h, int i_poc )
             }
         } while( !b_ok );
     }
-
-    if( h->sh.i_mmco_remove_from_end )
-        for( int i = h->i_ref[0]-1; i >= h->i_ref[0] - h->sh.i_mmco_remove_from_end; i-- )
-        {
-            int diff = h->i_frame_num - h->fref[0][i]->i_frame_num;
-            h->sh.mmco[h->sh.i_mmco_command_count].i_poc = h->fref[0][i]->i_poc;
-            h->sh.mmco[h->sh.i_mmco_command_count++].i_difference_of_pic_nums = diff;
-        }
 
     x264_reference_check_reorder( h );
 
@@ -2438,7 +2461,24 @@ static inline void x264_slice_init( x264_t *h, int i_nal_type, int i_global_qp )
         x264_slice_header_init( h, &h->sh, h->sps, h->pps, h->i_idr_pic_id, h->i_frame_num, i_global_qp );
 
         /* alternate id */
-        h->i_idr_pic_id ^= 1;
+        if( h->param.i_avcintra_class )
+        {
+            switch( h->i_idr_pic_id )
+            {
+                case 5:
+                    h->i_idr_pic_id = 3;
+                    break;
+                case 3:
+                    h->i_idr_pic_id = 4;
+                    break;
+                case 4:
+                default:
+                    h->i_idr_pic_id = 5;
+                    break;
+            }
+        }
+        else
+            h->i_idr_pic_id ^= 1;
     }
     else
     {
@@ -3539,15 +3579,15 @@ int     x264_encoder_encode( x264_t *h,
                 return -1;
             overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
         }
+    }
 
-        if( h->param.i_frame_packing >= 0 )
-        {
-            x264_nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
-            x264_sei_frame_packing_write( h, &h->out.bs );
-            if( x264_nal_end( h ) )
-                return -1;
-            overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
-        }
+    if( h->param.i_frame_packing >= 0 && (h->fenc->b_keyframe || h->param.i_frame_packing == 5) )
+    {
+        x264_nal_start( h, NAL_SEI, NAL_PRIORITY_DISPOSABLE );
+        x264_sei_frame_packing_write( h, &h->out.bs );
+        if( x264_nal_end( h ) )
+            return -1;
+        overhead += h->out.nal[h->out.i_nal-1].i_payload + SEI_OVERHEAD;
     }
 
     /* generate sei pic timing */

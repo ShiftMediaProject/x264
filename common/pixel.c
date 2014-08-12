@@ -593,8 +593,8 @@ INTRA_MBCMP(satd,  8x16, dc, h,  v, c, _xop, _mmx2 )
 #endif
 #endif
 #if !HIGH_BIT_DEPTH && HAVE_ARMV6
-INTRA_MBCMP( sad,  4x4,   v, h, dc,  , _neon, _c )
-INTRA_MBCMP(satd,  4x4,   v, h, dc,  , _neon, _c )
+INTRA_MBCMP( sad,  4x4,   v, h, dc,  , _neon, _armv6 )
+INTRA_MBCMP(satd,  4x4,   v, h, dc,  , _neon, _armv6 )
 INTRA_MBCMP( sad,  8x8,  dc, h,  v, c, _neon, _neon )
 INTRA_MBCMP(satd,  8x8,  dc, h,  v, c, _neon, _neon )
 INTRA_MBCMP( sad,  8x16, dc, h,  v, c, _neon, _c )
@@ -1021,8 +1021,16 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
     }
     if( cpu&X264_CPU_XOP )
     {
+        INIT5( sad_x3, _xop );
+        INIT5( sad_x4, _xop );
+        pixf->ssd_nv12_core    = x264_pixel_ssd_nv12_core_xop;
+        pixf->var[PIXEL_16x16] = x264_pixel_var_16x16_xop;
+        pixf->var[PIXEL_8x8]   = x264_pixel_var_8x8_xop;
         pixf->vsad = x264_pixel_vsad_xop;
         pixf->asd8 = x264_pixel_asd8_xop;
+#if ARCH_X86_64
+        pixf->sa8d_satd[PIXEL_16x16] = x264_pixel_sa8d_satd_16x16_xop;
+#endif
     }
     if( cpu&X264_CPU_AVX2 )
     {
@@ -1308,6 +1316,7 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         pixf->sa8d[PIXEL_16x16]= x264_pixel_sa8d_16x16_xop;
         pixf->sa8d[PIXEL_8x8]  = x264_pixel_sa8d_8x8_xop;
         pixf->intra_satd_x3_8x16c = x264_intra_satd_x3_8x16c_xop;
+        pixf->ssd_nv12_core    = x264_pixel_ssd_nv12_core_xop;
         pixf->var[PIXEL_16x16] = x264_pixel_var_16x16_xop;
         pixf->var[PIXEL_8x16]  = x264_pixel_var_8x16_xop;
         pixf->var[PIXEL_8x8]   = x264_pixel_var_8x8_xop;
