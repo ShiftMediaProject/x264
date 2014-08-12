@@ -233,11 +233,11 @@
     <ClInclude Include="..\encoder\analyse.h">
       <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
-    <ClInclude Include="oclobj.h">
-      <Filter>Header Files\x264\common</Filter>
-    </ClInclude>
     <ClInclude Include="..\x264.h">
       <Filter>Header Files\x264</Filter>
+    </ClInclude>
+    <ClInclude Include="common\oclobj.h">
+      <Filter>Header Files\x264\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

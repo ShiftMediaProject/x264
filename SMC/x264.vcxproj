@@ -833,8 +833,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     <ClInclude Include="..\encoder\ratecontrol.h" />
     <ClInclude Include="..\encoder\set.h" />
     <ClInclude Include="..\x264.h" />
+    <ClInclude Include="common\oclobj.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="oclobj.h" />
     <ClInclude Include="x264_config.h" />
   </ItemGroup>
   <ItemGroup>
