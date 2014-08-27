@@ -137,7 +137,7 @@
     <ClCompile Include="..\input\thread.c">
       <Filter>Source Files\input</Filter>
     </ClCompile>
-    <ClCompile Include="getopt\getopt.c">
+    <ClCompile Include="..\extras\getopt.c">
       <Filter>Source Files\getopt</Filter>
     </ClCompile>
   </ItemGroup>
