@@ -38,9 +38,6 @@
 #   include "arm/pixel.h"
 #   include "arm/predict.h"
 #endif
-#if ARCH_UltraSPARC
-#   include "sparc/pixel.h"
-#endif
 
 
 /****************************************************************************
@@ -200,7 +197,7 @@ PIXEL_VAR_C( x264_pixel_var_8x8,    8,  8 )
 #define PIXEL_VAR2_C( name, w, h, shift ) \
 static int name( pixel *pix1, intptr_t i_stride1, pixel *pix2, intptr_t i_stride2, int *ssd ) \
 { \
-    uint32_t var = 0, sum = 0, sqr = 0; \
+    int var = 0, sum = 0, sqr = 0; \
     for( int y = 0; y < h; y++ ) \
     { \
         for( int x = 0; x < w; x++ ) \
@@ -212,8 +209,7 @@ static int name( pixel *pix1, intptr_t i_stride1, pixel *pix2, intptr_t i_stride
         pix1 += i_stride1; \
         pix2 += i_stride2; \
     } \
-    sum = abs(sum); \
-    var = sqr - ((uint64_t)sum * sum >> shift); \
+    var = sqr - ((int64_t)sum * sum >> shift); \
     *ssd = sqr; \
     return var; \
 }
@@ -453,15 +449,6 @@ SAD_X( 8x8 )
 SAD_X( 8x4 )
 SAD_X( 4x8 )
 SAD_X( 4x4 )
-
-#if !HIGH_BIT_DEPTH
-#if ARCH_UltraSPARC
-SAD_X( 16x16_vis )
-SAD_X( 16x8_vis )
-SAD_X( 8x16_vis )
-SAD_X( 8x8_vis )
-#endif
-#endif // !HIGH_BIT_DEPTH
 
 /****************************************************************************
  * pixel_satd_x4
@@ -1410,13 +1397,6 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         x264_pixel_altivec_init( pixf );
     }
 #endif
-#if !HIGH_BIT_DEPTH
-#if ARCH_UltraSPARC
-    INIT4( sad, _vis );
-    INIT4( sad_x3, _vis );
-    INIT4( sad_x4, _vis );
-#endif
-#endif // !HIGH_BIT_DEPTH
 
     pixf->ads[PIXEL_8x16] =
     pixf->ads[PIXEL_8x4] =
