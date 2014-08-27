@@ -323,8 +323,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libx264d.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -370,8 +370,8 @@ type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downs
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libx264d.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -554,8 +554,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libx264.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -615,8 +615,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>$(OutDir)\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libx264.dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir)\bin\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>

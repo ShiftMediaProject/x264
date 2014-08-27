@@ -35,3 +35,4 @@
 #define HAVE_GPAC 0
 #define HAVE_CPU_COUNT 0
 #define HAVE_THP 0
+#define HAVE_LSMASH 0
