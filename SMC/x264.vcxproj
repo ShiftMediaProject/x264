@@ -50,64 +50,64 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseLTO|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>Intel C++ Compiler XE 14.0</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -229,10 +229,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -274,10 +270,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -326,10 +318,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -371,10 +359,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -422,10 +406,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -480,10 +460,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -538,10 +514,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -596,10 +568,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -655,10 +623,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -713,10 +677,6 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
-)
-if not exist .\common\oclobj.h (
-mkdir .\common
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
