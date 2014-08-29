@@ -15,7 +15,7 @@
 #define HAVE_LOG2F 1
 #define HAVE_AVS 1
 #define USE_AVXSYNTH 0
-#define HAVE_VECTOREXT 1
+#define HAVE_VECTOREXT 0
 #define fseek _fseeki64
 #define ftell _ftelli64
 #define HAVE_GPL 1
@@ -36,3 +36,8 @@
 #define HAVE_CPU_COUNT 0
 #define HAVE_THP 0
 #define HAVE_LSMASH 0
+#if defined(__INTEL_COMPILER)
+#   define HAVE_X86_INLINE_ASM 1
+#else
+#   define HAVE_X86_INLINE_ASM 0
+#endif
