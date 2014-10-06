@@ -145,6 +145,7 @@
       <AdditionalLibraryDirectories>$(OutDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
@@ -256,6 +257,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <AdditionalLibraryDirectories>$(OutDir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <Lib>
       <OutputFile>$(OutDir)\lib\$(TargetName)$(TargetExt)</OutputFile>
