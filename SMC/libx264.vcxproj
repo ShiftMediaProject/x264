@@ -44,7 +44,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{20179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
-    <RootNamespace>x264</RootNamespace>
+    <RootNamespace>libx264</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -299,7 +299,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>x264.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
@@ -341,7 +341,7 @@ del ..\x264_config.h
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>x264.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -612,7 +612,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>x264.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <YASM>
@@ -667,7 +667,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
-      <ModuleDefinitionFile>x264.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -806,7 +806,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     <None Include="..\common\opencl\motionsearch.cl" />
     <None Include="..\common\opencl\subpel.cl" />
     <None Include="..\common\opencl\weightp.cl" />
-    <None Include="x264.def" />
+    <None Include="libx264.def" />
     <YASM Include="..\common\x86\bitstream-a.asm">
       <FileType>Document</FileType>
     </YASM>
