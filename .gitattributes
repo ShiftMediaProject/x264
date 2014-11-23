@@ -1,7 +1,3 @@
-###############################################################################
-# Set default behavior to automatically normalize line endings.
-###############################################################################
-#* text=auto
-SMC/*.sln       text=auto
-SMC/*.vcxproj   text=auto
-SMC/*.vcproj    text=auto
+*.sln              text=auto
+*.vcxproj          text=auto
+*.vcxproj.filters  text=auto
