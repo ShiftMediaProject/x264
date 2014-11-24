@@ -229,6 +229,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -269,6 +272,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -318,6 +324,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -358,6 +367,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -405,6 +417,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -459,6 +474,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -512,6 +530,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -565,6 +586,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -621,6 +645,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -674,6 +701,9 @@ del ..\config.h
 )
 if exist ..\x264_config.h (
 del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
