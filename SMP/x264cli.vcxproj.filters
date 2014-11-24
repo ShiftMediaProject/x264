@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9e5c76db-4bc7-473f-a9bf-902148ebfa1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{59069170-d8ce-49b4-9f0a-058a7c566c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\input">
+      <UniqueIdentifier>{071f05c3-3648-4d67-b1ec-8c10479c622d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\output">
+      <UniqueIdentifier>{e1fada98-f79c-40e0-ab0b-e7332ae74caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\filters">
+      <UniqueIdentifier>{1840bcfc-14c9-4938-ab54-1e862efac216}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264">
+      <UniqueIdentifier>{b5ea5955-ed04-415c-a42f-258a6b0cfafa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\input">
+      <UniqueIdentifier>{10963aa1-1228-4cc9-a2ac-b9aae86b78a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\output">
+      <UniqueIdentifier>{6c943b4c-5b1d-4aaa-9d51-29292ef70ca0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\filters">
+      <UniqueIdentifier>{2b3eb062-bbfe-48ec-886b-c0d04fc04fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\filters\video">
+      <UniqueIdentifier>{3c651c4e-3143-4d9c-9129-3c0139a6532d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x264\filters\video">
+      <UniqueIdentifier>{2662d55d-ed21-40f5-87de-d46c8234e17c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\getopt">
+      <UniqueIdentifier>{f55a6350-e09e-48f7-aa69-86df84ae21ea}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="x264_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\x264.h">
+      <Filter>Header Files\x264</Filter>
+    </ClInclude>
+    <ClInclude Include="..\input\input.h">
+      <Filter>Header Files\x264\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\output\flv_bytestream.h">
+      <Filter>Header Files\x264\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\output\matroska_ebml.h">
+      <Filter>Header Files\x264\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\output\output.h">
+      <Filter>Header Files\x264\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filters\filters.h">
+      <Filter>Header Files\x264\filters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filters\video\internal.h">
+      <Filter>Header Files\x264\filters\video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filters\video\video.h">
+      <Filter>Header Files\x264\filters\video</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\x264.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\timecode.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\y4m.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\input.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\raw.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\output\raw.c">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\output\flv.c">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\output\flv_bytestream.c">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\output\matroska.c">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\output\matroska_ebml.c">
+      <Filter>Source Files\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\filters.c">
+      <Filter>Source Files\filters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\select_every.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\source.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\video.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\cache.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\crop.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\depth.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\fix_vfr_pts.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\internal.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filters\video\resize.c">
+      <Filter>Source Files\filters\video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\avs.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\input\thread.c">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\extras\getopt.c">
+      <Filter>Source Files\getopt</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
