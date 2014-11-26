@@ -47,21 +47,3 @@ dataDec.txt
 log.dec
 common/oclobj.h
 x264_lookahead.clbin
-
-*.ilk
-*.meta
-*.obj
-*.pch
-*.pdb
-*.pidb
-*.tlog
-*.manifest
-*.sdf
-*.suo
-*.user
-*.opensdf
-
-#Ensure files required by SMC msvc builds are included
-!SMC/*.h
-!SMC/*.def
-!common/oclobj.h
