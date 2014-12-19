@@ -208,6 +208,8 @@
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)\lib\$(TargetName).pdb</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -253,6 +255,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(OutDir)\lib\$(TargetName).pdb</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -297,6 +301,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -306,6 +312,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -341,6 +348,8 @@ del ..\common\oclobj.h
       <ExceptionHandling>false</ExceptionHandling>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -349,6 +358,7 @@ del ..\common\oclobj.h
       <ImportLibrary>$(OutDir)\bin\$(TargetName).lib</ImportLibrary>
       <ProfileGuidedDatabase>$(OutDir)\bin\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -396,6 +406,7 @@ del ..\common\oclobj.h
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -453,6 +464,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -509,6 +521,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -565,6 +578,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -609,7 +623,6 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <UseProcessorExtensions>SSE3</UseProcessorExtensions>
       <C99Support>true</C99Support>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <DebugInformationFormat>None</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -623,6 +636,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -680,6 +694,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
       <WarningLevel>Level3</WarningLevel>
       <DisableSpecificWarnings>4996;4244;4267;4003;4018</DisableSpecificWarnings>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
