@@ -3,13 +3,14 @@
 #   define ARCH_X86_64 1
 #   define ARCH_X86_32 0
 #   define ARCH_X86 0
+#   define STACK_ALIGNMENT 16
 #else
 #   define ARCH_X86_64 0
 #   define ARCH_X86_32 1
 #   define ARCH_X86 1
+#   define STACK_ALIGNMENT 4
 #endif
 #define SYS_WINDOWS 1
-#define STACK_ALIGNMENT 4
 #define HAVE_WIN32THREAD 1
 #define HAVE_THREAD 1
 #define HAVE_LOG2F 1
