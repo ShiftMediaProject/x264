@@ -1,5 +1,5 @@
 /*****************************************************************************
- * mc-c.c: arm motion compensation
+ * mc-c.c: aarch64 motion compensation
  *****************************************************************************
  * Copyright (C) 2009-2014 x264 project
  *
@@ -26,8 +26,9 @@
 #include "common/common.h"
 #include "mc.h"
 
-void x264_prefetch_ref_arm( uint8_t *, intptr_t, int );
-void x264_prefetch_fenc_arm( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
+void x264_prefetch_ref_aarch64( uint8_t *, intptr_t, int );
+void x264_prefetch_fenc_420_aarch64( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
+void x264_prefetch_fenc_422_aarch64( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
 
 void *x264_memcpy_aligned_neon( void *dst, const void *src, size_t n );
 void x264_memzero_aligned_neon( void *dst, size_t n );
@@ -68,7 +69,7 @@ void x264_mc_weight_w16##func##_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, 
 void x264_mc_weight_w8##func##_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, const x264_weight_t *, int );\
 void x264_mc_weight_w4##func##_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, const x264_weight_t *, int );\
 \
-static weight_fn_t x264_mc##func##_wtab_neon[6] =\
+static void (* x264_mc##func##_wtab_neon[6])( uint8_t *, intptr_t, uint8_t *, intptr_t, const x264_weight_t *, int ) =\
 {\
     x264_mc_weight_w4##func##_neon,\
     x264_mc_weight_w4##func##_neon,\
@@ -86,14 +87,9 @@ MC_WEIGHT(_offsetsub)
 void x264_mc_copy_w4_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
 void x264_mc_copy_w8_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
 void x264_mc_copy_w16_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
-void x264_mc_copy_w16_aligned_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
 
 void x264_mc_chroma_neon( uint8_t *, uint8_t *, intptr_t, uint8_t *, intptr_t, int, int, int, int );
 void x264_frame_init_lowres_core_neon( uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, intptr_t, intptr_t, int, int );
-
-void x264_hpel_filter_v_neon( uint8_t *, uint8_t *, int16_t *, intptr_t, int );
-void x264_hpel_filter_c_neon( uint8_t *, int16_t *, int );
-void x264_hpel_filter_h_neon( uint8_t *, uint8_t *, int );
 
 #if !HIGH_BIT_DEPTH
 static void x264_weight_cache_neon( x264_t *h, x264_weight_t *w )
@@ -195,55 +191,36 @@ static uint8_t *get_ref_neon( uint8_t *dst,   intptr_t *i_dst_stride,
     }
 }
 
-static void hpel_filter_neon( uint8_t *dsth, uint8_t *dstv, uint8_t *dstc, uint8_t *src,
-                              intptr_t stride, int width, int height, int16_t *buf )
-{
-    intptr_t realign = (intptr_t)src & 15;
-    src -= realign;
-    dstv -= realign;
-    dstc -= realign;
-    dsth -= realign;
-    width += realign;
-    while( height-- )
-    {
-        x264_hpel_filter_v_neon( dstv, src, buf+8, stride, width );
-        x264_hpel_filter_c_neon( dstc, buf+8, width );
-        x264_hpel_filter_h_neon( dsth, src, width );
-        dsth += stride;
-        dstv += stride;
-        dstc += stride;
-        src  += stride;
-    }
-}
+void x264_hpel_filter_neon( uint8_t *dsth, uint8_t *dstv, uint8_t *dstc,
+                            uint8_t *src, intptr_t stride, int width,
+                            int height, int16_t *buf );
 #endif // !HIGH_BIT_DEPTH
 
-void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
+void x264_mc_init_aarch64( int cpu, x264_mc_functions_t *pf )
 {
-    if( !(cpu&X264_CPU_ARMV6) )
-        return;
-
 #if !HIGH_BIT_DEPTH
-    pf->prefetch_fenc_420 = x264_prefetch_fenc_arm;
-    pf->prefetch_fenc_422 = x264_prefetch_fenc_arm; /* FIXME */
-    pf->prefetch_ref  = x264_prefetch_ref_arm;
-#endif // !HIGH_BIT_DEPTH
+    if( cpu&X264_CPU_ARMV8 )
+    {
+        pf->prefetch_fenc_420 = x264_prefetch_fenc_420_aarch64;
+        pf->prefetch_fenc_422 = x264_prefetch_fenc_422_aarch64;
+        pf->prefetch_ref      = x264_prefetch_ref_aarch64;
+    }
 
     if( !(cpu&X264_CPU_NEON) )
         return;
 
-#if !HIGH_BIT_DEPTH
     pf->copy_16x16_unaligned = x264_mc_copy_w16_neon;
-    pf->copy[PIXEL_16x16] = x264_mc_copy_w16_aligned_neon;
-    pf->copy[PIXEL_8x8]   = x264_mc_copy_w8_neon;
-    pf->copy[PIXEL_4x4]   = x264_mc_copy_w4_neon;
+    pf->copy[PIXEL_16x16]    = x264_mc_copy_w16_neon;
+    pf->copy[PIXEL_8x8]      = x264_mc_copy_w8_neon;
+    pf->copy[PIXEL_4x4]      = x264_mc_copy_w4_neon;
 
-    pf->plane_copy_deinterleave = x264_plane_copy_deinterleave_neon;
+    pf->plane_copy_deinterleave     = x264_plane_copy_deinterleave_neon;
     pf->plane_copy_deinterleave_rgb = x264_plane_copy_deinterleave_rgb_neon;
-    pf->plane_copy_interleave = x264_plane_copy_interleave_neon;
+    pf->plane_copy_interleave       = x264_plane_copy_interleave_neon;
 
-    pf->store_interleave_chroma = x264_store_interleave_chroma_neon;
     pf->load_deinterleave_chroma_fdec = x264_load_deinterleave_chroma_fdec_neon;
     pf->load_deinterleave_chroma_fenc = x264_load_deinterleave_chroma_fenc_neon;
+    pf->store_interleave_chroma       = x264_store_interleave_chroma_neon;
 
     pf->avg[PIXEL_16x16] = x264_pixel_avg_16x16_neon;
     pf->avg[PIXEL_16x8]  = x264_pixel_avg_16x8_neon;
@@ -255,21 +232,15 @@ void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
     pf->avg[PIXEL_4x4]   = x264_pixel_avg_4x4_neon;
     pf->avg[PIXEL_4x2]   = x264_pixel_avg_4x2_neon;
 
-    pf->weight    = x264_mc_wtab_neon;
-    pf->offsetadd = x264_mc_offsetadd_wtab_neon;
-    pf->offsetsub = x264_mc_offsetsub_wtab_neon;
+    pf->weight       = x264_mc_wtab_neon;
+    pf->offsetadd    = x264_mc_offsetadd_wtab_neon;
+    pf->offsetsub    = x264_mc_offsetsub_wtab_neon;
     pf->weight_cache = x264_weight_cache_neon;
 
     pf->mc_chroma = x264_mc_chroma_neon;
     pf->mc_luma = mc_luma_neon;
     pf->get_ref = get_ref_neon;
-    pf->hpel_filter = hpel_filter_neon;
+    pf->hpel_filter = x264_hpel_filter_neon;
     pf->frame_init_lowres_core = x264_frame_init_lowres_core_neon;
 #endif // !HIGH_BIT_DEPTH
-
-// Apple's gcc stupidly cannot align stack variables, and ALIGNED_ARRAY can't work on structs
-#ifndef SYS_MACOSX
-    pf->memcpy_aligned  = x264_memcpy_aligned_neon;
-#endif
-    pf->memzero_aligned = x264_memzero_aligned_neon;
 }

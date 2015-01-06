@@ -292,14 +292,11 @@ cglobal quant_4x4x4, 3,3,8
     QUANT_4x4  0, 6
     QUANT_4x4 64, 7
     packssdw  m6, m7
-    packssdw  m5, m6
-    packssdw  m5, m5  ; AA BB CC DD
-    packsswb  m5, m5  ; A B C D
+    packssdw  m5, m6  ; AAAA BBBB CCCC DDDD
     pxor      m4, m4
-    pcmpeqb   m5, m4
-    pmovmskb eax, m5
-    not      eax
-    and      eax, 0xf
+    pcmpeqd   m5, m4
+    movmskps eax, m5
+    xor      eax, 0xf
     RET
 %endmacro
 
@@ -444,16 +441,11 @@ cglobal quant_4x4x4, 3,3,7
     QUANT_4x4 64, 5
     QUANT_4x4 96, 6
     packssdw  m5, m6
-    packssdw  m4, m5
-%if mmsize == 16
-    packssdw  m4, m4  ; AA BB CC DD
-%endif
-    packsswb  m4, m4  ; A B C D
+    packssdw  m4, m5  ; AAAA BBBB CCCC DDDD
     pxor      m3, m3
-    pcmpeqb   m4, m3
-    pmovmskb eax, m4
-    not      eax
-    and      eax, 0xf
+    pcmpeqd   m4, m3
+    movmskps eax, m4
+    xor      eax, 0xf
     RET
 %endmacro
 
@@ -461,10 +453,9 @@ INIT_MMX mmx2
 QUANT_DC quant_2x2_dc, 1
 %if ARCH_X86_64 == 0 ; not needed because sse2 is faster
 QUANT_DC quant_4x4_dc, 4
-INIT_MMX mmx
+INIT_MMX mmx2
 QUANT_AC quant_4x4, 4
 QUANT_AC quant_8x8, 16
-QUANT_4x4x4
 %endif
 
 INIT_XMM sse2

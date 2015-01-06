@@ -90,11 +90,13 @@ static inline uint32_t read_time(void)
 {
     uint32_t a = 0;
 #if HAVE_X86_INLINE_ASM
-    asm volatile( "rdtsc" :"=a"(a) ::"edx" );
+    asm volatile( "lfence \n"
+                  "rdtsc  \n"
+                  : "=a"(a) :: "edx", "memory" );
 #elif ARCH_PPC
-    asm volatile( "mftb %0" : "=r" (a) );
+    asm volatile( "mftb %0" : "=r"(a) :: "memory" );
 #elif ARCH_ARM     // ARMv7 only
-    asm volatile( "mrc p15, 0, %0, c9, c13, 0" : "=r"(a) );
+    asm volatile( "mrc p15, 0, %0, c9, c13, 0" : "=r"(a) :: "memory" );
 #endif
     return a;
 }
@@ -184,6 +186,9 @@ static void print_bench(void)
 #elif ARCH_ARM
                     b->cpu&X264_CPU_NEON ? "neon" :
                     b->cpu&X264_CPU_ARMV6 ? "armv6" :
+#elif ARCH_AARCH64
+                    b->cpu&X264_CPU_NEON ? "neon" :
+                    b->cpu&X264_CPU_ARMV8 ? "armv8" :
 #endif
                     "c",
 #if HAVE_MMX
@@ -1100,6 +1105,7 @@ static int check_dct( int cpu_ref, int cpu_new )
         TEST_ZIGZAG_SCAN( scan_8x8, level1, level2, dct8[0], 8 );
         TEST_ZIGZAG_SCAN( scan_4x4, level1, level2, dct1[0], 4 );
         TEST_ZIGZAG_SUB( sub_4x4, level1, level2, 16 );
+        TEST_ZIGZAG_SUB( sub_8x8, level1, level2, 64 );
         TEST_ZIGZAG_SUBAC( sub_4x4ac, level1, level2 );
         report( interlace ? "zigzag_field :" : "zigzag_frame :" );
     }
@@ -1490,7 +1496,7 @@ static int check_mc( int cpu_ref, int cpu_new )
     if( mc_a.plane_copy_deinterleave_v210 != mc_ref.plane_copy_deinterleave_v210 )
     {
         set_func_name( "plane_copy_deinterleave_v210" );
-        used_asm = 1;
+        ok = 1; used_asm = 1;
         for( int i = 0; i < sizeof(plane_specs)/sizeof(*plane_specs); i++ )
         {
             int w = (plane_specs[i].w + 1) >> 1;
@@ -1511,8 +1517,8 @@ static int check_mc( int cpu_ref, int cpu_new )
                     break;
                 }
         }
+        report( "v210 :" );
     }
-    report( "v210 :" );
 
     if( mc_a.hpel_filter != mc_ref.hpel_filter )
     {
@@ -2305,12 +2311,16 @@ static int check_intra( int cpu_ref, int cpu_new )
             {\
                 fprintf( stderr, #name "[%d] :  [FAILED]\n", dir );\
                 ok = 0;\
-                for( int k = -1; k < 16; k++ )\
-                    printf( "%2x ", edge[16+k] );\
-                printf( "\n" );\
+                if( ip_c.name == (void *)ip_c.predict_8x8 )\
+                {\
+                    for( int k = -1; k < 16; k++ )\
+                        printf( "%2x ", edge[16+k] );\
+                    printf( "\n" );\
+                }\
                 for( int j = 0; j < h; j++ )\
                 {\
-                    printf( "%2x ", edge[14-j] );\
+                    if( ip_c.name == (void *)ip_c.predict_8x8 )\
+                        printf( "%2x ", edge[14-j] );\
                     for( int k = 0; k < w; k++ )\
                         printf( "%2x ", pbuf4[48+k+j*FDEC_STRIDE] );\
                     printf( "\n" );\
@@ -2318,7 +2328,8 @@ static int check_intra( int cpu_ref, int cpu_new )
                 printf( "\n" );\
                 for( int j = 0; j < h; j++ )\
                 {\
-                    printf( "   " );\
+                    if( ip_c.name == (void *)ip_c.predict_8x8 )\
+                        printf( "   " );\
                     for( int k = 0; k < w; k++ )\
                         printf( "%2x ", pbuf3[48+k+j*FDEC_STRIDE] );\
                     printf( "\n" );\
@@ -2627,8 +2638,9 @@ static int check_all_flags( void )
 {
     int ret = 0;
     int cpu0 = 0, cpu1 = 0;
+    uint32_t cpu_detect = x264_cpu_detect();
 #if HAVE_MMX
-    if( x264_cpu_detect() & X264_CPU_MMX2 )
+    if( cpu_detect & X264_CPU_MMX2 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_MMX | X264_CPU_MMX2, "MMX" );
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_CACHELINE_64, "MMX Cache64" );
@@ -2637,7 +2649,7 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_CACHELINE_32, "MMX Cache32" );
         cpu1 &= ~X264_CPU_CACHELINE_32;
 #endif
-        if( x264_cpu_detect() & X264_CPU_LZCNT )
+        if( cpu_detect & X264_CPU_LZCNT )
         {
             ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "MMX_LZCNT" );
             cpu1 &= ~X264_CPU_LZCNT;
@@ -2645,9 +2657,9 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SLOW_CTZ, "MMX SlowCTZ" );
         cpu1 &= ~X264_CPU_SLOW_CTZ;
     }
-    if( x264_cpu_detect() & X264_CPU_SSE )
+    if( cpu_detect & X264_CPU_SSE )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE, "SSE" );
-    if( x264_cpu_detect() & X264_CPU_SSE2 )
+    if( cpu_detect & X264_CPU_SSE2 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE2 | X264_CPU_SSE2_IS_SLOW, "SSE2Slow" );
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE2_IS_FAST, "SSE2Fast" );
@@ -2658,17 +2670,17 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SLOW_CTZ, "SSE2 SlowCTZ" );
         cpu1 &= ~X264_CPU_SLOW_CTZ;
     }
-    if( x264_cpu_detect() & X264_CPU_LZCNT )
+    if( cpu_detect & X264_CPU_LZCNT )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "SSE_LZCNT" );
         cpu1 &= ~X264_CPU_LZCNT;
     }
-    if( x264_cpu_detect() & X264_CPU_SSE3 )
+    if( cpu_detect & X264_CPU_SSE3 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE3 | X264_CPU_CACHELINE_64, "SSE3" );
         cpu1 &= ~X264_CPU_CACHELINE_64;
     }
-    if( x264_cpu_detect() & X264_CPU_SSSE3 )
+    if( cpu_detect & X264_CPU_SSSE3 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSSE3, "SSSE3" );
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_CACHELINE_64, "SSSE3 Cache64" );
@@ -2682,54 +2694,59 @@ static int check_all_flags( void )
         cpu1 &= ~X264_CPU_CACHELINE_64;
         cpu1 &= ~X264_CPU_SLOW_ATOM;
     }
-    if( x264_cpu_detect() & X264_CPU_SSE4 )
+    if( cpu_detect & X264_CPU_SSE4 )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE4, "SSE4" );
-    if( x264_cpu_detect() & X264_CPU_AVX )
+    if( cpu_detect & X264_CPU_AVX )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_AVX, "AVX" );
-    if( x264_cpu_detect() & X264_CPU_XOP )
+    if( cpu_detect & X264_CPU_XOP )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_XOP, "XOP" );
-    if( x264_cpu_detect() & X264_CPU_FMA4 )
+    if( cpu_detect & X264_CPU_FMA4 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA4, "FMA4" );
         cpu1 &= ~X264_CPU_FMA4;
     }
-    if( x264_cpu_detect() & X264_CPU_BMI1 )
+    if( cpu_detect & X264_CPU_BMI1 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_BMI1, "BMI1" );
         cpu1 &= ~X264_CPU_BMI1;
     }
-    if( x264_cpu_detect() & X264_CPU_AVX2 )
+    if( cpu_detect & X264_CPU_AVX2 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_AVX2, "AVX2" );
-        if( x264_cpu_detect() & X264_CPU_LZCNT )
+        if( cpu_detect & X264_CPU_LZCNT )
         {
             ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "AVX2_LZCNT" );
             cpu1 &= ~X264_CPU_LZCNT;
         }
     }
-    if( x264_cpu_detect() & X264_CPU_BMI2 )
+    if( cpu_detect & X264_CPU_BMI2 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_BMI1|X264_CPU_BMI2, "BMI2" );
         cpu1 &= ~(X264_CPU_BMI1|X264_CPU_BMI2);
     }
-    if( x264_cpu_detect() & X264_CPU_FMA3 )
+    if( cpu_detect & X264_CPU_FMA3 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA3, "FMA3" );
         cpu1 &= ~X264_CPU_FMA3;
     }
 #elif ARCH_PPC
-    if( x264_cpu_detect() & X264_CPU_ALTIVEC )
+    if( cpu_detect & X264_CPU_ALTIVEC )
     {
         fprintf( stderr, "x264: ALTIVEC against C\n" );
         ret = check_all_funcs( 0, X264_CPU_ALTIVEC );
     }
 #elif ARCH_ARM
-    if( x264_cpu_detect() & X264_CPU_ARMV6 )
+    if( cpu_detect & X264_CPU_ARMV6 )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_ARMV6, "ARMv6" );
-    if( x264_cpu_detect() & X264_CPU_NEON )
+    if( cpu_detect & X264_CPU_NEON )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_NEON, "NEON" );
-    if( x264_cpu_detect() & X264_CPU_FAST_NEON_MRC )
+    if( cpu_detect & X264_CPU_FAST_NEON_MRC )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_FAST_NEON_MRC, "Fast NEON MRC" );
+#elif ARCH_AARCH64
+    if( cpu_detect & X264_CPU_ARMV8 )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_ARMV8, "ARMv8" );
+    if( cpu_detect & X264_CPU_NEON )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_NEON, "NEON" );
 #endif
     return ret;
 }

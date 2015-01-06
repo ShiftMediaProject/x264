@@ -28,6 +28,16 @@
 
 .syntax unified
 
+#if   HAVE_NEON
+        .arch           armv7-a
+#elif HAVE_ARMV6T2
+        .arch           armv6t2
+#elif HAVE_ARMV6
+        .arch           armv6
+#endif
+
+.fpu neon
+
 #ifdef PREFIX
 #   define EXTERN_ASM _
 #else
@@ -40,6 +50,12 @@
 #   define ELF @
 #endif
 
+#if HAVE_AS_FUNC
+#   define FUNC
+#else
+#   define FUNC @
+#endif
+
 .macro require8, val=1
 ELF     .eabi_attribute 24, \val
 .endm
@@ -49,17 +65,22 @@ ELF     .eabi_attribute 25, \val
 .endm
 
 .macro function name, export=1
+    .macro endfunc
+ELF     .size   \name, . - \name
+FUNC    .endfunc
+        .purgem endfunc
+    .endm
         .align  2
 .if \export == 1
         .global EXTERN_ASM\name
 ELF     .hidden EXTERN_ASM\name
 ELF     .type   EXTERN_ASM\name, %function
-        .func   EXTERN_ASM\name
+FUNC    .func   EXTERN_ASM\name
 EXTERN_ASM\name:
 .else
 ELF     .hidden \name
 ELF     .type   \name, %function
-        .func   \name
+FUNC    .func   \name
 \name:
 .endif
 .endm

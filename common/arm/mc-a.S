@@ -27,7 +27,6 @@
 
 #include "asm.S"
 
-.fpu neon
 .text
 
 // note: prefetch stuff assumes 64-byte cacheline, true for the Cortex-A8
@@ -50,7 +49,7 @@ function x264_prefetch_ref_arm
     pld         [r3, r1, lsl #1]
     pld         [r3, r2]
     bx          lr
-.endfunc
+endfunc
 
 // void prefetch_fenc( uint8_t *pix_y,  intptr_t stride_y,
 //                     uint8_t *pix_uv, intptr_t stride_uv, int mb_x )
@@ -76,7 +75,7 @@ function x264_prefetch_fenc_arm
     pld         [ip]
     pld         [ip, r3]
     pop         {pc}
-.endfunc
+endfunc
 
 
 // void *x264_memcpy_aligned( void *dst, const void *src, size_t n )
@@ -85,7 +84,7 @@ function x264_memcpy_aligned_neon
     movrel      ip,  memcpy_table
     and         r3,  r3,  #0xc
     ldr         pc,  [ip, r3]
-.endfunc
+endfunc
 
 .macro MEMCPY_ALIGNED srcalign dstalign
 function memcpy_aligned_\dstalign\()_\srcalign\()_neon, export=0
@@ -127,7 +126,7 @@ function memcpy_aligned_\dstalign\()_\srcalign\()_neon, export=0
     vst1.64     {d0}, [r3,:64]!
 .endif
     bx          lr
-.endfunc
+endfunc
 .endm
 
 MEMCPY_ALIGNED 16, 16
@@ -156,7 +155,7 @@ memzero_loop:
 .endr
     bgt         memzero_loop
     bx          lr
-.endfunc
+endfunc
 
 
 // void pixel_avg( uint8_t *dst,  intptr_t dst_stride,
@@ -175,7 +174,7 @@ function x264_pixel_avg_\w\()x\h\()_neon
     cmp         ip,  #0
     bge         x264_pixel_avg_weight_w\w\()_add_add_neon
     b           x264_pixel_avg_weight_w\w\()_sub_add_neon     // weight < 0
-.endfunc
+endfunc
 .endm
 
 AVGH  4, 2
@@ -253,7 +252,7 @@ function x264_pixel_avg_weight_w4_\ext\()_neon, export=0
     vst1.32         {d1[0]}, [r0,:32], r1
     bgt             1b
     pop             {r4-r6,pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg_weight_w8_\ext\()_neon, export=0
     load_weights_\ext
@@ -277,7 +276,7 @@ function x264_pixel_avg_weight_w8_\ext\()_neon, export=0
     vst1.64         {d3}, [r0,:64], r1
     bgt             1b
     pop             {r4-r6,pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg_weight_w16_\ext\()_neon, export=0
     load_weights_\ext
@@ -297,7 +296,7 @@ function x264_pixel_avg_weight_w16_\ext\()_neon, export=0
     vst1.64         {d2-d3}, [r0,:128], r1
     bgt             1b
     pop             {r4-r6,pc}
-.endfunc
+endfunc
 .endm
 
 AVG_WEIGHT add_add
@@ -316,7 +315,7 @@ function x264_pixel_avg_w4_neon, export=0
     vst1.32     {d1[0]}, [r0,:32], r1
     bgt         x264_pixel_avg_w4_neon
     pop         {r4-r6,pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg_w8_neon, export=0
     subs        lr,  lr,  #4
@@ -338,7 +337,7 @@ function x264_pixel_avg_w8_neon, export=0
     vst1.64     {d3}, [r0,:64], r1
     bgt         x264_pixel_avg_w8_neon
     pop         {r4-r6,pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg_w16_neon, export=0
     subs        lr,  lr,  #4
@@ -360,7 +359,7 @@ function x264_pixel_avg_w16_neon, export=0
     vst1.64     {d6-d7}, [r0,:128], r1
     bgt         x264_pixel_avg_w16_neon
     pop         {r4-r6,pc}
-.endfunc
+endfunc
 
 
 function x264_pixel_avg2_w4_neon
@@ -379,7 +378,7 @@ avg2_w4_loop:
     vst1.32     {d1[0]}, [r0,:32], r1
     bgt         avg2_w4_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg2_w8_neon
     ldr         ip,  [sp, #4]
@@ -397,7 +396,7 @@ avg2_w8_loop:
     vst1.64     {d1}, [r0,:64], r1
     bgt         avg2_w8_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg2_w16_neon
     ldr         ip,  [sp, #4]
@@ -415,7 +414,7 @@ avg2_w16_loop:
     vst1.64     {d4-d5}, [r0,:128], r1
     bgt         avg2_w16_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_pixel_avg2_w20_neon
     ldr         ip,  [sp, #4]
@@ -438,7 +437,7 @@ avg2_w20_loop:
     vst1.32     {d6[0]},  [r0,:32], r1
     bgt         avg2_w20_loop
     pop         {pc}
-.endfunc
+endfunc
 
 
 .macro weight_prologue type
@@ -449,7 +448,7 @@ avg2_w20_loop:
     ldr         lr,  [r4, #32]      // denom
 .endif
     ldrd        r4,  r5,  [r4, #32+4]    // scale, offset
-    vdup.16     q0,  r4
+    vdup.8      d0,  r4
     vdup.16     q1,  r5
 .ifc \type, full
     rsb         lr,  lr,  #0
@@ -465,19 +464,13 @@ function x264_mc_weight_w20_neon
 weight20_loop:
     subs        ip,  #2
     vld1.8      {d17-d19}, [r2], r3
-    vmovl.u8    q10, d17
-    vmovl.u8    q11, d18
-    vmovl.u8    q14, d19
+    vmull.u8    q10, d17, d0
+    vmull.u8    q11, d18, d0
     vld1.8      {d16-d18}, [r2], r3
-    vmovl.u8    q12, d16
-    vmovl.u8    q13, d17
-    vmovl.u8    q15, d18
-    vmul.s16    q10, q10, q0
-    vmul.s16    q11, q11, q0
-    vmul.s16    q12, q12, q0
-    vmul.s16    q13, q13, q0
-    vmul.s16    d28, d28, d0
-    vmul.s16    d29, d30, d0
+    vmull.u8    q12, d16, d0
+    vmull.u8    q13, d17, d0
+    vtrn.32     d19, d18
+    vmull.u8    q14, d19, d0
     vrshl.s16   q10, q10, q2
     vrshl.s16   q11, q11, q2
     vrshl.s16   q12, q12, q2
@@ -499,7 +492,7 @@ weight20_loop:
     vst1.32     {d20[1]},  [r0,:32], r1
     bgt         weight20_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w16_neon
     weight_prologue full
@@ -507,14 +500,10 @@ weight16_loop:
     subs        ip,  #2
     vld1.8      {d16-d17}, [r2], r3
     vld1.8      {d18-d19}, [r2], r3
-    vmovl.u8    q10, d16
-    vmovl.u8    q11, d17
-    vmovl.u8    q12, d18
-    vmovl.u8    q13, d19
-    vmul.s16    q10, q10, q0
-    vmul.s16    q11, q11, q0
-    vmul.s16    q12, q12, q0
-    vmul.s16    q13, q13, q0
+    vmull.u8    q10, d16, d0
+    vmull.u8    q11, d17, d0
+    vmull.u8    q12, d18, d0
+    vmull.u8    q13, d19, d0
     vrshl.s16   q10, q10, q2
     vrshl.s16   q11, q11, q2
     vrshl.s16   q12, q12, q2
@@ -531,7 +520,7 @@ weight16_loop:
     vst1.8      {d18-d19}, [r0,:128], r1
     bgt         weight16_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w8_neon
     weight_prologue full
@@ -539,10 +528,8 @@ weight8_loop:
     subs        ip,  #2
     vld1.8      {d16}, [r2], r3
     vld1.8      {d18}, [r2], r3
-    vmovl.u8    q8,  d16
-    vmovl.u8    q9,  d18
-    vmul.s16    q8,  q8,  q0
-    vmul.s16    q9,  q9,  q0
+    vmull.u8    q8,  d16, d0
+    vmull.u8    q9,  d18, d0
     vrshl.s16   q8,  q8,  q2
     vrshl.s16   q9,  q9,  q2
     vadd.s16    q8,  q8,  q1
@@ -553,51 +540,42 @@ weight8_loop:
     vst1.8      {d18}, [r0,:64], r1
     bgt         weight8_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w4_neon
     weight_prologue full
 weight4_loop:
     subs        ip,  #2
-    vld1.32     {d16[]}, [r2], r3
-    vld1.32     {d18[]}, [r2], r3
-    vmovl.u8    q8,  d16
-    vmovl.u8    q9,  d18
-    vmul.s16    d16, d16, d0
-    vmul.s16    d17, d18, d0
+    vld1.32     {d16[0]}, [r2], r3
+    vld1.32     {d16[1]}, [r2], r3
+    vmull.u8    q8,  d16, d0
     vrshl.s16   q8,  q8,  q2
     vadd.s16    q8,  q8,  q1
     vqmovun.s16 d16, q8
-    vst1.32     {d16[0]}, [r0,:32], r1
-    vst1.32     {d16[1]}, [r0,:32], r1
+    vst1.32     {d16[0]}, [r0], r1
+    vst1.32     {d16[1]}, [r0], r1
     bgt         weight4_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w20_nodenom_neon
     weight_prologue nodenom
     sub         r1, #16
 weight20_nodenom_loop:
     subs        ip,  #2
-    vld1.8      {d17-d19}, [r2], r3
-    vmovl.u8    q10, d17
-    vmovl.u8    q11, d18
-    vmovl.u8    q14, d19
-    vld1.8      {d16-d18}, [r2], r3
-    vmovl.u8    q12, d16
-    vmovl.u8    q13, d17
-    vmovl.u8    q15, d18
+    vld1.8      {d26-d28}, [r2], r3
     vmov        q8,  q1
     vmov        q9,  q1
-    vmla.s16    q8,  q10, q0
-    vmla.s16    q9,  q11, q0
+    vld1.8      {d29-d31}, [r2], r3
     vmov        q10, q1
     vmov        q11, q1
-    vmla.s16    q10, q12, q0
-    vmla.s16    q11, q13, q0
     vmov        q12, q1
-    vmla.s16    d24, d28, d0
-    vmla.s16    d25, d30, d0
+    vtrn.32     d28, d31
+    vmlal.u8    q8,  d26, d0
+    vmlal.u8    q9,  d27, d0
+    vmlal.u8    q10, d29, d0
+    vmlal.u8    q11, d30, d0
+    vmlal.u8    q12, d28, d0
     vqmovun.s16 d16, q8
     vqmovun.s16 d17, q9
     vqmovun.s16 d18, q10
@@ -609,7 +587,7 @@ weight20_nodenom_loop:
     vst1.32     {d20[1]},  [r0,:32], r1
     bgt         weight20_nodenom_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w16_nodenom_neon
     weight_prologue nodenom
@@ -617,27 +595,23 @@ weight16_nodenom_loop:
     subs        ip,  #2
     vld1.8      {d16-d17}, [r2], r3
     vld1.8      {d18-d19}, [r2], r3
-    vmovl.u8    q12, d16
-    vmovl.u8    q13, d17
-    vmovl.u8    q14, d18
-    vmovl.u8    q15, d19
-    vmov        q8,  q1
-    vmov        q9,  q1
-    vmov        q10, q1
-    vmov        q11, q1
-    vmla.s16    q8,  q12, q0
-    vmla.s16    q9,  q13, q0
-    vmla.s16    q10, q14, q0
-    vmla.s16    q11, q15, q0
-    vqmovun.s16 d16, q8
-    vqmovun.s16 d17, q9
-    vqmovun.s16 d18, q10
-    vqmovun.s16 d19, q11
+    vmov        q12, q1
+    vmov        q13, q1
+    vmov        q14, q1
+    vmov        q15, q1
+    vmlal.u8    q12, d16, d0
+    vmlal.u8    q13, d17, d0
+    vmlal.u8    q14, d18, d0
+    vmlal.u8    q15, d19, d0
+    vqmovun.s16 d16, q12
+    vqmovun.s16 d17, q13
+    vqmovun.s16 d18, q14
+    vqmovun.s16 d19, q15
     vst1.8      {d16-d17}, [r0,:128], r1
     vst1.8      {d18-d19}, [r0,:128], r1
     bgt         weight16_nodenom_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w8_nodenom_neon
     weight_prologue nodenom
@@ -645,37 +619,32 @@ weight8_nodenom_loop:
     subs        ip,  #2
     vld1.8      {d16}, [r2], r3
     vld1.8      {d18}, [r2], r3
-    vmovl.u8    q8,  d16
-    vmovl.u8    q9,  d18
     vmov        q10, q1
     vmov        q11, q1
-    vmla.s16    q10, q8,  q0
-    vmla.s16    q11, q9,  q0
+    vmlal.u8    q10, d16, d0
+    vmlal.u8    q11, d18, d0
     vqmovun.s16 d16, q10
     vqmovun.s16 d17, q11
     vst1.8      {d16}, [r0,:64], r1
     vst1.8      {d17}, [r0,:64], r1
     bgt         weight8_nodenom_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w4_nodenom_neon
     weight_prologue nodenom
 weight4_nodenom_loop:
     subs        ip,  #2
-    vld1.32     {d16[]}, [r2], r3
-    vld1.32     {d18[]}, [r2], r3
-    vmovl.u8    q8,  d16
-    vmovl.u8    q9,  d18
+    vld1.32     {d16[0]}, [r2], r3
+    vld1.32     {d16[1]}, [r2], r3
     vmov        q10, q1
-    vmla.s16    d20, d16, d0
-    vmla.s16    d21, d18, d0
+    vmlal.u8    q10, d16, d0
     vqmovun.s16 d16, q10
-    vst1.32     {d16[0]}, [r0,:32], r1
-    vst1.32     {d16[1]}, [r0,:32], r1
+    vst1.32     {d16[0]}, [r0], r1
+    vst1.32     {d16[1]}, [r0], r1
     bgt         weight4_nodenom_loop
     pop         {r4-r5,pc}
-.endfunc
+endfunc
 
 .macro weight_simple_prologue
     push        {lr}
@@ -699,7 +668,7 @@ weight20_\name\()_loop:
     vst1.8      {d19-d21}, [r0,:64], r1
     bgt         weight20_\name\()_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w16_\name\()_neon
     weight_simple_prologue
@@ -713,7 +682,7 @@ weight16_\name\()_loop:
     vst1.8      {d18-d19}, [r0,:128], r1
     bgt         weight16_\name\()_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w8_\name\()_neon
     weight_simple_prologue
@@ -726,7 +695,7 @@ weight8_\name\()_loop:
     vst1.8      {d17}, [r0,:64], r1
     bgt         weight8_\name\()_loop
     pop         {pc}
-.endfunc
+endfunc
 
 function x264_mc_weight_w4_\name\()_neon
     weight_simple_prologue
@@ -735,11 +704,11 @@ weight4_\name\()_loop:
     vld1.32     {d16[]}, [r2], r3
     vld1.32     {d17[]}, [r2], r3
     \op         q8,  q8,  q1
-    vst1.32     {d16[0]}, [r0,:32], r1
-    vst1.32     {d17[0]}, [r0,:32], r1
+    vst1.32     {d16[0]}, [r0], r1
+    vst1.32     {d17[0]}, [r0], r1
     bgt         weight4_\name\()_loop
     pop         {pc}
-.endfunc
+endfunc
 .endm
 
 weight_simple offsetadd, vqadd.u8
@@ -761,7 +730,7 @@ copy_w4_loop:
     vst1.32     {d3[0]}, [r0,:32], r1
     bgt         copy_w4_loop
     bx          lr
-.endfunc
+endfunc
 
 function x264_mc_copy_w8_neon
     ldr         ip,  [sp]
@@ -777,7 +746,7 @@ copy_w8_loop:
     vst1.32     {d3}, [r0,:64], r1
     bgt         copy_w8_loop
     bx          lr
-.endfunc
+endfunc
 
 function x264_mc_copy_w16_neon
     ldr         ip,  [sp]
@@ -793,7 +762,7 @@ copy_w16_loop:
     vst1.32     {d6-d7}, [r0,:128], r1
     bgt         copy_w16_loop
     bx          lr
-.endfunc
+endfunc
 
 function x264_mc_copy_w16_aligned_neon
     ldr         ip,  [sp]
@@ -809,7 +778,7 @@ copy_w16_aligned_loop:
     vst1.32     {d6-d7}, [r0,:128], r1
     bgt         copy_w16_aligned_loop
     bx          lr
-.endfunc
+endfunc
 
 
 // void x264_mc_chroma_neon( uint8_t *dst, intptr_t i_dst_stride,
@@ -1159,7 +1128,7 @@ mc_chroma_w8:
     vpop            {d8-d11}
     pop             {r4-r8, pc}
 
-.endfunc
+endfunc
 
 
 // hpel_filter_v( uint8_t *dst, uint8_t *src, int16_t *buf, intptr_t stride, int width )
@@ -1200,7 +1169,7 @@ filter_v_loop:
     vst1.64         {d0-d1},   [r0,:128]!
     bgt             filter_v_loop
     pop             {pc}
-.endfunc
+endfunc
 
 // hpel_filter_c( uint8_t *dst, int16_t *buf, int width );
 function x264_hpel_filter_c_neon
@@ -1285,7 +1254,7 @@ filter_c_loop:
     vst1.64         {d30-d31}, [r0,:128]!
     bgt             filter_c_loop
     bx              lr
-.endfunc
+endfunc
 
 // hpel_filter_h( uint8_t *dst, uint8_t *src, int width );
 function x264_hpel_filter_h_neon
@@ -1372,7 +1341,7 @@ filter_h_loop:
     vst1.64         {d6-d7}, [r0,:128]!
     bgt             filter_h_loop
     bx              lr
-.endfunc
+endfunc
 
 
 // frame_init_lowres_core( uint8_t *src0, uint8_t *dst0, uint8_t *dsth, uint8_t *dstv,
@@ -1464,7 +1433,7 @@ lowres_xloop_end:
 
     vpop            {d8-d15}
     pop             {r4-r10,pc}
-.endfunc
+endfunc
 
 function x264_load_deinterleave_chroma_fdec_neon
     mov             ip,  #FDEC_STRIDE/2
@@ -1477,7 +1446,7 @@ function x264_load_deinterleave_chroma_fdec_neon
     bgt             1b
 
     bx              lr
-.endfunc
+endfunc
 
 function x264_load_deinterleave_chroma_fenc_neon
     mov             ip,  #FENC_STRIDE/2
@@ -1490,7 +1459,7 @@ function x264_load_deinterleave_chroma_fenc_neon
     bgt             1b
 
     bx              lr
-.endfunc
+endfunc
 
 function x264_plane_copy_deinterleave_neon
     push            {r4-r7, lr}
@@ -1516,7 +1485,7 @@ block:
     bgt             block
 
     pop             {r4-r7, pc}
-.endfunc
+endfunc
 
 function x264_plane_copy_deinterleave_rgb_neon
     push            {r4-r8, r10, r11, lr}
@@ -1568,7 +1537,7 @@ block4:
     bgt             block4
 
     pop             {r4-r8, r10, r11, pc}
-.endfunc
+endfunc
 
 function x264_plane_copy_interleave_neon
     push            {r4-r7, lr}
@@ -1595,7 +1564,7 @@ blocki:
     bgt             blocki
 
     pop             {r4-r7, pc}
-.endfunc
+endfunc
 
 function x264_store_interleave_chroma_neon
     push            {lr}
@@ -1609,4 +1578,4 @@ function x264_store_interleave_chroma_neon
     bgt             1b
 
     pop             {pc}
-.endfunc
+endfunc
