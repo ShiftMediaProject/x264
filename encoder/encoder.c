@@ -1,7 +1,7 @@
 /*****************************************************************************
  * encoder.c: top-level encoder functions
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -32,6 +32,9 @@
 #include "ratecontrol.h"
 #include "macroblock.h"
 #include "me.h"
+#if HAVE_INTEL_DISPATCHER
+#include "extras/intel_dispatcher.h"
+#endif
 
 //#define DEBUG_MB_TYPE
 
@@ -583,7 +586,11 @@ static int x264_validate_parameters( x264_t *h, int b_open )
         h->param.i_dpb_size = 1;
     }
 
-    h->param.i_frame_packing = x264_clip3( h->param.i_frame_packing, -1, 5 );
+    if( h->param.i_frame_packing < -1 || h->param.i_frame_packing > 5 )
+    {
+        x264_log( h, X264_LOG_WARNING, "ignoring unknown frame packing value\n" );
+        h->param.i_frame_packing = -1;
+    }
 
     /* Detect default ffmpeg settings and terminate with an error. */
     if( b_open )
@@ -1050,7 +1057,7 @@ static int x264_validate_parameters( x264_t *h, int b_open )
         h->param.analyse.intra &= ~X264_ANALYSE_I8x8;
     }
     h->param.analyse.i_trellis = x264_clip3( h->param.analyse.i_trellis, 0, 2 );
-    h->param.rc.i_aq_mode = x264_clip3( h->param.rc.i_aq_mode, 0, 2 );
+    h->param.rc.i_aq_mode = x264_clip3( h->param.rc.i_aq_mode, 0, 3 );
     h->param.rc.f_aq_strength = x264_clip3f( h->param.rc.f_aq_strength, 0, 3 );
     if( h->param.rc.f_aq_strength == 0 )
         h->param.rc.i_aq_mode = 0;
@@ -1389,6 +1396,10 @@ x264_t *x264_encoder_open( x264_param_t *param )
 
     if( param->param_free )
         param->param_free( param );
+
+#if HAVE_INTEL_DISPATCHER
+    x264_intel_dispatcher_override();
+#endif
 
     if( x264_threading_init() )
     {
@@ -4087,14 +4098,14 @@ void    x264_encoder_close  ( x264_t *h )
     if( h->stat.i_frame_count[SLICE_TYPE_I] > 0 )
     {
         int64_t *i_mb_count = h->stat.i_mb_count[SLICE_TYPE_I];
-        double i_count = h->stat.i_frame_count[SLICE_TYPE_I] * h->mb.i_mb_count / 100.0;
+        double i_count = (double)h->stat.i_frame_count[SLICE_TYPE_I] * h->mb.i_mb_count / 100.0;
         x264_print_intra( i_mb_count, i_count, b_print_pcm, buf );
         x264_log( h, X264_LOG_INFO, "mb I  %s\n", buf );
     }
     if( h->stat.i_frame_count[SLICE_TYPE_P] > 0 )
     {
         int64_t *i_mb_count = h->stat.i_mb_count[SLICE_TYPE_P];
-        double i_count = h->stat.i_frame_count[SLICE_TYPE_P] * h->mb.i_mb_count / 100.0;
+        double i_count = (double)h->stat.i_frame_count[SLICE_TYPE_P] * h->mb.i_mb_count / 100.0;
         int64_t *i_mb_size = i_mb_count_size[SLICE_TYPE_P];
         x264_print_intra( i_mb_count, i_count, b_print_pcm, buf );
         x264_log( h, X264_LOG_INFO,
@@ -4110,7 +4121,7 @@ void    x264_encoder_close  ( x264_t *h )
     if( h->stat.i_frame_count[SLICE_TYPE_B] > 0 )
     {
         int64_t *i_mb_count = h->stat.i_mb_count[SLICE_TYPE_B];
-        double i_count = h->stat.i_frame_count[SLICE_TYPE_B] * h->mb.i_mb_count / 100.0;
+        double i_count = (double)h->stat.i_frame_count[SLICE_TYPE_B] * h->mb.i_mb_count / 100.0;
         double i_mb_list_count;
         int64_t *i_mb_size = i_mb_count_size[SLICE_TYPE_B];
         int64_t list_count[3] = {0}; /* 0 == L0, 1 == L1, 2 == BI */

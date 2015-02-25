@@ -1,10 +1,9 @@
 /*****************************************************************************
- * mc.h: x86 motion compensation
+ * intel_dispatcher.h: intel compiler cpu dispatcher override
  *****************************************************************************
- * Copyright (C) 2003-2015 x264 project
+ * Copyright (C) 2014-2015 x264 project
  *
- * Authors: Loren Merritt <lorenm@u.washington.edu>
- *          Laurent Aimar <fenrir@via.ecp.fr>
+ * Authors: Anton Mitrofanov <BugMaster@narod.ru>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +23,24 @@
  * For more information, contact us at licensing@x264.com.
  *****************************************************************************/
 
-#ifndef X264_I386_MC_H
-#define X264_I386_MC_H
+#ifndef X264_INTEL_DISPATCHER_H
+#define X264_INTEL_DISPATCHER_H
 
-void x264_mc_init_mmx( int cpu, x264_mc_functions_t *pf );
+/* Feature flags using _FEATURE_* defines from immintrin.h */
+extern unsigned long long __intel_cpu_feature_indicator;
+extern unsigned long long __intel_cpu_feature_indicator_x;
+
+/* CPU vendor independent version of dispatcher */
+void __intel_cpu_features_init_x( void );
+
+static void x264_intel_dispatcher_override( void )
+{
+    if( __intel_cpu_feature_indicator & ~1ULL )
+        return;
+    __intel_cpu_feature_indicator = 0;
+    __intel_cpu_feature_indicator_x = 0;
+    __intel_cpu_features_init_x();
+    __intel_cpu_feature_indicator = __intel_cpu_feature_indicator_x;
+}
 
 #endif

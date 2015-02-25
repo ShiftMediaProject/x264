@@ -1,7 +1,7 @@
 /*****************************************************************************
  * dct.c: transform and zigzag
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -747,6 +747,9 @@ void x264_dct_init( int cpu, x264_dct_function_t *dctf )
 
         dctf->add8x8_idct8  = x264_add8x8_idct8_neon;
         dctf->add16x16_idct8= x264_add16x16_idct8_neon;
+#if ARCH_AARCH64
+        dctf->sub8x16_dct_dc= x264_sub8x16_dct_dc_neon;
+#endif
     }
 #endif
 #endif // HIGH_BIT_DEPTH
@@ -1004,7 +1007,20 @@ void x264_zigzag_init( int cpu, x264_zigzag_function_t *pf_progressive, x264_zig
 #endif
 #if HAVE_ARMV6 || ARCH_AARCH64
     if( cpu&X264_CPU_NEON )
-        pf_progressive->scan_4x4 = x264_zigzag_scan_4x4_frame_neon;
+    {
+        pf_progressive->scan_4x4  = x264_zigzag_scan_4x4_frame_neon;
+#if ARCH_AARCH64
+        pf_interlaced->scan_4x4   = x264_zigzag_scan_4x4_field_neon;
+        pf_interlaced->scan_8x8   = x264_zigzag_scan_8x8_field_neon;
+        pf_interlaced->sub_4x4    = x264_zigzag_sub_4x4_field_neon;
+        pf_interlaced->sub_4x4ac  = x264_zigzag_sub_4x4ac_field_neon;
+        pf_interlaced->sub_8x8    = x264_zigzag_sub_8x8_field_neon;
+        pf_progressive->scan_8x8  = x264_zigzag_scan_8x8_frame_neon;
+        pf_progressive->sub_4x4   = x264_zigzag_sub_4x4_frame_neon;
+        pf_progressive->sub_4x4ac = x264_zigzag_sub_4x4ac_frame_neon;
+        pf_progressive->sub_8x8   = x264_zigzag_sub_8x8_frame_neon;
+#endif // ARCH_AARCH64
+    }
 #endif // HAVE_ARMV6 || ARCH_AARCH64
 #endif // HIGH_BIT_DEPTH
 
@@ -1047,4 +1063,13 @@ void x264_zigzag_init( int cpu, x264_zigzag_function_t *pf_progressive, x264_zig
     }
 #endif // HIGH_BIT_DEPTH
 #endif
+#if !HIGH_BIT_DEPTH
+#if ARCH_AARCH64
+    if( cpu&X264_CPU_NEON )
+    {
+        pf_interlaced->interleave_8x8_cavlc =
+        pf_progressive->interleave_8x8_cavlc =  x264_zigzag_interleave_8x8_cavlc_neon;
+    }
+#endif // ARCH_AARCH64
+#endif // !HIGH_BIT_DEPTH
 }

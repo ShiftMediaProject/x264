@@ -1,10 +1,9 @@
 /*****************************************************************************
- * mc.h: x86 motion compensation
+ * asm-offsets.h: asm offsets for aarch64
  *****************************************************************************
- * Copyright (C) 2003-2015 x264 project
+ * Copyright (C) 2014-2015 x264 project
  *
- * Authors: Loren Merritt <lorenm@u.washington.edu>
- *          Laurent Aimar <fenrir@via.ecp.fr>
+ * Authors: Janne Grunau <janne-x264@jannau.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +23,17 @@
  * For more information, contact us at licensing@x264.com.
  *****************************************************************************/
 
-#ifndef X264_I386_MC_H
-#define X264_I386_MC_H
+#ifndef X264_AARCH64_ASM_OFFSETS_H
+#define X264_AARCH64_ASM_OFFSETS_H
 
-void x264_mc_init_mmx( int cpu, x264_mc_functions_t *pf );
+#define CABAC_I_LOW                 0x00
+#define CABAC_I_RANGE               0x04
+#define CABAC_I_QUEUE               0x08
+#define CABAC_I_BYTES_OUTSTANDING   0x0c
+#define CABAC_P_START               0x10
+#define CABAC_P                     0x18
+#define CABAC_P_END                 0x20
+#define CABAC_F8_BITS_ENCODED       0x30
+#define CABAC_STATE                 0x34
 
 #endif

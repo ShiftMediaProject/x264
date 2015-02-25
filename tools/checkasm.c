@@ -1,7 +1,7 @@
 /*****************************************************************************
  * checkasm.c: assembly check tool
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -97,6 +97,10 @@ static inline uint32_t read_time(void)
     asm volatile( "mftb %0" : "=r"(a) :: "memory" );
 #elif ARCH_ARM     // ARMv7 only
     asm volatile( "mrc p15, 0, %0, c9, c13, 0" : "=r"(a) :: "memory" );
+#elif ARCH_AARCH64
+    uint64_t b = 0;
+    asm volatile( "mrs %0, pmccntr_el0" : "=r"(b) :: "memory" );
+    a = b;
 #endif
     return a;
 }
@@ -167,12 +171,12 @@ static void print_bench(void)
                 continue;
             printf( "%s_%s%s: %"PRId64"\n", benchs[i].name,
 #if HAVE_MMX
-                    b->cpu&X264_CPU_AVX2 && b->cpu&X264_CPU_FMA3 ? "avx2_fma3" :
                     b->cpu&X264_CPU_AVX2 ? "avx2" :
                     b->cpu&X264_CPU_FMA3 ? "fma3" :
                     b->cpu&X264_CPU_FMA4 ? "fma4" :
                     b->cpu&X264_CPU_XOP ? "xop" :
                     b->cpu&X264_CPU_AVX ? "avx" :
+                    b->cpu&X264_CPU_SSE42 ? "sse42" :
                     b->cpu&X264_CPU_SSE4 ? "sse4" :
                     b->cpu&X264_CPU_SSSE3 ? "ssse3" :
                     b->cpu&X264_CPU_SSE3 ? "sse3" :
@@ -2433,6 +2437,8 @@ static void run_cabac_terminal_##cpu( x264_t *h, uint8_t *dst )\
 DECL_CABAC(c)
 #if HAVE_MMX
 DECL_CABAC(asm)
+#elif defined(ARCH_AARCH64)
+DECL_CABAC(asm)
 #else
 #define run_cabac_decision_asm run_cabac_decision_c
 #define run_cabac_bypass_asm run_cabac_bypass_c
@@ -2651,7 +2657,7 @@ static int check_all_flags( void )
 #endif
         if( cpu_detect & X264_CPU_LZCNT )
         {
-            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "MMX_LZCNT" );
+            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "MMX LZCNT" );
             cpu1 &= ~X264_CPU_LZCNT;
         }
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SLOW_CTZ, "MMX SlowCTZ" );
@@ -2669,11 +2675,11 @@ static int check_all_flags( void )
         cpu1 &= ~X264_CPU_SLOW_SHUFFLE;
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SLOW_CTZ, "SSE2 SlowCTZ" );
         cpu1 &= ~X264_CPU_SLOW_CTZ;
-    }
-    if( cpu_detect & X264_CPU_LZCNT )
-    {
-        ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "SSE_LZCNT" );
-        cpu1 &= ~X264_CPU_LZCNT;
+        if( cpu_detect & X264_CPU_LZCNT )
+        {
+            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "SSE2 LZCNT" );
+            cpu1 &= ~X264_CPU_LZCNT;
+        }
     }
     if( cpu_detect & X264_CPU_SSE3 )
     {
@@ -2693,9 +2699,16 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_CACHELINE_64, "SSSE3 Cache64 SlowAtom" );
         cpu1 &= ~X264_CPU_CACHELINE_64;
         cpu1 &= ~X264_CPU_SLOW_ATOM;
+        if( cpu_detect & X264_CPU_LZCNT )
+        {
+            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "SSSE3 LZCNT" );
+            cpu1 &= ~X264_CPU_LZCNT;
+        }
     }
     if( cpu_detect & X264_CPU_SSE4 )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE4, "SSE4" );
+    if( cpu_detect & X264_CPU_SSE42 )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_SSE42, "SSE4.2" );
     if( cpu_detect & X264_CPU_AVX )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_AVX, "AVX" );
     if( cpu_detect & X264_CPU_XOP )
@@ -2705,29 +2718,29 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA4, "FMA4" );
         cpu1 &= ~X264_CPU_FMA4;
     }
+    if( cpu_detect & X264_CPU_FMA3 )
+    {
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA3, "FMA3" );
+        cpu1 &= ~X264_CPU_FMA3;
+    }
+    if( cpu_detect & X264_CPU_AVX2 )
+    {
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA3 | X264_CPU_AVX2, "AVX2" );
+        if( cpu_detect & X264_CPU_LZCNT )
+        {
+            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "AVX2 LZCNT" );
+            cpu1 &= ~X264_CPU_LZCNT;
+        }
+    }
     if( cpu_detect & X264_CPU_BMI1 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_BMI1, "BMI1" );
         cpu1 &= ~X264_CPU_BMI1;
     }
-    if( cpu_detect & X264_CPU_AVX2 )
-    {
-        ret |= add_flags( &cpu0, &cpu1, X264_CPU_AVX2, "AVX2" );
-        if( cpu_detect & X264_CPU_LZCNT )
-        {
-            ret |= add_flags( &cpu0, &cpu1, X264_CPU_LZCNT, "AVX2_LZCNT" );
-            cpu1 &= ~X264_CPU_LZCNT;
-        }
-    }
     if( cpu_detect & X264_CPU_BMI2 )
     {
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_BMI1|X264_CPU_BMI2, "BMI2" );
         cpu1 &= ~(X264_CPU_BMI1|X264_CPU_BMI2);
-    }
-    if( cpu_detect & X264_CPU_FMA3 )
-    {
-        ret |= add_flags( &cpu0, &cpu1, X264_CPU_FMA3, "FMA3" );
-        cpu1 &= ~X264_CPU_FMA3;
     }
 #elif ARCH_PPC
     if( cpu_detect & X264_CPU_ALTIVEC )
@@ -2757,7 +2770,7 @@ int main(int argc, char *argv[])
 
     if( argc > 1 && !strncmp( argv[1], "--bench", 7 ) )
     {
-#if !ARCH_X86 && !ARCH_X86_64 && !ARCH_PPC && !ARCH_ARM
+#if !ARCH_X86 && !ARCH_X86_64 && !ARCH_PPC && !ARCH_ARM && !ARCH_AARCH64
         fprintf( stderr, "no --bench for your cpu until you port rdtsc\n" );
         return 1;
 #endif

@@ -1,7 +1,7 @@
 /*****************************************************************************
  * cpu.c: cpu detection
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -67,8 +67,8 @@ const x264_cpu_name_t x264_cpu_names[] =
     {"AVX",         AVX},
     {"XOP",         AVX|X264_CPU_XOP},
     {"FMA4",        AVX|X264_CPU_FMA4},
-    {"AVX2",        AVX|X264_CPU_AVX2},
     {"FMA3",        AVX|X264_CPU_FMA3},
+    {"AVX2",        AVX|X264_CPU_FMA3|X264_CPU_AVX2},
 #undef AVX
 #undef SSE2
 #undef MMX2

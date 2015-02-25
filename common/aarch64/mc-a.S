@@ -1,7 +1,7 @@
 /*****************************************************************************
  * mc.S: aarch64 motion compensation
  *****************************************************************************
- * Copyright (C) 2009-2014 x264 project
+ * Copyright (C) 2009-2015 x264 project
  *
  * Authors: David Conrad <lessen42@gmail.com>
  *          Janne Grunau <janne-x264@jannau.net>
@@ -1253,6 +1253,34 @@ load_deinterleave_chroma:
     ret
 endfunc
 
+function x264_plane_copy_neon, export=1
+    add         x8,  x4,  #15
+    and         x4,  x8,  #~15
+    sub         x1,  x1,  x4
+    sub         x3,  x3,  x4
+1:
+    mov         w8,  w4
+16:
+    tst         w8,  #16
+    b.eq        32f
+    subs        w8,  w8,  #16
+    ldr         q0,  [x2], #16
+    str         q0,  [x0], #16
+    b.eq        0f
+32:
+    subs        w8,  w8,  #32
+    ldp         q0,  q1,  [x2], #32
+    stp         q0,  q1,  [x0], #32
+    b.gt        32b
+0:
+    subs        w5,  w5,  #1
+    add         x2,  x2,  x3
+    add         x0,  x0,  x1
+    b.gt        1b
+
+    ret
+endfunc
+
 function x264_plane_copy_deinterleave_neon, export=1
     add         w9,  w6,  #15
     and         w9,  w9,  #0xfffffff0
@@ -1361,5 +1389,281 @@ function x264_store_interleave_chroma_neon, export=1
     st1        {v5.16b}, [x0], x1
     b.gt        1b
 
+    ret
+endfunc
+
+.macro integral4h p1, p2
+    ext         v1.8b,  \p1\().8b,  \p2\().8b,  #1
+    ext         v2.8b,  \p1\().8b,  \p2\().8b,  #2
+    ext         v3.8b,  \p1\().8b,  \p2\().8b,  #3
+    uaddl       v0.8h,  \p1\().8b,  v1.8b
+    uaddl       v4.8h,  v2.8b,  v3.8b
+    add         v0.8h,  v0.8h,  v4.8h
+    add         v0.8h,  v0.8h,  v5.8h
+.endm
+
+function integral_init4h_neon, export=1
+    sub         x3,  x0,  x2
+    ld1        {v6.8b,v7.8b}, [x1], #16
+1:
+    subs        x2,  x2,  #16
+    ld1        {v5.8h},  [x3], #16
+    integral4h  v6, v7
+    ld1        {v6.8b},  [x1], #8
+    ld1        {v5.8h},  [x3], #16
+    st1        {v0.8h},  [x0], #16
+    integral4h  v7, v6
+    ld1        {v7.8b},  [x1], #8
+    st1        {v0.8h},  [x0], #16
+    b.gt        1b
+    ret
+endfunc
+
+.macro integral8h p1, p2, s
+    ext         v1.8b,  \p1\().8b,  \p2\().8b,  #1
+    ext         v2.8b,  \p1\().8b,  \p2\().8b,  #2
+    ext         v3.8b,  \p1\().8b,  \p2\().8b,  #3
+    ext         v4.8b,  \p1\().8b,  \p2\().8b,  #4
+    ext         v5.8b,  \p1\().8b,  \p2\().8b,  #5
+    ext         v6.8b,  \p1\().8b,  \p2\().8b,  #6
+    ext         v7.8b,  \p1\().8b,  \p2\().8b,  #7
+    uaddl       v0.8h,  \p1\().8b,  v1.8b
+    uaddl       v2.8h,  v2.8b,  v3.8b
+    uaddl       v4.8h,  v4.8b,  v5.8b
+    uaddl       v6.8h,  v6.8b,  v7.8b
+    add         v0.8h,  v0.8h,  v2.8h
+    add         v4.8h,  v4.8h,  v6.8h
+    add         v0.8h,  v0.8h,  v4.8h
+    add         v0.8h,  v0.8h,  \s\().8h
+.endm
+
+function integral_init8h_neon, export=1
+    sub         x3,  x0,  x2
+    ld1        {v16.8b,v17.8b}, [x1], #16
+1:
+    subs        x2,  x2,  #16
+    ld1        {v18.8h}, [x3], #16
+    integral8h  v16, v17, v18
+    ld1        {v16.8b}, [x1], #8
+    ld1        {v18.8h}, [x3], #16
+    st1        {v0.8h},  [x0], #16
+    integral8h  v17, v16, v18
+    ld1        {v17.8b}, [x1], #8
+    st1        {v0.8h},  [x0], #16
+    b.gt        1b
+    ret
+endfunc
+
+function integral_init4v_neon, export=1
+    mov         x3,  x0
+    add         x4,  x0,  x2,  lsl #3
+    add         x8,  x0,  x2,  lsl #4
+    sub         x2,  x2,  #8
+    ld1        {v20.8h,v21.8h,v22.8h}, [x3], #48
+    ld1        {v16.8h,v17.8h,v18.8h}, [x8], #48
+1:
+    subs        x2,  x2,  #16
+    ld1        {v24.8h,v25.8h}, [x4], #32
+    ext         v0.16b,  v20.16b, v21.16b, #8
+    ext         v1.16b,  v21.16b, v22.16b, #8
+    ext         v2.16b,  v16.16b, v17.16b, #8
+    ext         v3.16b,  v17.16b, v18.16b, #8
+    sub         v24.8h,  v24.8h,  v20.8h
+    sub         v25.8h,  v25.8h,  v21.8h
+    add         v0.8h,   v0.8h,   v20.8h
+    add         v1.8h,   v1.8h,   v21.8h
+    add         v2.8h,   v2.8h,   v16.8h
+    add         v3.8h,   v3.8h,   v17.8h
+    st1        {v24.8h},  [x1], #16
+    st1        {v25.8h},  [x1], #16
+    mov         v20.16b,  v22.16b
+    mov         v16.16b,  v18.16b
+    sub         v0.8h,   v2.8h,   v0.8h
+    sub         v1.8h,   v3.8h,   v1.8h
+    ld1        {v21.8h,v22.8h}, [x3], #32
+    ld1        {v17.8h,v18.8h}, [x8], #32
+    st1        {v0.8h},  [x0], #16
+    st1        {v1.8h},  [x0], #16
+    b.gt        1b
+2:
+    ret
+endfunc
+
+function integral_init8v_neon, export=1
+    add         x2,  x0,  x1,  lsl #4
+    sub         x1,  x1,  #8
+    ands        x3,  x1,  #16 - 1
+    b.eq        1f
+    subs        x1,  x1,  #8
+    ld1        {v0.8h}, [x0]
+    ld1        {v2.8h}, [x2], #16
+    sub         v4.8h,  v2.8h,  v0.8h
+    st1        {v4.8h},  [x0], #16
+    b.le        2f
+1:
+    subs        x1,  x1,  #16
+    ld1        {v0.8h,v1.8h}, [x0]
+    ld1        {v2.8h,v3.8h}, [x2], #32
+    sub         v4.8h,  v2.8h,  v0.8h
+    sub         v5.8h,  v3.8h,  v1.8h
+    st1        {v4.8h},  [x0], #16
+    st1        {v5.8h},  [x0], #16
+    b.gt        1b
+2:
+    ret
+endfunc
+
+function x264_mbtree_propagate_cost_neon, export=1
+    ld1r        {v5.4s},  [x5]
+8:
+    subs        w6,  w6,  #8
+    ld1         {v1.8h},  [x1], #16
+    ld1         {v2.8h},  [x2], #16
+    ld1         {v3.8h},  [x3], #16
+    ld1         {v4.8h},  [x4], #16
+    bic         v3.8h,  #0xc0, lsl #8
+    umin        v3.8h,  v2.8h,  v3.8h
+    umull       v20.4s, v2.4h,  v4.4h   // propagate_intra
+    umull2      v21.4s, v2.8h,  v4.8h   // propagate_intra
+    usubl       v22.4s, v2.4h,  v3.4h   // propagate_num
+    usubl2      v23.4s, v2.8h,  v3.8h   // propagate_num
+    uxtl        v26.4s, v2.4h           // propagate_denom
+    uxtl2       v27.4s, v2.8h           // propagate_denom
+    uxtl        v24.4s, v1.4h
+    uxtl2       v25.4s, v1.8h
+    ucvtf       v20.4s, v20.4s
+    ucvtf       v21.4s, v21.4s
+    ucvtf       v26.4s, v26.4s
+    ucvtf       v27.4s, v27.4s
+    ucvtf       v22.4s, v22.4s
+    ucvtf       v23.4s, v23.4s
+    frecpe      v28.4s, v26.4s
+    frecpe      v29.4s, v27.4s
+    ucvtf       v24.4s, v24.4s
+    ucvtf       v25.4s, v25.4s
+    frecps      v30.4s, v28.4s, v26.4s
+    frecps      v31.4s, v29.4s, v27.4s
+    fmla        v24.4s, v20.4s, v5.4s   // propagate_amount
+    fmla        v25.4s, v21.4s, v5.4s   // propagate_amount
+    fmul        v28.4s, v28.4s, v30.4s
+    fmul        v29.4s, v29.4s, v31.4s
+    fmul        v16.4s, v24.4s, v22.4s
+    fmul        v17.4s, v25.4s, v23.4s
+    fmul        v18.4s, v16.4s, v28.4s
+    fmul        v19.4s, v17.4s, v29.4s
+    fcvtns      v20.4s, v18.4s
+    fcvtns      v21.4s, v19.4s
+    sqxtn       v0.4h,  v20.4s
+    sqxtn2      v0.8h,  v21.4s
+    st1         {v0.8h},  [x0], #16
+    b.ge        8b
+    ret
+endfunc
+
+const pw_0to15, align=5
+    .short 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+endconst
+
+function x264_mbtree_propagate_list_internal_neon, export=1
+    movrel      x11,  pw_0to15
+    dup         v31.8h,  w4             // bipred_weight
+    movi        v30.8h,  #0xc0, lsl #8
+    ld1         {v29.8h},  [x11] //h->mb.i_mb_x,h->mb.i_mb_y
+    movi        v28.4s,  #4//, lsl #16
+    movi        v27.8h,  #31
+    movi        v26.8h,  #32
+    dup         v24.8h,  w5             // mb_y
+    zip1        v29.8h,  v29.8h, v24.8h
+8:
+    subs        w6,  w6,  #8
+    ld1         {v1.8h},  [x1], #16     // propagate_amount
+    ld1         {v2.8h},  [x2], #16     // lowres_cost
+    and         v2.16b, v2.16b, v30.16b
+    cmeq        v25.8h, v2.8h,  v30.8h
+    umull       v16.4s, v1.4h,  v31.4h
+    umull2      v17.4s, v1.8h,  v31.8h
+    rshrn       v16.4h, v16.4s, #6
+    rshrn2      v16.8h, v17.4s, #6
+    bsl         v25.16b, v16.16b, v1.16b // if( lists_used == 3 )
+    //          propagate_amount = (propagate_amount * bipred_weight + 32) >> 6
+    ld1         {v4.8h,v5.8h},  [x0],  #32
+    sshr        v6.8h,  v4.8h,  #5
+    sshr        v7.8h,  v5.8h,  #5
+    add         v6.8h,  v6.8h,  v29.8h
+    add         v29.8h, v29.8h, v28.8h
+    add         v7.8h,  v7.8h,  v29.8h
+    add         v29.8h, v29.8h, v28.8h
+    st1         {v6.8h,v7.8h},  [x3],  #32
+    and         v4.16b, v4.16b, v27.16b
+    and         v5.16b, v5.16b, v27.16b
+    uzp1        v6.8h,  v4.8h,  v5.8h   // x & 31
+    uzp2        v7.8h,  v4.8h,  v5.8h   // y & 31
+    sub         v4.8h,  v26.8h, v6.8h   // 32 - (x & 31)
+    sub         v5.8h,  v26.8h, v7.8h   // 32 - (y & 31)
+    mul         v19.8h, v6.8h,  v7.8h   // idx3weight = y*x;
+    mul         v18.8h, v4.8h,  v7.8h   // idx2weight = y*(32-x);
+    mul         v17.8h, v6.8h,  v5.8h   // idx1weight = (32-y)*x;
+    mul         v16.8h, v4.8h,  v5.8h   // idx0weight = (32-y)*(32-x) ;
+    umull       v6.4s,  v19.4h, v25.4h
+    umull2      v7.4s,  v19.8h, v25.8h
+    umull       v4.4s,  v18.4h, v25.4h
+    umull2      v5.4s,  v18.8h, v25.8h
+    umull       v2.4s,  v17.4h, v25.4h
+    umull2      v3.4s,  v17.8h, v25.8h
+    umull       v0.4s,  v16.4h, v25.4h
+    umull2      v1.4s,  v16.8h, v25.8h
+    rshrn       v19.4h, v6.4s,  #10
+    rshrn2      v19.8h, v7.4s,  #10
+    rshrn       v18.4h, v4.4s,  #10
+    rshrn2      v18.8h, v5.4s,  #10
+    rshrn       v17.4h, v2.4s,  #10
+    rshrn2      v17.8h, v3.4s,  #10
+    rshrn       v16.4h, v0.4s,  #10
+    rshrn2      v16.8h, v1.4s,  #10
+    zip1        v0.8h,  v16.8h, v17.8h
+    zip2        v1.8h,  v16.8h, v17.8h
+    zip1        v2.8h,  v18.8h, v19.8h
+    zip2        v3.8h,  v18.8h, v19.8h
+    st1         {v0.8h,v1.8h},  [x3], #32
+    st1         {v2.8h,v3.8h},  [x3], #32
+    b.ge        8b
+    ret
+endfunc
+
+function x264_memcpy_aligned_neon, export=1
+    tst         x2,  #16
+    b.eq        32f
+    sub         x2,  x2,  #16
+    ldr         q0,  [x1], #16
+    str         q0,  [x0], #16
+32:
+    tst         x2,  #32
+    b.eq        640f
+    sub         x2,  x2,  #32
+    ldp         q0,  q1,  [x1], #32
+    stp         q0,  q1,  [x0], #32
+640:
+    cbz         x2,  1f
+64:
+    subs        x2,  x2,  #64
+    ldp         q0,  q1,  [x1, #32]
+    ldp         q2,  q3,  [x1], #64
+    stp         q0,  q1,  [x0, #32]
+    stp         q2,  q3,  [x0], #64
+    b.gt        64b
+1:
+    ret
+endfunc
+
+function x264_memzero_aligned_neon, export=1
+    movi        v0.16b,  #0
+    movi        v1.16b,  #0
+1:
+    subs        x1,  x1,  #128
+    stp         q0,  q1,  [x0, #96]
+    stp         q0,  q1,  [x0, #64]
+    stp         q0,  q1,  [x0, #32]
+    stp         q0,  q1,  [x0], 128
+    b.gt        1b
     ret
 endfunc

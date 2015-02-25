@@ -1,7 +1,7 @@
 /*****************************************************************************
  * pixel.c: pixel metrics
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -598,8 +598,8 @@ INTRA_MBCMP( sad,  4x4,   v, h, dc,  , _neon, _neon )
 INTRA_MBCMP(satd,  4x4,   v, h, dc,  , _neon, _neon )
 INTRA_MBCMP( sad,  8x8,  dc, h,  v, c, _neon, _neon )
 INTRA_MBCMP(satd,  8x8,  dc, h,  v, c, _neon, _neon )
-INTRA_MBCMP( sad,  8x16, dc, h,  v, c, _neon, _c )
-INTRA_MBCMP(satd,  8x16, dc, h,  v, c, _neon, _c )
+INTRA_MBCMP( sad,  8x16, dc, h,  v, c, _neon, _neon )
+INTRA_MBCMP(satd,  8x16, dc, h,  v, c, _neon, _neon )
 INTRA_MBCMP( sad, 16x16,  v, h, dc,  , _neon, _neon )
 INTRA_MBCMP(satd, 16x16,  v, h, dc,  , _neon, _neon )
 #endif
@@ -1409,25 +1409,28 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
 #if ARCH_AARCH64
     if( cpu&X264_CPU_NEON )
     {
-        INIT7( sad, _neon );
+        INIT8( sad, _neon );
         // AArch64 has no distinct instructions for aligned load/store
-        INIT7_NAME( sad_aligned, sad, _neon );
+        INIT8_NAME( sad_aligned, sad, _neon );
         INIT7( sad_x3, _neon );
         INIT7( sad_x4, _neon );
-        INIT7( ssd, _neon );
-        INIT7( satd, _neon );
+        INIT8( ssd, _neon );
+        INIT8( satd, _neon );
         INIT7( satd_x3, _neon );
         INIT7( satd_x4, _neon );
         INIT4( hadamard_ac, _neon );
 
         pixf->sa8d[PIXEL_8x8]   = x264_pixel_sa8d_8x8_neon;
         pixf->sa8d[PIXEL_16x16] = x264_pixel_sa8d_16x16_neon;
+        pixf->sa8d_satd[PIXEL_16x16] = x264_pixel_sa8d_satd_16x16_neon;
 
         pixf->var[PIXEL_8x8]    = x264_pixel_var_8x8_neon;
         pixf->var[PIXEL_8x16]   = x264_pixel_var_8x16_neon;
         pixf->var[PIXEL_16x16]  = x264_pixel_var_16x16_neon;
         pixf->var2[PIXEL_8x8]   = x264_pixel_var2_8x8_neon;
         pixf->var2[PIXEL_8x16]  = x264_pixel_var2_8x16_neon;
+        pixf->vsad = x264_pixel_vsad_neon;
+        pixf->asd8 = x264_pixel_asd8_neon;
 
         pixf->intra_sad_x3_4x4    = x264_intra_sad_x3_4x4_neon;
         pixf->intra_satd_x3_4x4   = x264_intra_satd_x3_4x4_neon;
@@ -1440,6 +1443,7 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         pixf->intra_sad_x3_16x16  = x264_intra_sad_x3_16x16_neon;
         pixf->intra_satd_x3_16x16 = x264_intra_satd_x3_16x16_neon;
 
+        pixf->ssd_nv12_core     = x264_pixel_ssd_nv12_core_neon;
         pixf->ssim_4x4x2_core   = x264_pixel_ssim_4x4x2_core_neon;
         pixf->ssim_end4         = x264_pixel_ssim_end4_neon;
     }

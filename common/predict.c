@@ -1,7 +1,7 @@
 /*****************************************************************************
  * predict.c: intra prediction
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -948,6 +948,10 @@ void x264_predict_8x16c_init( int cpu, x264_predict_t pf[7] )
 
 #if HAVE_MMX
     x264_predict_8x16c_init_mmx( cpu, pf );
+#endif
+
+#if ARCH_AARCH64
+    x264_predict_8x16c_init_aarch64( cpu, pf );
 #endif
 }
 

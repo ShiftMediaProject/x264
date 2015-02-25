@@ -1,7 +1,7 @@
 /*****************************************************************************
  * bitstream.c: bitstream writing
  *****************************************************************************
- * Copyright (C) 2003-2014 x264 project
+ * Copyright (C) 2003-2015 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Fiona Glaser <fiona@x264.com>
@@ -53,6 +53,8 @@ void x264_cabac_block_residual_8x8_rd_internal_ssse3_lzcnt( dctcoef *l, int b_in
 void x264_cabac_block_residual_internal_sse2       ( dctcoef *l, int b_interlaced, intptr_t ctx_block_cat, x264_cabac_t *cb );
 void x264_cabac_block_residual_internal_sse2_lzcnt ( dctcoef *l, int b_interlaced, intptr_t ctx_block_cat, x264_cabac_t *cb );
 void x264_cabac_block_residual_internal_avx2_bmi2 ( dctcoef *l, int b_interlaced, intptr_t ctx_block_cat, x264_cabac_t *cb );
+
+uint8_t *x264_nal_escape_neon( uint8_t *dst, uint8_t *src, uint8_t *end );
 
 /****************************************************************************
  * x264_nal_encode:
@@ -141,5 +143,9 @@ void x264_bitstream_init( int cpu, x264_bitstream_function_t *pf )
             pf->cabac_block_residual_internal = x264_cabac_block_residual_internal_avx2_bmi2;
     }
 #endif
+#endif
+#if ARCH_AARCH64
+    if( cpu&X264_CPU_NEON )
+        pf->nal_escape = x264_nal_escape_neon;
 #endif
 }

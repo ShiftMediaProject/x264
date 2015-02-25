@@ -1,7 +1,7 @@
 /*****************************************************************************
  * quant.c: quantization and level-run
  *****************************************************************************
- * Copyright (C) 2005-2014 x264 project
+ * Copyright (C) 2005-2015 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Fiona Glaser <fiona@x264.com>
@@ -714,7 +714,8 @@ void x264_quant_init( x264_t *h, int cpu, x264_quant_function_t *pf )
 #endif // HAVE_MMX
 
 #if HAVE_ALTIVEC
-    if( cpu&X264_CPU_ALTIVEC ) {
+    if( cpu&X264_CPU_ALTIVEC )
+    {
         pf->quant_2x2_dc = x264_quant_2x2_dc_altivec;
         pf->quant_4x4_dc = x264_quant_4x4_dc_altivec;
         pf->quant_4x4 = x264_quant_4x4_altivec;
@@ -753,6 +754,17 @@ void x264_quant_init( x264_t *h, int cpu, x264_quant_function_t *pf )
     {
         pf->coeff_last4 = x264_coeff_last4_aarch64;
         pf->coeff_last8 = x264_coeff_last8_aarch64;
+        pf->coeff_level_run4 = x264_coeff_level_run4_aarch64;
+    }
+    if( cpu&X264_CPU_NEON )
+    {
+        pf->coeff_level_run8 = x264_coeff_level_run8_neon;
+        pf->coeff_level_run[  DCT_LUMA_AC] = x264_coeff_level_run15_neon;
+        pf->coeff_level_run[ DCT_LUMA_4x4] = x264_coeff_level_run16_neon;
+        pf->decimate_score15 = x264_decimate_score15_neon;
+        pf->decimate_score16 = x264_decimate_score16_neon;
+        pf->decimate_score64 = x264_decimate_score64_neon;
+        pf->denoise_dct = x264_denoise_dct_neon;
     }
 #endif
 #endif // HIGH_BIT_DEPTH

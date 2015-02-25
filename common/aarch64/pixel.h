@@ -1,9 +1,10 @@
 /*****************************************************************************
  * pixel.h: aarch64 pixel metrics
  *****************************************************************************
- * Copyright (C) 2009-2014 x264 project
+ * Copyright (C) 2009-2015 x264 project
  *
  * Authors: David Conrad <lessen42@gmail.com>
+ *          Janne Grunau <janne-x264@jannau.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +33,7 @@
     ret x264_pixel_##name##_8x16_##suffix args;\
     ret x264_pixel_##name##_8x8_##suffix args;\
     ret x264_pixel_##name##_8x4_##suffix args;\
+    ret x264_pixel_##name##_4x16_##suffix args;\
     ret x264_pixel_##name##_4x8_##suffix args;\
     ret x264_pixel_##name##_4x4_##suffix args;\
 
@@ -47,8 +49,14 @@ DECL_X4( sad, neon )
 DECL_X1( satd, neon )
 DECL_X1( ssd, neon )
 
+
+void x264_pixel_ssd_nv12_core_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, int, int, uint64_t *, uint64_t * );
+
+int x264_pixel_vsad_neon( uint8_t *, intptr_t, int );
+
 int x264_pixel_sa8d_8x8_neon  ( uint8_t *, intptr_t, uint8_t *, intptr_t );
 int x264_pixel_sa8d_16x16_neon( uint8_t *, intptr_t, uint8_t *, intptr_t );
+uint64_t x264_pixel_sa8d_satd_16x16_neon( uint8_t *, intptr_t, uint8_t *, intptr_t );
 
 uint64_t x264_pixel_var_8x8_neon  ( uint8_t *, intptr_t );
 uint64_t x264_pixel_var_8x16_neon ( uint8_t *, intptr_t );
@@ -65,5 +73,7 @@ void x264_pixel_ssim_4x4x2_core_neon( const uint8_t *, intptr_t,
                                       const uint8_t *, intptr_t,
                                       int sums[2][4] );
 float x264_pixel_ssim_end4_neon( int sum0[5][4], int sum1[5][4], int width );
+
+int x264_pixel_asd8_neon( uint8_t *, intptr_t,  uint8_t *, intptr_t, int );
 
 #endif
