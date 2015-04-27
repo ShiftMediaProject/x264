@@ -234,6 +234,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -279,6 +282,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -334,6 +340,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -380,6 +389,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -431,6 +443,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -489,6 +504,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -546,6 +564,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -603,6 +624,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -662,6 +686,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -719,6 +746,9 @@ del ..\x264_config.h
 )
 if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
