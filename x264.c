@@ -209,6 +209,13 @@ static const char * const output_csp_names[] =
 #endif
     0
 };
+static const char * const chroma_format_names[] =
+{
+    [0] = "all",
+    [X264_CSP_I420] = "i420",
+    [X264_CSP_I422] = "i422",
+    [X264_CSP_I444] = "i444"
+};
 
 static const char * const range_names[] = { "auto", "tv", "pc", 0 };
 
@@ -325,7 +332,8 @@ static void print_version_info( void )
 #else
     printf( "using an unknown compiler\n" );
 #endif
-    printf( "configuration: --bit-depth=%d --chroma-format=%s\n", x264_bit_depth, X264_CHROMA_FORMAT ? (output_csp_names[0]+1) : "all" );
+    printf( "x264 configuration: --bit-depth=%d --chroma-format=%s\n", X264_BIT_DEPTH, chroma_format_names[X264_CHROMA_FORMAT] );
+    printf( "libx264 configuration: --bit-depth=%d --chroma-format=%s\n", x264_bit_depth, chroma_format_names[x264_chroma_format] );
     printf( "x264 license: " );
 #if HAVE_GPL
     printf( "GPL version 2 or later\n" );
@@ -533,7 +541,7 @@ static void help( x264_param_t *defaults, int longhelp )
         "                                  Overrides all settings.\n" );
     H2(
 #if X264_CHROMA_FORMAT <= X264_CSP_I420
-#if BIT_DEPTH==8
+#if X264_BIT_DEPTH==8
         "                                  - baseline:\n"
         "                                    --no-8x8dct --bframes 0 --no-cabac\n"
         "                                    --cqm flat --weightp 0\n"
@@ -561,7 +569,7 @@ static void help( x264_param_t *defaults, int longhelp )
         else H0(
         "                                  - "
 #if X264_CHROMA_FORMAT <= X264_CSP_I420
-#if BIT_DEPTH==8
+#if X264_BIT_DEPTH==8
         "baseline,main,high,"
 #endif
         "high10,"
@@ -703,7 +711,9 @@ static void help( x264_param_t *defaults, int longhelp )
         "                                  - 2: row alternation - L and R are interlaced by row\n"
         "                                  - 3: side by side - L is on the left, R on the right\n"
         "                                  - 4: top bottom - L is on top, R on bottom\n"
-        "                                  - 5: frame alternation - one view per frame\n" );
+        "                                  - 5: frame alternation - one view per frame\n"
+        "                                  - 6: mono - 2D frame without any frame packing\n"
+        "                                  - 7: tile format - L is on top-left, R split across\n" );
     H0( "\n" );
     H0( "Ratecontrol:\n" );
     H0( "\n" );
@@ -1287,11 +1297,11 @@ static int init_vid_filters( char *sequence, hnd_t *handle, video_info_t *info, 
     /* force the output csp to what the user specified (or the default) */
     param->i_csp = info->csp;
     int csp = info->csp & X264_CSP_MASK;
-    if( output_csp == X264_CSP_I420 && (csp < X264_CSP_I420 || csp > X264_CSP_NV12) )
+    if( output_csp == X264_CSP_I420 && (csp < X264_CSP_I420 || csp >= X264_CSP_I422) )
         param->i_csp = X264_CSP_I420;
-    else if( output_csp == X264_CSP_I422 && (csp < X264_CSP_I422 || csp > X264_CSP_V210) )
+    else if( output_csp == X264_CSP_I422 && (csp < X264_CSP_I422 || csp >= X264_CSP_I444) )
         param->i_csp = X264_CSP_I422;
-    else if( output_csp == X264_CSP_I444 && (csp < X264_CSP_I444 || csp > X264_CSP_YV24) )
+    else if( output_csp == X264_CSP_I444 && (csp < X264_CSP_I444 || csp >= X264_CSP_BGR) )
         param->i_csp = X264_CSP_I444;
     else if( output_csp == X264_CSP_RGB && (csp < X264_CSP_BGR || csp > X264_CSP_RGB) )
         param->i_csp = X264_CSP_RGB;

@@ -29,7 +29,7 @@
 #define X264_X264_H
 
 #if !defined(_STDINT_H) && !defined(_STDINT_H_) && !defined(_STDINT_H_INCLUDED) && !defined(_STDINT) &&\
-    !defined(_INTTYPES_H) && !defined(_INTTYPES_H_) && !defined(_INTTYPES)
+    !defined(_SYS_STDINT_H_) && !defined(_INTTYPES_H) && !defined(_INTTYPES_H_) && !defined(_INTTYPES)
 # ifdef _MSC_VER
 #  pragma message("You must include stdint.h or inttypes.h before x264.h")
 # else
@@ -41,7 +41,7 @@
 
 #include "x264_config.h"
 
-#define X264_BUILD 144
+#define X264_BUILD 146
 
 /* Application developers planning to link against a shared library version of
  * libx264 from a Microsoft Visual Studio or similar development environment

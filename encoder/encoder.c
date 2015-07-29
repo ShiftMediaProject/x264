@@ -474,12 +474,12 @@ static int x264_validate_parameters( x264_t *h, int b_open )
 
     int i_csp = h->param.i_csp & X264_CSP_MASK;
 #if X264_CHROMA_FORMAT
-    if( CHROMA_FORMAT != CHROMA_420 && i_csp >= X264_CSP_I420 && i_csp <= X264_CSP_NV12 )
+    if( CHROMA_FORMAT != CHROMA_420 && i_csp >= X264_CSP_I420 && i_csp < X264_CSP_I422 )
     {
         x264_log( h, X264_LOG_ERROR, "not compiled with 4:2:0 support\n" );
         return -1;
     }
-    else if( CHROMA_FORMAT != CHROMA_422 && i_csp >= X264_CSP_I422 && i_csp <= X264_CSP_V210 )
+    else if( CHROMA_FORMAT != CHROMA_422 && i_csp >= X264_CSP_I422 && i_csp < X264_CSP_I444 )
     {
         x264_log( h, X264_LOG_ERROR, "not compiled with 4:2:2 support\n" );
         return -1;
@@ -496,32 +496,37 @@ static int x264_validate_parameters( x264_t *h, int b_open )
         return -1;
     }
 
-    if( i_csp < X264_CSP_I444 && h->param.i_width % 2 )
+    int w_mod = i_csp < X264_CSP_I444 ? 2 : 1;
+    int h_mod = (i_csp < X264_CSP_I422 ? 2 : 1) << PARAM_INTERLACED;
+    if( h->param.i_width % w_mod )
     {
-        x264_log( h, X264_LOG_ERROR, "width not divisible by 2 (%dx%d)\n",
-                  h->param.i_width, h->param.i_height );
+        x264_log( h, X264_LOG_ERROR, "width not divisible by %d (%dx%d)\n",
+                  w_mod, h->param.i_width, h->param.i_height );
+        return -1;
+    }
+    if( h->param.i_height % h_mod )
+    {
+        x264_log( h, X264_LOG_ERROR, "height not divisible by %d (%dx%d)\n",
+                  h_mod, h->param.i_width, h->param.i_height );
         return -1;
     }
 
-    if( i_csp < X264_CSP_I422 && PARAM_INTERLACED && h->param.i_height % 4 )
-    {
-        x264_log( h, X264_LOG_ERROR, "height not divisible by 4 (%dx%d)\n",
-                  h->param.i_width, h->param.i_height );
-        return -1;
-    }
-
-    if( (i_csp < X264_CSP_I422 || PARAM_INTERLACED) && h->param.i_height % 2 )
-    {
-        x264_log( h, X264_LOG_ERROR, "height not divisible by 2 (%dx%d)\n",
-                  h->param.i_width, h->param.i_height );
-        return -1;
-    }
-
-    if( (h->param.crop_rect.i_left + h->param.crop_rect.i_right ) >= h->param.i_width ||
-        (h->param.crop_rect.i_top  + h->param.crop_rect.i_bottom) >= h->param.i_height )
+    if( h->param.crop_rect.i_left   >= h->param.i_width ||
+        h->param.crop_rect.i_right  >= h->param.i_width ||
+        h->param.crop_rect.i_top    >= h->param.i_height ||
+        h->param.crop_rect.i_bottom >= h->param.i_height ||
+        h->param.crop_rect.i_left + h->param.crop_rect.i_right  >= h->param.i_width ||
+        h->param.crop_rect.i_top  + h->param.crop_rect.i_bottom >= h->param.i_height )
     {
         x264_log( h, X264_LOG_ERROR, "invalid crop-rect %u,%u,%u,%u\n", h->param.crop_rect.i_left,
                   h->param.crop_rect.i_top, h->param.crop_rect.i_right,  h->param.crop_rect.i_bottom );
+        return -1;
+    }
+    if( h->param.crop_rect.i_left % w_mod || h->param.crop_rect.i_right  % w_mod ||
+        h->param.crop_rect.i_top  % h_mod || h->param.crop_rect.i_bottom % h_mod )
+    {
+        x264_log( h, X264_LOG_ERROR, "crop-rect %u,%u,%u,%u not divisible by %dx%d\n", h->param.crop_rect.i_left,
+                  h->param.crop_rect.i_top, h->param.crop_rect.i_right,  h->param.crop_rect.i_bottom, w_mod, h_mod );
         return -1;
     }
 
@@ -586,10 +591,19 @@ static int x264_validate_parameters( x264_t *h, int b_open )
         h->param.i_dpb_size = 1;
     }
 
-    if( h->param.i_frame_packing < -1 || h->param.i_frame_packing > 5 )
+    if( h->param.i_frame_packing < -1 || h->param.i_frame_packing > 7 )
     {
         x264_log( h, X264_LOG_WARNING, "ignoring unknown frame packing value\n" );
         h->param.i_frame_packing = -1;
+    }
+    if( h->param.i_frame_packing == 7 &&
+        ((h->param.i_width - h->param.crop_rect.i_left - h->param.crop_rect.i_right)  % 3 ||
+         (h->param.i_height - h->param.crop_rect.i_top - h->param.crop_rect.i_bottom) % 3) )
+    {
+        x264_log( h, X264_LOG_ERROR, "cropped resolution %dx%d not compatible with tile format frame packing\n",
+                  h->param.i_width - h->param.crop_rect.i_left - h->param.crop_rect.i_right,
+                  h->param.i_height - h->param.crop_rect.i_top - h->param.crop_rect.i_bottom );
+        return -1;
     }
 
     /* Detect default ffmpeg settings and terminate with an error. */
@@ -1687,6 +1701,7 @@ x264_t *x264_encoder_open( x264_param_t *param )
         else if( !x264_is_regular_file( f ) )
         {
             x264_log( h, X264_LOG_ERROR, "dump_yuv: incompatible with non-regular file %s\n", h->param.psz_dump_yuv );
+            fclose( f );
             goto fail;
         }
         fclose( f );
@@ -3224,6 +3239,12 @@ int     x264_encoder_encode( x264_t *h,
     /* ------------------- Setup new frame from picture -------------------- */
     if( pic_in != NULL )
     {
+        if( h->lookahead->b_exit_thread )
+        {
+            x264_log( h, X264_LOG_ERROR, "lookahead thread is already stopped\n" );
+            return -1;
+        }
+
         /* 1: Copy the picture to a frame and move it to a buffer */
         x264_frame_t *fenc = x264_frame_pop_unused( h, 0 );
         if( !fenc )
