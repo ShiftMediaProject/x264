@@ -245,7 +245,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -293,7 +294,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -350,7 +352,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -399,7 +402,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -452,7 +456,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -512,7 +517,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -572,7 +578,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -632,7 +639,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -693,7 +701,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -753,7 +762,8 @@ if exist ..\common\oclobj.h (
 del ..\common\oclobj.h
 )
 if not exist .\common\oclobj.h (
-type ..\common\opencl\x264-cl.h ..\common\opencl\bidir.cl ..\common\opencl\downscale.cl ..\common\opencl\weightp.cl ..\common\opencl\intra.cl ..\common\opencl\subpel.cl ..\common\opencl\motionsearch.cl | perl ..\tools\cltostr.pl x264_opencl_source &gt; .\common\oclobj.h
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
 )</Command>
     </PreBuildEvent>
     <PostBuildEvent>
