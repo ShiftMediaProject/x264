@@ -612,8 +612,10 @@ void x264_macroblock_deblock( x264_t *h )
     uint8_t (*bs)[8][4] = h->mb.cache.deblock_strength;
     if( intra_cur )
     {
-        memset( &bs[0][1], 3, 3*4*sizeof(uint8_t) );
-        memset( &bs[1][1], 3, 3*4*sizeof(uint8_t) );
+        M32( bs[0][1] ) = 0x03030303;
+        M64( bs[0][2] ) = 0x0303030303030303ULL;
+        M32( bs[1][1] ) = 0x03030303;
+        M64( bs[1][2] ) = 0x0303030303030303ULL;
     }
     else
         h->loopf.deblock_strength( h->mb.cache.non_zero_count, h->mb.cache.ref, h->mb.cache.mv,
@@ -749,6 +751,22 @@ void x264_deblock_v_luma_intra_neon( uint8_t *pix, intptr_t stride, int alpha, i
 #endif
 #endif
 
+#if !HIGH_BIT_DEPTH
+#if HAVE_MSA
+void x264_deblock_v_luma_msa( uint8_t *pix, intptr_t stride, int alpha, int beta, int8_t *tc0 );
+void x264_deblock_h_luma_msa( uint8_t *pix, intptr_t stride, int alpha, int beta, int8_t *tc0 );
+void x264_deblock_v_chroma_msa( uint8_t *pix, intptr_t stride, int alpha, int beta, int8_t *tc0 );
+void x264_deblock_h_chroma_msa( uint8_t *pix, intptr_t stride, int alpha, int beta, int8_t *tc0 );
+void x264_deblock_v_luma_intra_msa( uint8_t *pix, intptr_t stride, int alpha, int beta );
+void x264_deblock_h_luma_intra_msa( uint8_t *pix, intptr_t stride, int alpha, int beta );
+void x264_deblock_v_chroma_intra_msa( uint8_t *pix, intptr_t stride, int alpha, int beta );
+void x264_deblock_h_chroma_intra_msa( uint8_t *pix, intptr_t stride, int alpha, int beta );
+void x264_deblock_strength_msa( uint8_t nnz[X264_SCAN8_SIZE], int8_t ref[2][X264_SCAN8_LUMA_SIZE],
+                                int16_t mv[2][X264_SCAN8_LUMA_SIZE][2], uint8_t bs[2][8][4], int mvy_limit,
+                                int bframe );
+#endif
+#endif
+
 void x264_deblock_init( int cpu, x264_deblock_function_t *pf, int b_mbaff )
 {
     pf->deblock_luma[1] = deblock_v_luma_c;
@@ -866,6 +884,21 @@ void x264_deblock_init( int cpu, x264_deblock_function_t *pf, int b_mbaff )
         pf->deblock_luma_intra[1] = x264_deblock_v_luma_intra_neon;
 #endif
         pf->deblock_strength     = x264_deblock_strength_neon;
+    }
+#endif
+
+#if HAVE_MSA
+    if( cpu&X264_CPU_MSA )
+    {
+        pf->deblock_luma[1] = x264_deblock_v_luma_msa;
+        pf->deblock_luma[0] = x264_deblock_h_luma_msa;
+        pf->deblock_chroma[1] = x264_deblock_v_chroma_msa;
+        pf->deblock_h_chroma_420 = x264_deblock_h_chroma_msa;
+        pf->deblock_luma_intra[1] = x264_deblock_v_luma_intra_msa;
+        pf->deblock_luma_intra[0] = x264_deblock_h_luma_intra_msa;
+        pf->deblock_chroma_intra[1] = x264_deblock_v_chroma_intra_msa;
+        pf->deblock_h_chroma_420_intra = x264_deblock_h_chroma_intra_msa;
+        pf->deblock_strength = x264_deblock_strength_msa;
     }
 #endif
 #endif // !HIGH_BIT_DEPTH

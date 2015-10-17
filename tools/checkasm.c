@@ -101,6 +101,8 @@ static inline uint32_t read_time(void)
     uint64_t b = 0;
     asm volatile( "mrs %0, pmccntr_el0" : "=r"(b) :: "memory" );
     a = b;
+#elif ARCH_MIPS
+    asm volatile( "rdhwr %0, $2" : "=r"(a) :: "memory" );
 #endif
     return a;
 }
@@ -193,6 +195,8 @@ static void print_bench(void)
 #elif ARCH_AARCH64
                     b->cpu&X264_CPU_NEON ? "neon" :
                     b->cpu&X264_CPU_ARMV8 ? "armv8" :
+#elif ARCH_MIPS
+                    b->cpu&X264_CPU_MSA ? "msa" :
 #endif
                     "c",
 #if HAVE_MMX
@@ -1408,6 +1412,32 @@ static int check_mc( int cpu_ref, int cpu_new )
                 {
                     ok = 0;
                     fprintf( stderr, "plane_copy FAILED: w=%d h=%d stride=%d\n", w, h, (int)src_stride );
+                    break;
+                }
+        }
+    }
+
+    if( mc_a.plane_copy_swap != mc_ref.plane_copy_swap )
+    {
+        set_func_name( "plane_copy_swap" );
+        used_asm = 1;
+        for( int i = 0; i < sizeof(plane_specs)/sizeof(*plane_specs); i++ )
+        {
+            int w = (plane_specs[i].w + 1) >> 1;
+            int h = plane_specs[i].h;
+            intptr_t src_stride = plane_specs[i].src_stride;
+            intptr_t dst_stride = (2*w + 127) & ~63;
+            assert( dst_stride * h <= 0x1000 );
+            pixel *src1 = pbuf1 + X264_MAX(0, -src_stride) * (h-1);
+            memset( pbuf3, 0, 0x1000*sizeof(pixel) );
+            memset( pbuf4, 0, 0x1000*sizeof(pixel) );
+            call_c( mc_c.plane_copy_swap, pbuf3, dst_stride, src1, src_stride, w, h );
+            call_a( mc_a.plane_copy_swap, pbuf4, dst_stride, src1, src_stride, w, h );
+            for( int y = 0; y < h; y++ )
+                if( memcmp( pbuf3+y*dst_stride, pbuf4+y*dst_stride, 2*w*sizeof(pixel) ) )
+                {
+                    ok = 0;
+                    fprintf( stderr, "plane_copy_swap FAILED: w=%d h=%d stride=%d\n", w, h, (int)src_stride );
                     break;
                 }
         }
@@ -2760,6 +2790,9 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_ARMV8, "ARMv8" );
     if( cpu_detect & X264_CPU_NEON )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_NEON, "NEON" );
+#elif ARCH_MIPS
+    if( cpu_detect & X264_CPU_MSA )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_MSA, "MSA" );
 #endif
     return ret;
 }
@@ -2770,7 +2803,7 @@ int main(int argc, char *argv[])
 
     if( argc > 1 && !strncmp( argv[1], "--bench", 7 ) )
     {
-#if !ARCH_X86 && !ARCH_X86_64 && !ARCH_PPC && !ARCH_ARM && !ARCH_AARCH64
+#if !ARCH_X86 && !ARCH_X86_64 && !ARCH_PPC && !ARCH_ARM && !ARCH_AARCH64 && !ARCH_MIPS
         fprintf( stderr, "no --bench for your cpu until you port rdtsc\n" );
         return 1;
 #endif

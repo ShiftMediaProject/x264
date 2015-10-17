@@ -74,10 +74,9 @@ log_msg() {
 }
 
 cc_cflags() {
-    # several non gcc compilers issue an incredibly large number of warnings on any warning level,
-    # suppress them by disabling all warnings rather than having to use #pragmas to disable most of them
+    # several non gcc compilers issue an incredibly large number of warnings on high warning levels,
+    # suppress them by reducing the warning level rather than having to use #pragmas
     for arg in $*; do
-        [ "$arg" = -ffast-math ] && arg=
         [[ "$arg" = -falign-loops* ]] && arg=
         [ "$arg" = -fno-tree-vectorize ] && arg=
         [ "$arg" = -Wshadow ] && arg=
@@ -86,14 +85,16 @@ cc_cflags() {
         [[ "$arg" = -l* ]] && arg=
         [[ "$arg" = -L* ]] && arg=
         if [ $compiler_style = MS ]; then
-            [ "$arg" = -Wall ] && arg=-W0
+            [ "$arg" = -ffast-math ] && arg="-fp:fast"
+            [ "$arg" = -Wall ] && arg=
             [ "$arg" = -Werror ] && arg="-W3 -WX"
             [ "$arg" = -g ] && arg=-Z7
             [ "$arg" = -fomit-frame-pointer ] && arg=
             [ "$arg" = -s ] && arg=
             [ "$arg" = -fPIC ] && arg=
         else
-            [ "$arg" = -Wall ] && arg=-w0
+            [ "$arg" = -ffast-math ] && arg=
+            [ "$arg" = -Wall ] && arg=
             [ "$arg" = -Werror ] && arg="-w3 -Werror"
         fi
         [ $compiler = CL -a "$arg" = -O3 ] && arg=-O2
@@ -305,9 +306,22 @@ configure_system_override() {
 
 rm -f x264_config.h config.h config.mak config.log x264.pc x264.def conftest*
 
-SRCPATH="$(cd $(dirname $0); pwd)"
-[ "$SRCPATH" = "$(pwd)" ] && SRCPATH=.
-[ -n "$(echo $SRCPATH | grep ' ')" ] && die "Out of tree builds are impossible with whitespace in source path."
+# Construct a path to the specified directory relative to the working directory
+relative_path() {
+    local base="${PWD%/}"
+    local path="$(cd "$1" >/dev/null; printf '%s/.' "${PWD%/}")"
+    local up=''
+
+    while [[ $path != "$base/"* ]]; do
+        base="${base%/*}"
+        up="../$up"
+    done
+
+    dirname "$up${path#"$base/"}"
+}
+
+SRCPATH="$(relative_path "$(dirname "$0")")"
+echo "$SRCPATH" | grep -q ' ' && die "Out of tree builds are impossible with whitespace in source path."
 [ -e "$SRCPATH/config.h" -o -e "$SRCPATH/x264_config.h" ] && die "Out of tree builds are impossible with config.h/x264_config.h in source dir."
 
 prefix='/usr/local'
@@ -358,7 +372,8 @@ NL="
 
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
-             LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER"
+             LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
+             MSA"
 
 # parse options
 
@@ -526,13 +541,11 @@ if [[ $host_os = mingw* || $host_os = cygwin* ]]; then
         fi
     elif [[ "$cc_base" = cl || "$cc_base" = cl[\ .]* ]]; then
         # Standard Microsoft Visual Studio
-        # Dependency creation includes absolute windows paths, Cygwin's make does not support Windows paths.
-        [[ $host_os = cygwin* ]] && die "Microsoft Visual Studio support requires MSYS"
         compiler=CL
         compiler_style=MS
-        CFLAGS="$CFLAGS -nologo -DHAVE_STRING_H -I\$(SRCPATH)/extras"
-        `$CC 2>&1 | grep -q 'for x86'` && host_cpu=i486
-        `$CC 2>&1 | grep -q 'for x64'` && host_cpu=x86_64
+        CFLAGS="$CFLAGS -nologo -GS- -DHAVE_STRING_H -I\$(SRCPATH)/extras"
+        `$CC 2>&1 | grep -q 'x86'` && host_cpu=i486
+        `$CC 2>&1 | grep -q 'x64'` && host_cpu=x86_64
         cpp_check '' '' '_MSC_VER > 1800 || (_MSC_VER == 1800 && _MSC_FULL_VER >= 180030324)' || die "Microsoft Visual Studio support requires Visual Studio 2013 Update 2 or newer"
     fi
 else
@@ -590,7 +603,7 @@ case $host_os in
         ;;
     cygwin*)
         EXE=".exe"
-        if cc_check "" -mno-cygwin; then
+        if [ $compiler_style = GNU ] && cc_check "" -mno-cygwin; then
             CFLAGS="$CFLAGS -mno-cygwin"
             LDFLAGS="$LDFLAGS -mno-cygwin"
         fi
@@ -649,15 +662,15 @@ stack_alignment=16
 case $host_cpu in
     i*86)
         ARCH="X86"
-        AS="yasm"
+        AS="${AS-yasm}"
         AS_EXT=".asm"
-        ASFLAGS="$ASFLAGS -O2 -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
+        ASFLAGS="$ASFLAGS -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
         if [ $compiler = GNU ]; then
             if [[ "$asm" == auto && "$CFLAGS" != *-march* ]]; then
                 CFLAGS="$CFLAGS -march=i686"
             fi
             if [[ "$asm" == auto && "$CFLAGS" != *-mfpmath* ]]; then
-                CFLAGS="$CFLAGS -mfpmath=sse -msse"
+                CFLAGS="$CFLAGS -mfpmath=sse -msse -msse2"
             fi
             CFLAGS="-m32 $CFLAGS"
             LDFLAGS="-m32 $LDFLAGS"
@@ -678,39 +691,39 @@ case $host_cpu in
             stack_alignment=4
         fi
         if [ "$SYS" = MACOSX ]; then
-            ASFLAGS="$ASFLAGS -f macho -DPREFIX"
+            ASFLAGS="$ASFLAGS -f macho32 -DPREFIX"
         elif [ "$SYS" = WINDOWS -o "$SYS" = CYGWIN ]; then
             ASFLAGS="$ASFLAGS -f win32 -DPREFIX"
             LDFLAGS="$LDFLAGS -Wl,--large-address-aware"
-            [ $compiler = GNU ] && LDFLAGS="$LDFLAGS -Wl,--nxcompat -Wl,--dynamicbase"
+            [ $compiler = GNU ] && LDFLAGS="$LDFLAGS -Wl,--dynamicbase,--nxcompat,--tsaware"
             [ $compiler = GNU ] && RCFLAGS="--target=pe-i386 $RCFLAGS"
         else
-            ASFLAGS="$ASFLAGS -f elf"
+            ASFLAGS="$ASFLAGS -f elf32"
         fi
         ;;
     x86_64)
         ARCH="X86_64"
-        AS="yasm"
+        AS="${AS-yasm}"
         AS_EXT=".asm"
         ASFLAGS="$ASFLAGS -DARCH_X86_64=1 -I\$(SRCPATH)/common/x86/"
         [ $compiler = GNU ] && CFLAGS="-m64 $CFLAGS" && LDFLAGS="-m64 $LDFLAGS"
         if [ "$SYS" = MACOSX ]; then
-            ASFLAGS="$ASFLAGS -f macho64 -m amd64 -DPIC -DPREFIX"
+            ASFLAGS="$ASFLAGS -f macho64 -DPIC -DPREFIX"
             if cc_check '' "-arch x86_64"; then
                 CFLAGS="$CFLAGS -arch x86_64"
                 LDFLAGS="$LDFLAGS -arch x86_64"
             fi
         elif [ "$SYS" = WINDOWS -o "$SYS" = CYGWIN ]; then
-            ASFLAGS="$ASFLAGS -f win32 -m amd64"
+            ASFLAGS="$ASFLAGS -f win64"
             # only the GNU toolchain is inconsistent in prefixing function names with _
             [ $compiler = GNU ] && cc_check "" "-S" && grep -q "_main:" conftest && ASFLAGS="$ASFLAGS -DPREFIX"
-            [ $compiler = GNU ] && LDFLAGS="$LDFLAGS -Wl,--nxcompat -Wl,--dynamicbase"
+            [ $compiler = GNU ] && LDFLAGS="$LDFLAGS -Wl,--dynamicbase,--nxcompat,--tsaware"
             [ $compiler = GNU ] && RCFLAGS="--target=pe-x86-64 $RCFLAGS"
         else
-            ASFLAGS="$ASFLAGS -f elf -m amd64"
+            ASFLAGS="$ASFLAGS -f elf64"
         fi
         ;;
-    powerpc|powerpc64)
+    powerpc*)
         ARCH="PPC"
         if [ $asm = auto ] ; then
             define HAVE_ALTIVEC
@@ -727,8 +740,10 @@ case $host_cpu in
     sparc)
         ARCH="SPARC"
         ;;
-    mips|mipsel|mips64|mips64el)
+    mips*)
         ARCH="MIPS"
+        AS="${AS-${CC}}"
+        AS_EXT=".c"
         ;;
     arm*)
         ARCH="ARM"
@@ -837,9 +852,6 @@ if [ $asm = auto -a $ARCH = ARM ] ; then
 fi
 
 if [ $asm = auto -a $ARCH = AARCH64 ] ; then
-    # set flags so neon is built by default
-    echo $CFLAGS | grep -Eq '(-mcpu|-march|-mfpu|-arch)' || CFLAGS="$CFLAGS -arch arm64 -mfpu=neon"
-
     if  cc_check '' '' '__asm__("cmeq v0.8h, v0.8h, #0");' ; then define HAVE_NEON
         ASFLAGS="$ASFLAGS -c"
     else
@@ -854,6 +866,20 @@ if [ $asm = auto -a \( $ARCH = ARM -o $ARCH = AARCH64 \) ] ; then
     as_check ".func test${NL}.endfunc" && define HAVE_AS_FUNC 1
 fi
 
+if [ $asm = auto -a $ARCH = MIPS ] ; then
+    if ! echo $CFLAGS | grep -Eq '(-march|-mmsa|-mno-msa)' ; then
+        cc_check '' '-mmsa -mfp64 -mhard-float' && CFLAGS="-mmsa -mfp64 -mhard-float $CFLAGS"
+    fi
+
+    if cc_check '' '' '__asm__("addvi.b $w0, $w1, 1");' ; then
+        define HAVE_MSA
+    else
+        echo "You specified a pre-MSA CPU in your CFLAGS."
+        echo "If you really want to run on such a CPU, configure with --disable-asm."
+        exit 1
+    fi
+fi
+
 [ $asm = no ] && AS=""
 [ "x$AS" = x ] && asm="no" || asm="yes"
 
@@ -864,11 +890,13 @@ define STACK_ALIGNMENT $stack_alignment
 ASFLAGS="$ASFLAGS -DSTACK_ALIGNMENT=$stack_alignment"
 
 # skip endianness check for Intel Compiler and MSVS, as all supported platforms are little. each have flags that will cause the check to fail as well
+CPU_ENDIAN="little-endian"
 if [ $compiler = GNU ]; then
     echo "int i[2] = {0x42494745,0}; double f[2] = {0x1.0656e6469616ep+102,0};" > conftest.c
     $CC $CFLAGS conftest.c -c -o conftest.o 2>/dev/null || die "endian test failed"
     if (${cross_prefix}strings -a conftest.o | grep -q BIGE) && (${cross_prefix}strings -a conftest.o | grep -q FPendian) ; then
         define WORDS_BIGENDIAN
+        CPU_ENDIAN="big-endian"
     elif !(${cross_prefix}strings -a conftest.o | grep -q EGIB && ${cross_prefix}strings -a conftest.o | grep -q naidnePF) ; then
         die "endian test failed"
     fi
@@ -1104,7 +1132,7 @@ fi
 cc_check "stdint.h" "" "uint32_t test_vec __attribute__ ((vector_size (16))) = {0,1,2,3};" && define HAVE_VECTOREXT
 
 if [ "$pic" = "yes" ] ; then
-    CFLAGS="$CFLAGS -fPIC"
+    [ "$SYS" != WINDOWS -a "$SYS" != CYGWIN ] && CFLAGS="$CFLAGS -fPIC"
     ASFLAGS="$ASFLAGS -DPIC"
     # resolve textrels in the x86 asm
     cc_check stdio.h "-shared -Wl,-Bsymbolic" && SOFLAGS="$SOFLAGS -Wl,-Bsymbolic"
@@ -1208,7 +1236,7 @@ cat > x264_config.h << EOF
 #define X264_CHROMA_FORMAT $config_chroma_format
 EOF
 
-${SRCPATH}/version.sh "${SRCPATH}" >> x264_config.h
+${SRCPATH}/version.sh >> x264_config.h
 
 if [ "$cli_libx264" = "system" ] ; then
     if [ "$shared" = "yes" ]; then
@@ -1227,7 +1255,13 @@ DEPMT="${QPRE}MT"
 if [ $compiler_style = MS ]; then
     AR="lib -nologo -out:"
     LD="link -out:"
-    [ $compiler = ICL ] && AR="xi$AR" && LD="xi$LD"
+    if [ $compiler = ICL ]; then
+        AR="xi$AR"
+        LD="xi$LD"
+    else
+        mslink="$(dirname "$(command -v cl 2>/dev/null)")/link"
+        [ -x "$mslink" ] && LD="\"$mslink\" -out:"
+    fi
     HAVE_GETOPT_LONG=0
     LDFLAGS="-nologo -incremental:no $(cl_ldflags $LDFLAGS)"
     LDFLAGSCLI="$(cl_ldflags $LDFLAGSCLI)"
@@ -1386,6 +1420,7 @@ gpl_filters=""
 
 cat > conftest.log <<EOF
 platform:      $ARCH
+byte order:    $CPU_ENDIAN
 system:        $SYS
 cli:           $cli
 libx264:       $cli_libx264
