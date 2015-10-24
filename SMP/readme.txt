@@ -19,17 +19,14 @@ Currently only up to VS2010 is supported on the web page so just download that.
     Note: With newer version of VS the BuildCustomization path should be the version specific to the VS version you are using.
         so for instance the path for Visual Studio 2013 is:
         C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\BuildCustomizations
-    Note: For best compatibility the vsyasm executable should be copied to the VS tools folder:
+        and the path for Visual Studio 2015 would be:
+        C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\BuildCustomizations
+    Note: For best compatibility the vsyasm executable should be copied to the VS tools folder.
+        for Visual Studio 2013 this would be:
+        C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools
+        and for Visual Studio 2015 would be:
         C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools
-        
-3) Currently there is a bug in Visual Studio 2013 so in order to make the build customizations work you must edit a file
-    a) Open vsyasm.props that you just extracted
-    b) Replace the 1 occurrence of [Input] with "%(FullPath)"  (make sure to include the "s)
 
-4) In order to use version 1.3.0 of vsyasm you will also have to fix a error in the distributed build customizations
-    a) Open vsyasm.props that you just extracted
+3) In order to use version 1.3.0 of vsyasm you will also have to fix a error in the distributed build customizations
+    a) Open vsyasm.props
     b) Replace the 1 occurrence of $(Platform) with win$(PlatformArchitecture)
-    
-5) ???
-
-6) Profit
