@@ -227,6 +227,16 @@ intptr_t x264_checkasm_call( intptr_t (*func)(), int *ok, ... );
 #define x264_stack_pagealign( func, align ) func()
 #endif
 
+#if ARCH_AARCH64
+intptr_t x264_checkasm_call( intptr_t (*func)(), int *ok, ... );
+#endif
+
+#if ARCH_ARM
+intptr_t x264_checkasm_call_neon( intptr_t (*func)(), int *ok, ... );
+intptr_t x264_checkasm_call_noneon( intptr_t (*func)(), int *ok, ... );
+intptr_t (*x264_checkasm_call)( intptr_t (*func)(), int *ok, ... ) = x264_checkasm_call_noneon;
+#endif
+
 #define call_c1(func,...) func(__VA_ARGS__)
 
 #if ARCH_X86_64
@@ -244,10 +254,16 @@ void x264_checkasm_stack_clobber( uint64_t clobber, ... );
     uint64_t r = (rand() & 0xffff) * 0x0001000100010001ULL; \
     x264_checkasm_stack_clobber( r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r ); /* max_args+6 */ \
     x264_checkasm_call(( intptr_t(*)())func, &ok, 0, 0, 0, 0, __VA_ARGS__ ); })
-#elif ARCH_X86
+#elif ARCH_X86 || (ARCH_AARCH64 && !defined(__APPLE__)) || ARCH_ARM
 #define call_a1(func,...) x264_checkasm_call( (intptr_t(*)())func, &ok, __VA_ARGS__ )
 #else
 #define call_a1 call_c1
+#endif
+
+#if ARCH_ARM
+#define call_a1_64(func,...) ((uint64_t (*)(intptr_t(*)(), int*, ...))x264_checkasm_call)( (intptr_t(*)())func, &ok, __VA_ARGS__ )
+#else
+#define call_a1_64 call_a1
 #endif
 
 #define call_bench(func,cpu,...)\
@@ -282,6 +298,7 @@ void x264_checkasm_stack_clobber( uint64_t clobber, ... );
 #define call_c(func,...) ({ call_c2(func,__VA_ARGS__); call_c1(func,__VA_ARGS__); })
 #define call_a2(func,...) ({ call_bench(func,cpu_new,__VA_ARGS__); })
 #define call_c2(func,...) ({ call_bench(func,0,__VA_ARGS__); })
+#define call_a64(func,...) ({ call_a2(func,__VA_ARGS__); call_a1_64(func,__VA_ARGS__); })
 
 
 static int check_pixel( int cpu_ref, int cpu_new )
@@ -368,7 +385,7 @@ static int check_pixel( int cpu_ref, int cpu_new )
         {
             uint32_t cost8_c = pixel_c.sa8d[PIXEL_16x16]( pbuf1, 16, pbuf2, 64 );
             uint32_t cost4_c = pixel_c.satd[PIXEL_16x16]( pbuf1, 16, pbuf2, 64 );
-            uint64_t res_a = call_a( pixel_asm.sa8d_satd[PIXEL_16x16], pbuf1, (intptr_t)16, pbuf2, (intptr_t)64 );
+            uint64_t res_a = call_a64( pixel_asm.sa8d_satd[PIXEL_16x16], pbuf1, (intptr_t)16, pbuf2, (intptr_t)64 );
             uint32_t cost8_a = res_a;
             uint32_t cost4_a = res_a >> 32;
             if( cost8_a != cost8_c || cost4_a != cost4_c )
@@ -712,13 +729,16 @@ static int check_pixel( int cpu_ref, int cpu_new )
         used_asm = 1;
         set_func_name( "ssd_nv12" );
         uint64_t res_u_c, res_v_c, res_u_a, res_v_a;
-        pixel_c.ssd_nv12_core(   pbuf1, 368, pbuf2, 368, 360, 8, &res_u_c, &res_v_c );
-        pixel_asm.ssd_nv12_core( pbuf1, 368, pbuf2, 368, 360, 8, &res_u_a, &res_v_a );
-        if( res_u_c != res_u_a || res_v_c != res_v_a )
+        for( int w = 8; w <= 360; w += 8 )
         {
-            ok = 0;
-            fprintf( stderr, "ssd_nv12: %"PRIu64",%"PRIu64" != %"PRIu64",%"PRIu64"\n",
-                     res_u_c, res_v_c, res_u_a, res_v_a );
+            pixel_c.ssd_nv12_core(   pbuf1, 368, pbuf2, 368, w, 8, &res_u_c, &res_v_c );
+            pixel_asm.ssd_nv12_core( pbuf1, 368, pbuf2, 368, w, 8, &res_u_a, &res_v_a );
+            if( res_u_c != res_u_a || res_v_c != res_v_a )
+            {
+                ok = 0;
+                fprintf( stderr, "ssd_nv12: %"PRIu64",%"PRIu64" != %"PRIu64",%"PRIu64"\n",
+                         res_u_c, res_v_c, res_u_a, res_v_a );
+            }
         }
         call_c( pixel_c.ssd_nv12_core,   pbuf1, (intptr_t)368, pbuf2, (intptr_t)368, 360, 8, &res_u_c, &res_v_c );
         call_a( pixel_asm.ssd_nv12_core, pbuf1, (intptr_t)368, pbuf2, (intptr_t)368, 360, 8, &res_u_a, &res_v_a );
@@ -1616,7 +1636,7 @@ static int check_mc( int cpu_ref, int cpu_new )
         report( "lowres init :" );
     }
 
-#define INTEGRAL_INIT( name, size, ... )\
+#define INTEGRAL_INIT( name, size, offset, cmp_len, ... )\
     if( mc_a.name != mc_ref.name )\
     {\
         intptr_t stride = 96;\
@@ -1625,20 +1645,20 @@ static int check_mc( int cpu_ref, int cpu_new )
         memcpy( buf3, buf1, size*2*stride );\
         memcpy( buf4, buf1, size*2*stride );\
         uint16_t *sum = (uint16_t*)buf3;\
-        call_c1( mc_c.name, __VA_ARGS__ );\
+        call_c1( mc_c.name, sum+offset, __VA_ARGS__ );\
         sum = (uint16_t*)buf4;\
-        call_a1( mc_a.name, __VA_ARGS__ );\
-        if( memcmp( buf3, buf4, (stride-8)*2 ) \
+        call_a1( mc_a.name, sum+offset, __VA_ARGS__ );\
+        if( memcmp( buf3+2*offset, buf4+2*offset, cmp_len*2 )\
             || (size>9 && memcmp( buf3+18*stride, buf4+18*stride, (stride-8)*2 )))\
             ok = 0;\
-        call_c2( mc_c.name, __VA_ARGS__ );\
-        call_a2( mc_a.name, __VA_ARGS__ );\
+        call_c2( mc_c.name, sum+offset, __VA_ARGS__ );\
+        call_a2( mc_a.name, sum+offset, __VA_ARGS__ );\
     }
     ok = 1; used_asm = 0;
-    INTEGRAL_INIT( integral_init4h, 2, sum+stride, pbuf2, stride );
-    INTEGRAL_INIT( integral_init8h, 2, sum+stride, pbuf2, stride );
-    INTEGRAL_INIT( integral_init4v, 14, sum, sum+9*stride, stride );
-    INTEGRAL_INIT( integral_init8v, 9, sum, stride );
+    INTEGRAL_INIT( integral_init4h, 2, stride, stride-4, pbuf2, stride );
+    INTEGRAL_INIT( integral_init8h, 2, stride, stride-8, pbuf2, stride );
+    INTEGRAL_INIT( integral_init4v, 14, 0, stride-8, sum+9*stride, stride );
+    INTEGRAL_INIT( integral_init8v, 9, 0, stride-8, stride );
     report( "integral init :" );
 
     ok = 1; used_asm = 0;
@@ -2779,6 +2799,8 @@ static int check_all_flags( void )
         ret = check_all_funcs( 0, X264_CPU_ALTIVEC );
     }
 #elif ARCH_ARM
+    if( cpu_detect & X264_CPU_NEON )
+        x264_checkasm_call = x264_checkasm_call_neon;
     if( cpu_detect & X264_CPU_ARMV6 )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_ARMV6, "ARMv6" );
     if( cpu_detect & X264_CPU_NEON )

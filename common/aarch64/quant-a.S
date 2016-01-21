@@ -5,6 +5,7 @@
  *
  * Authors: David Conrad <lessen42@gmail.com>
  *          Janne Grunau <janne-x264@jannau.net>
+ *          Martin Storsjo <martin@martin.st>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -328,17 +329,13 @@ function x264_decimate_score\size\()_neon, export=1
     lsr         x6,  x3,  #2
     lsl         x1,  x1,  x3
     ldrb        w7,  [x5, x6]
-    cbz         x1,  2f
     lsl         x1,  x1,  #4
     add         w0,  w0,  w7
     cbnz        x1,  1b
     ret
-2:
-    add         w0,  w0,  w7
-0:
-    ret
 9:
     mov         w0,  #9
+0:
     ret
 endfunc
 .endm
@@ -399,17 +396,13 @@ function x264_decimate_score64_neon, export=1
     clz         x3,  x1
     lsl         x1,  x1,  x3
     ldrb        w7,  [x5, x3]
-    cbz         x1,  2f
     lsl         x1,  x1,  #1
     add         w0,  w0,  w7
     cbnz        x1,  1b
     ret
-2:
-    add         w0,  w0,  w7
-0:
-    ret
 9:
     mov         w0,  #9
+0:
     ret
 endfunc
 
@@ -546,12 +539,10 @@ function x264_coeff_level_run\size\()_neon, export=1
     sub         x0,  x0,  #2
 .endif
 .if         \size < 15
-    .equ        shiftw, 3
     ld1         {v0.8h}, [x0]
     uqxtn       v0.8b,  v0.8h
     cmtst       v0.8b,  v0.8b,  v0.8b
 .else
-    .equ        shiftw, 2
     ld1         {v0.8h,v1.8h}, [x0]
     uqxtn       v0.8b,  v0.8h
     uqxtn2      v0.16b, v1.8h
@@ -565,7 +556,7 @@ function x264_coeff_level_run\size\()_neon, export=1
 
     coeff_level_run_start \size
 
-    coeff_level_run shiftw
+    coeff_level_run (4 - (\size + 1) / 8)
 
     ret
 endfunc

@@ -1375,11 +1375,14 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         INIT4( hadamard_ac, _neon );
         pixf->sa8d[PIXEL_8x8]   = x264_pixel_sa8d_8x8_neon;
         pixf->sa8d[PIXEL_16x16] = x264_pixel_sa8d_16x16_neon;
+        pixf->sa8d_satd[PIXEL_16x16] = x264_pixel_sa8d_satd_16x16_neon;
         pixf->var[PIXEL_8x8]    = x264_pixel_var_8x8_neon;
         pixf->var[PIXEL_8x16]   = x264_pixel_var_8x16_neon;
         pixf->var[PIXEL_16x16]  = x264_pixel_var_16x16_neon;
         pixf->var2[PIXEL_8x8]   = x264_pixel_var2_8x8_neon;
         pixf->var2[PIXEL_8x16]  = x264_pixel_var2_8x16_neon;
+        pixf->vsad = x264_pixel_vsad_neon;
+        pixf->asd8 = x264_pixel_asd8_neon;
 
         pixf->intra_sad_x3_4x4    = x264_intra_sad_x3_4x4_neon;
         pixf->intra_satd_x3_4x4   = x264_intra_satd_x3_4x4_neon;
@@ -1392,6 +1395,7 @@ void x264_pixel_init( int cpu, x264_pixel_function_t *pixf )
         pixf->intra_sad_x3_16x16  = x264_intra_sad_x3_16x16_neon;
         pixf->intra_satd_x3_16x16 = x264_intra_satd_x3_16x16_neon;
 
+        pixf->ssd_nv12_core     = x264_pixel_ssd_nv12_core_neon;
         pixf->ssim_4x4x2_core   = x264_pixel_ssim_4x4x2_core_neon;
         pixf->ssim_end4         = x264_pixel_ssim_end4_neon;
 

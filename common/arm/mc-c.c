@@ -4,6 +4,7 @@
  * Copyright (C) 2009-2015 x264 project
  *
  * Authors: David Conrad <lessen42@gmail.com>
+ *          Janne Grunau <janne-x264@jannau.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +48,8 @@ void x264_pixel_avg2_w8_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t
 void x264_pixel_avg2_w16_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t *, int );
 void x264_pixel_avg2_w20_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t *, int );
 
+void x264_plane_copy_neon( pixel *dst, intptr_t i_dst,
+                           pixel *src, intptr_t i_src, int w, int h );
 void x264_plane_copy_deinterleave_neon(  pixel *dstu, intptr_t i_dstu,
                                          pixel *dstv, intptr_t i_dstv,
                                          pixel *src,  intptr_t i_src, int w, int h );
@@ -64,6 +67,7 @@ void x264_store_interleave_chroma_neon( pixel *dst, intptr_t i_dst, pixel *srcu,
 void x264_load_deinterleave_chroma_fdec_neon( pixel *dst, pixel *src, intptr_t i_src, int height );
 void x264_load_deinterleave_chroma_fenc_neon( pixel *dst, pixel *src, intptr_t i_src, int height );
 
+#if !HIGH_BIT_DEPTH
 #define MC_WEIGHT(func)\
 void x264_mc_weight_w20##func##_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, const x264_weight_t *, int );\
 void x264_mc_weight_w16##func##_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, const x264_weight_t *, int );\
@@ -84,6 +88,7 @@ MC_WEIGHT()
 MC_WEIGHT(_nodenom)
 MC_WEIGHT(_offsetadd)
 MC_WEIGHT(_offsetsub)
+#endif
 
 void x264_mc_copy_w4_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
 void x264_mc_copy_w8_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, int );
@@ -96,6 +101,13 @@ void x264_frame_init_lowres_core_neon( uint8_t *, uint8_t *, uint8_t *, uint8_t 
 void x264_hpel_filter_v_neon( uint8_t *, uint8_t *, int16_t *, intptr_t, int );
 void x264_hpel_filter_c_neon( uint8_t *, int16_t *, int );
 void x264_hpel_filter_h_neon( uint8_t *, uint8_t *, int );
+
+void integral_init4h_neon( uint16_t *, uint8_t *, intptr_t );
+void integral_init4v_neon( uint16_t *, uint16_t *, intptr_t );
+void integral_init8h_neon( uint16_t *, uint8_t *, intptr_t );
+void integral_init8v_neon( uint16_t *, intptr_t );
+
+void x264_mbtree_propagate_cost_neon( int16_t *, uint16_t *, uint16_t *, uint16_t *, uint16_t *, float *, int );
 
 #if !HIGH_BIT_DEPTH
 static void x264_weight_cache_neon( x264_t *h, x264_weight_t *w )
@@ -219,6 +231,8 @@ static void hpel_filter_neon( uint8_t *dsth, uint8_t *dstv, uint8_t *dstc, uint8
 }
 #endif // !HIGH_BIT_DEPTH
 
+PROPAGATE_LIST(neon)
+
 void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
 {
     if( !(cpu&X264_CPU_ARMV6) )
@@ -239,6 +253,7 @@ void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
     pf->copy[PIXEL_8x8]   = x264_mc_copy_w8_neon;
     pf->copy[PIXEL_4x4]   = x264_mc_copy_w4_neon;
 
+    pf->plane_copy              = x264_plane_copy_neon;
     pf->plane_copy_deinterleave = x264_plane_copy_deinterleave_neon;
     pf->plane_copy_deinterleave_rgb = x264_plane_copy_deinterleave_rgb_neon;
     pf->plane_copy_interleave = x264_plane_copy_interleave_neon;
@@ -268,6 +283,14 @@ void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
     pf->get_ref = get_ref_neon;
     pf->hpel_filter = hpel_filter_neon;
     pf->frame_init_lowres_core = x264_frame_init_lowres_core_neon;
+
+    pf->integral_init4h = integral_init4h_neon;
+    pf->integral_init8h = integral_init8h_neon;
+    pf->integral_init4v = integral_init4v_neon;
+    pf->integral_init8v = integral_init8v_neon;
+
+    pf->mbtree_propagate_cost = x264_mbtree_propagate_cost_neon;
+    pf->mbtree_propagate_list = x264_mbtree_propagate_list_neon;
 #endif // !HIGH_BIT_DEPTH
 
 // Apple's gcc stupidly cannot align stack variables, and ALIGNED_ARRAY can't work on structs

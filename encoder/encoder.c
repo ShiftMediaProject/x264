@@ -1409,7 +1409,7 @@ x264_t *x264_encoder_open( x264_param_t *param )
 {
     x264_t *h;
     char buf[1000], *p;
-    int qp, i_slicetype_length;
+    int i_slicetype_length;
 
     CHECKED_MALLOCZERO( h, sizeof(x264_t) );
 
@@ -1576,15 +1576,8 @@ x264_t *x264_encoder_open( x264_param_t *param )
         p += sprintf( p, " none!" );
     x264_log( h, X264_LOG_INFO, "%s\n", buf );
 
-    float *logs = x264_analyse_prepare_costs( h );
-    if( !logs )
+    if( x264_analyse_init_costs( h ) )
         goto fail;
-    for( qp = X264_MIN( h->param.rc.i_qp_min, QP_MAX_SPEC ); qp <= h->param.rc.i_qp_max; qp++ )
-        if( x264_analyse_init_costs( h, logs, qp ) )
-            goto fail;
-    if( x264_analyse_init_costs( h, logs, X264_LOOKAHEAD_QP ) )
-        goto fail;
-    x264_free( logs );
 
     static const uint16_t cost_mv_correct[7] = { 24, 47, 95, 189, 379, 757, 1515 };
     /* Checks for known miscompilation issues. */
@@ -3962,13 +3955,13 @@ static int x264_encoder_frame_end( x264_t *h, x264_t *thread_current,
     {
         pic_out->prop.f_ssim = h->stat.frame.f_ssim / h->stat.frame.i_ssim_cnt;
         h->stat.f_ssim_mean_y[h->sh.i_type] += pic_out->prop.f_ssim * dur;
-        snprintf( psz_message + strlen(psz_message), 80 - strlen(psz_message),
-                  " SSIM Y:%.5f", pic_out->prop.f_ssim );
+        int msg_len = strlen(psz_message);
+        snprintf( psz_message + msg_len, 80 - msg_len, " SSIM Y:%.5f", pic_out->prop.f_ssim );
     }
     psz_message[79] = '\0';
 
     x264_log( h, X264_LOG_DEBUG,
-                  "frame=%4d QP=%.2f NAL=%d Slice:%c Poc:%-3d I:%-4d P:%-4d SKIP:%-4d size=%d bytes%s\n",
+              "frame=%4d QP=%.2f NAL=%d Slice:%c Poc:%-3d I:%-4d P:%-4d SKIP:%-4d size=%d bytes%s\n",
               h->i_frame,
               h->fdec->f_qp_avg_aq,
               h->i_nal_ref_idc,
