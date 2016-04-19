@@ -1,7 +1,7 @@
 /*****************************************************************************
  * slicetype.c: lookahead analysis
  *****************************************************************************
- * Copyright (C) 2005-2015 x264 project
+ * Copyright (C) 2005-2016 x264 project
  *
  * Authors: Fiona Glaser <fiona@x264.com>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -1928,7 +1928,7 @@ void x264_slicetype_decide( x264_t *h )
     /* insert a bref into the sequence */
     if( h->param.i_bframe_pyramid && bframes > 1 && !brefs )
     {
-        h->lookahead->next.list[bframes/2]->i_type = X264_TYPE_BREF;
+        h->lookahead->next.list[(bframes-1)/2]->i_type = X264_TYPE_BREF;
         brefs++;
     }
 
