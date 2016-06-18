@@ -42,3 +42,4 @@
 #else
 #   define HAVE_X86_INLINE_ASM 0
 #endif
+#define HAVE_WINRT 0
