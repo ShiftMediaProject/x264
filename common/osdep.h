@@ -55,8 +55,13 @@
 #define strtok_r strtok_s
 #define S_ISREG(x) (((x) & S_IFMT) == S_IFREG)
 #if _MSC_VER < 1900
-#define snprintf _snprintf
+int x264_snprintf( char *s, size_t n, const char *fmt, ... );
+int x264_vsnprintf( char *s, size_t n, const char *fmt, va_list arg );
+#define snprintf  x264_snprintf
+#define vsnprintf x264_vsnprintf
 #endif
+#else
+#include <strings.h>
 #endif
 
 #if !defined(va_copy) && defined(__INTEL_COMPILER)
@@ -79,16 +84,20 @@ int x264_rename( const char *oldname, const char *newname );
 #define x264_struct_stat struct _stati64
 #define x264_fstat _fstati64
 int x264_stat( const char *path, x264_struct_stat *buf );
-int x264_vfprintf( FILE *stream, const char *format, va_list arg );
-int x264_is_pipe( const char *path );
 #else
 #define x264_fopen       fopen
 #define x264_rename      rename
 #define x264_struct_stat struct stat
 #define x264_fstat       fstat
 #define x264_stat        stat
-#define x264_vfprintf    vfprintf
-#define x264_is_pipe(x)  0
+#endif
+
+#if defined(_WIN32) && !HAVE_WINRT
+int x264_vfprintf( FILE *stream, const char *format, va_list arg );
+int x264_is_pipe( const char *path );
+#else
+#define x264_vfprintf vfprintf
+#define x264_is_pipe(x) 0
 #endif
 
 #ifdef _MSC_VER

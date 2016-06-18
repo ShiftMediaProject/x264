@@ -373,7 +373,7 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA MMAP"
+             MSA MMAP WINRT"
 
 # parse options
 
@@ -547,6 +547,9 @@ if [[ $host_os = mingw* || $host_os = cygwin* ]]; then
         `$CC 2>&1 | grep -q 'x86'` && host_cpu=i486
         `$CC 2>&1 | grep -q 'x64'` && host_cpu=x86_64
         cpp_check '' '' '_MSC_VER > 1800 || (_MSC_VER == 1800 && _MSC_FULL_VER >= 180030324)' || die "Microsoft Visual Studio support requires Visual Studio 2013 Update 2 or newer"
+    else
+        # MinGW uses broken pre-VS2015 Microsoft printf functions unless it's told to use the POSIX ones.
+        CFLAGS="$CFLAGS -D_POSIX_C_SOURCE=200112L"
     fi
 else
     if [[ "$cc_base" = icc || "$cc_base" = icc[\ .]* ]]; then
@@ -693,10 +696,15 @@ case $host_cpu in
             fi
         elif [ "$SYS" = WINDOWS -o "$SYS" = CYGWIN ]; then
             ASFLAGS="$ASFLAGS -f win64"
-            # only the GNU toolchain is inconsistent in prefixing function names with _
-            [ $compiler = GNU ] && cc_check "" "-S" && grep -q "_main:" conftest && ASFLAGS="$ASFLAGS -DPREFIX"
-            [ $compiler = GNU ] && LDFLAGS="$LDFLAGS -Wl,--dynamicbase,--nxcompat,--tsaware"
-            [ $compiler = GNU ] && RCFLAGS="--target=pe-x86-64 $RCFLAGS"
+            if [ $compiler = GNU ]; then
+                # only the GNU toolchain is inconsistent in prefixing function names with _
+                cc_check "" "-S" && grep -q "_main:" conftest && ASFLAGS="$ASFLAGS -DPREFIX"
+                cc_check "" "-Wl,--high-entropy-va" && LDFLAGS="$LDFLAGS -Wl,--high-entropy-va"
+                LDFLAGS="$LDFLAGS -Wl,--dynamicbase,--nxcompat,--tsaware"
+                LDFLAGSCLI="$LDFLAGSCLI -Wl,--image-base,0x140000000"
+                SOFLAGS="$SOFLAGS -Wl,--image-base,0x180000000"
+                RCFLAGS="--target=pe-x86-64 $RCFLAGS"
+            fi
         else
             ASFLAGS="$ASFLAGS -f elf64"
         fi
@@ -768,6 +776,21 @@ if [ $SYS = WINDOWS ]; then
     if ! rc_check "0 RCDATA {0}" ; then
         RC=""
     fi
+
+    if cpp_check "winapifamily.h" "" "!WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)" ; then
+        [ $compiler = CL ] || die "WinRT requires MSVC"
+        define HAVE_WINRT
+        CFLAGS="$CFLAGS -MD"
+        LDFLAGS="$LDFLAGS -appcontainer"
+        if ! cpp_check "" "" "defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0603" ; then
+            die "_WIN32_WINNT must be defined to at least 0x0603 (Windows 8.1) for WinRT"
+        elif cpp_check "" "" "_WIN32_WINNT >= 0x0A00" ; then
+            # Universal Windows Platform (Windows 10)
+            LDFLAGS="$LDFLAGS -lWindowsApp"
+        fi
+        cli="no"
+        opencl="no"
+    fi
 fi
 
 log_msg "x264 configure script"
@@ -786,7 +809,7 @@ cc_check || die "No working C compiler found."
 
 if [ $compiler_style = GNU ]; then
     if cc_check '' -std=gnu99 'for( int i = 0; i < 9; i++ );' ; then
-        CFLAGS="$CFLAGS -std=gnu99"
+        CFLAGS="$CFLAGS -std=gnu99 -D_GNU_SOURCE"
     elif cc_check '' -std=c99 'for( int i = 0; i < 9; i++ );' ; then
         CFLAGS="$CFLAGS -std=c99 -D_POSIX_C_SOURCE=200112L -D_BSD_SOURCE"
     elif ! cc_check '' '' 'for( int i = 0; i < 9; i++ );' ; then
@@ -976,6 +999,16 @@ if [ "$SYS" = "LINUX" -a \( "$ARCH" = "X86" -o "$ARCH" = "X86_64" \) ] && cc_che
     define HAVE_THP
 fi
 
+if [ "$cli" = "no" ] ; then
+    avs="no"
+    lavf="no"
+    ffms="no"
+    gpac="no"
+    lsmash="no"
+    mp4="no"
+    swscale="no"
+fi
+
 if [ "$swscale" = "auto" ] ; then
     swscale="no"
     if ${cross_prefix}pkg-config --exists libswscale 2>/dev/null; then
@@ -1016,7 +1049,7 @@ if [ "$lavf" = "auto" ] ; then
 fi
 
 if [ "$ffms" = "auto" ] ; then
-    ffms_major="2"; ffms_minor="16"; ffms_micro="2"; ffms_bump="0"
+    ffms_major="2"; ffms_minor="21"; ffms_micro="0"; ffms_bump="0"
     ffms="no"
 
     if ${cross_prefix}pkg-config --exists ffms2 2>/dev/null; then
@@ -1141,6 +1174,7 @@ fi
 
 if [ "$debug" = "yes" ]; then
     CFLAGS="-O1 -g $CFLAGS"
+    RCFLAGS="$RCFLAGS -DDEBUG"
 else
     CFLAGS="-O3 -ffast-math $CFLAGS"
 fi
@@ -1364,7 +1398,7 @@ if [ "$shared" = "yes" ]; then
             grep "extern.*x264" ${SRCPATH}/x264.h | sed -e "s/.*\(x264\w*\)\W.*/\1 DATA/;" >> x264.def
         else
             echo 'IMPLIBNAME=libx264.dll.a' >> config.mak
-            echo "SOFLAGS=-shared -Wl,--out-implib,\$(IMPLIBNAME) -Wl,--enable-auto-image-base $SOFLAGS" >> config.mak
+            echo "SOFLAGS=-shared -Wl,--out-implib,\$(IMPLIBNAME) $SOFLAGS" >> config.mak
         fi
     elif [ "$SYS" = "MACOSX" ]; then
         echo "SOSUFFIX=dylib" >> config.mak

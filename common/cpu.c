@@ -25,9 +25,7 @@
  * For more information, contact us at licensing@x264.com.
  *****************************************************************************/
 
-#define _GNU_SOURCE // for sched_getaffinity
 #include "common.h"
-#include "cpu.h"
 
 #if HAVE_POSIXTHREAD && SYS_LINUX
 #include <sched.h>

@@ -59,6 +59,13 @@ deinterleave_shuf32a: db 0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30
 deinterleave_shuf32b: db 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31
 %endif ; !HIGH_BIT_DEPTH
 
+mbtree_fix8_unpack_shuf: db -1,-1, 1, 0,-1,-1, 3, 2,-1,-1, 5, 4,-1,-1, 7, 6
+                         db -1,-1, 9, 8,-1,-1,11,10,-1,-1,13,12,-1,-1,15,14
+mbtree_fix8_pack_shuf:   db  1, 0, 3, 2, 5, 4, 7, 6, 9, 8,11,10,13,12,15,14
+
+pf_256:    times 4 dd 256.0
+pf_inv256: times 4 dd 0.00390625
+
 pd_16: times 4 dd 16
 pd_0f: times 4 dd 0xffff
 
@@ -2087,15 +2094,15 @@ INIT_XMM fma4
 MBTREE
 
 %macro INT16_UNPACK 1
-    punpckhwd   xm4, xm%1, xm7
+    punpckhwd   xm6, xm%1, xm7
     punpcklwd  xm%1, xm7
-    vinsertf128 m%1, m%1, xm4, 1
+    vinsertf128 m%1, m%1, xm6, 1
 %endmacro
 
 ; FIXME: align loads to 16 bytes
 %macro MBTREE_AVX 0
-cglobal mbtree_propagate_cost, 6,6,8-cpuflag(avx2)
-    vbroadcastss m6, [r5]
+cglobal mbtree_propagate_cost, 6,6,8-2*cpuflag(avx2)
+    vbroadcastss m5, [r5]
     mov         r5d, r6m
     lea          r0, [r0+r5*2]
     add         r5d, r5d
@@ -2104,7 +2111,7 @@ cglobal mbtree_propagate_cost, 6,6,8-cpuflag(avx2)
     add          r3, r5
     add          r4, r5
     neg          r5
-    mova        xm5, [pw_3fff]
+    mova        xm4, [pw_3fff]
 %if notcpuflag(avx2)
     pxor        xm7, xm7
 %endif
@@ -2113,27 +2120,27 @@ cglobal mbtree_propagate_cost, 6,6,8-cpuflag(avx2)
     pmovzxwd     m0, [r2+r5]      ; intra
     pmovzxwd     m1, [r4+r5]      ; invq
     pmovzxwd     m2, [r1+r5]      ; prop
-    pand        xm3, xm5, [r3+r5] ; inter
+    pand        xm3, xm4, [r3+r5] ; inter
     pmovzxwd     m3, xm3
     pminsd       m3, m0
     pmaddwd      m1, m0
-    psubd        m4, m0, m3
+    psubd        m3, m0, m3
     cvtdq2ps     m0, m0
     cvtdq2ps     m1, m1
     cvtdq2ps     m2, m2
-    cvtdq2ps     m4, m4
-    fmaddps      m1, m1, m6, m2
-    rcpps        m3, m0
-    mulps        m2, m0, m3
-    mulps        m1, m4
-    addps        m4, m3, m3
-    fnmaddps     m4, m2, m3, m4
-    mulps        m1, m4
+    cvtdq2ps     m3, m3
+    fmaddps      m1, m1, m5, m2
+    rcpps        m2, m0
+    mulps        m0, m2
+    mulps        m1, m3
+    addps        m3, m2, m2
+    fnmaddps     m2, m2, m0, m3
+    mulps        m1, m2
 %else
     movu        xm0, [r2+r5]
     movu        xm1, [r4+r5]
     movu        xm2, [r1+r5]
-    pand        xm3, xm5, [r3+r5]
+    pand        xm3, xm4, [r3+r5]
     pminsw      xm3, xm0
     INT16_UNPACK 0
     INT16_UNPACK 1
@@ -2144,16 +2151,16 @@ cglobal mbtree_propagate_cost, 6,6,8-cpuflag(avx2)
     cvtdq2ps     m2, m2
     cvtdq2ps     m3, m3
     mulps        m1, m0
-    subps        m4, m0, m3
-    mulps        m1, m6         ; intra*invq*fps_factor>>8
+    subps        m3, m0, m3
+    mulps        m1, m5         ; intra*invq*fps_factor>>8
     addps        m1, m2         ; prop + (intra*invq*fps_factor>>8)
-    rcpps        m3, m0         ; 1 / intra 1st approximation
-    mulps        m2, m0, m3     ; intra * (1/intra 1st approx)
-    mulps        m2, m3         ; intra * (1/intra 1st approx)^2
-    mulps        m1, m4         ; (prop + (intra*invq*fps_factor>>8)) * (intra - inter)
-    addps        m3, m3         ; 2 * (1/intra 1st approx)
-    subps        m3, m2         ; 2nd approximation for 1/intra
-    mulps        m1, m3         ; / intra
+    rcpps        m2, m0         ; 1 / intra 1st approximation
+    mulps        m0, m2         ; intra * (1/intra 1st approx)
+    mulps        m0, m2         ; intra * (1/intra 1st approx)^2
+    mulps        m1, m3         ; (prop + (intra*invq*fps_factor>>8)) * (intra - inter)
+    addps        m2, m2         ; 2 * (1/intra 1st approx)
+    subps        m2, m0         ; 2nd approximation for 1/intra
+    mulps        m1, m2         ; / intra
 %endif
     vcvtps2dq    m1, m1
     vextractf128 xm2, m1, 1
@@ -2260,3 +2267,109 @@ INIT_XMM ssse3
 MBTREE_PROPAGATE_LIST
 INIT_XMM avx
 MBTREE_PROPAGATE_LIST
+
+%macro MBTREE_FIX8 0
+;-----------------------------------------------------------------------------
+; void mbtree_fix8_pack( uint16_t *dst, float *src, int count )
+;-----------------------------------------------------------------------------
+cglobal mbtree_fix8_pack, 3,4
+%if mmsize == 32
+    vbroadcastf128 m2, [pf_256]
+    vbroadcasti128 m3, [mbtree_fix8_pack_shuf]
+%else
+    movaps       m2, [pf_256]
+    mova         m3, [mbtree_fix8_pack_shuf]
+%endif
+    sub         r2d, mmsize/2
+    movsxdifnidn r2, r2d
+    lea          r1, [r1+4*r2]
+    lea          r0, [r0+2*r2]
+    neg          r2
+    jg .skip_loop
+.loop:
+    mulps        m0, m2, [r1+4*r2]
+    mulps        m1, m2, [r1+4*r2+mmsize]
+    cvttps2dq    m0, m0
+    cvttps2dq    m1, m1
+    packssdw     m0, m1
+    pshufb       m0, m3
+%if mmsize == 32
+    vpermq       m0, m0, q3120
+%endif
+    mova  [r0+2*r2], m0
+    add          r2, mmsize/2
+    jle .loop
+.skip_loop:
+    sub          r2, mmsize/2
+    jz .end
+    ; Do the remaining values in scalar in order to avoid overreading src.
+.scalar:
+    mulss       xm0, xm2, [r1+4*r2+2*mmsize]
+    cvttss2si   r3d, xm0
+    rol         r3w, 8
+    mov [r0+2*r2+mmsize], r3w
+    inc          r2
+    jl .scalar
+.end:
+    RET
+
+;-----------------------------------------------------------------------------
+; void mbtree_fix8_unpack( float *dst, uint16_t *src, int count )
+;-----------------------------------------------------------------------------
+cglobal mbtree_fix8_unpack, 3,4
+%if mmsize == 32
+    vbroadcastf128 m2, [pf_inv256]
+%else
+    movaps       m2, [pf_inv256]
+    mova         m4, [mbtree_fix8_unpack_shuf+16]
+%endif
+    mova         m3, [mbtree_fix8_unpack_shuf]
+    sub         r2d, mmsize/2
+    movsxdifnidn r2, r2d
+    lea          r1, [r1+2*r2]
+    lea          r0, [r0+4*r2]
+    neg          r2
+    jg .skip_loop
+.loop:
+%if mmsize == 32
+    vbroadcasti128 m0, [r1+2*r2]
+    vbroadcasti128 m1, [r1+2*r2+16]
+    pshufb       m0, m3
+    pshufb       m1, m3
+%else
+    mova         m1, [r1+2*r2]
+    pshufb       m0, m1, m3
+    pshufb       m1, m4
+%endif
+    psrad        m0, 16 ; sign-extend
+    psrad        m1, 16
+    cvtdq2ps     m0, m0
+    cvtdq2ps     m1, m1
+    mulps        m0, m2
+    mulps        m1, m2
+    movaps [r0+4*r2], m0
+    movaps [r0+4*r2+mmsize], m1
+    add          r2, mmsize/2
+    jle .loop
+.skip_loop:
+    sub          r2, mmsize/2
+    jz .end
+.scalar:
+    movzx       r3d, word [r1+2*r2+mmsize]
+    rol         r3w, 8
+    movsx       r3d, r3w
+    ; Use 3-arg cvtsi2ss as a workaround for the fact that the instruction has a stupid dependency on
+    ; dst which causes terrible performance when used in a loop otherwise. Blame Intel for poor design.
+    cvtsi2ss    xm0, xm2, r3d
+    mulss       xm0, xm2
+    movss [r0+4*r2+2*mmsize], xm0
+    inc          r2
+    jl .scalar
+.end:
+    RET
+%endmacro
+
+INIT_XMM ssse3
+MBTREE_FIX8
+INIT_YMM avx2
+MBTREE_FIX8
