@@ -113,22 +113,26 @@
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>x264clid</TargetName>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>x264clid</TargetName>
     <OutDir>..\..\..\msvc\</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>..\..\..\msvc\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>x264cli</TargetName>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
     <TargetName>x264cli</TargetName>
     <OutDir>..\..\..\msvc\</OutDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -184,6 +188,21 @@ copy .\x264_config.h $(OutDir)\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>if exist $(OutDir)\include\x264.h (
+del /f /q $(OutDir)\include\x264.h
+)
+if exist $(OutDir)\include\x264_config.h (
+del /f /q $(OutDir)\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -236,6 +255,21 @@ copy .\x264_config.h $(OutDir)\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>if exist $(OutDir)\include\x264.h (
+del /f /q $(OutDir)\include\x264.h
+)
+if exist $(OutDir)\include\x264_config.h (
+del /f /q $(OutDir)\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -302,6 +336,21 @@ copy .\x264_config.h $(OutDir)\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>if exist $(OutDir)\include\x264.h (
+del /f /q $(OutDir)\include\x264.h
+)
+if exist $(OutDir)\include\x264_config.h (
+del /f /q $(OutDir)\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -367,6 +416,21 @@ copy .\x264_config.h $(OutDir)\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>if exist $(OutDir)\include\x264.h (
+del /f /q $(OutDir)\include\x264.h
+)
+if exist $(OutDir)\include\x264_config.h (
+del /f /q $(OutDir)\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
