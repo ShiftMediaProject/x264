@@ -1468,7 +1468,7 @@ function x264_load_deinterleave_chroma_fenc_neon
     bx              lr
 endfunc
 
-function x264_plane_copy_neon
+function x264_plane_copy_core_neon
     push            {r4,lr}
     ldr             r4,  [sp, #8]
     ldr             lr,  [sp, #12]
@@ -1577,7 +1577,7 @@ block4:
     pop             {r4-r8, r10, r11, pc}
 endfunc
 
-function x264_plane_copy_interleave_neon
+function x264_plane_copy_interleave_core_neon
     push            {r4-r7, lr}
     ldrd            r6, r7, [sp, #28]
     ldrd            r4, r5, [sp, #20]
@@ -1604,7 +1604,7 @@ blocki:
     pop             {r4-r7, pc}
 endfunc
 
-function x264_plane_copy_swap_neon
+function x264_plane_copy_swap_core_neon
     push            {r4-r5, lr}
     ldrd            r4, r5, [sp, #12]
     add             lr,  r4,  #15
@@ -1878,5 +1878,62 @@ function x264_mbtree_propagate_list_internal_neon
     vzip.16         q8,  q9
     vst1.16         {q8, q9},   [r3, :128]!
     bge             8b
+    bx              lr
+endfunc
+
+@ void mbtree_fix8_pack( int16_t *dst, float *src, int count )
+function x264_mbtree_fix8_pack_neon, export=1
+    subs            r3,  r2,  #8
+    blt             2f
+1:
+    subs            r3,  r3,  #8
+    vld1.32         {q0,q1}, [r1,:128]!
+    vcvt.s32.f32    q0,  q0,  #8
+    vcvt.s32.f32    q1,  q1,  #8
+    vqmovn.s32      d4,  q0
+    vqmovn.s32      d5,  q1
+    vrev16.8        q3,  q2
+    vst1.16         {q3}, [r0,:128]!
+    bge             1b
+2:
+    adds            r3,  r3,  #8
+    bxeq            lr
+3:
+    subs            r3,  r3,  #1
+    vld1.32         {d0[0]}, [r1]!
+    vcvt.s32.f32    s0,  s0,  #8
+    vrev16.8        d0,  d0
+    vst1.16         {d0[0]}, [r0]!
+    bgt             3b
+
+    bx              lr
+endfunc
+
+@ void mbtree_fix8_unpack( float *dst, int16_t *src, int count )
+function x264_mbtree_fix8_unpack_neon, export=1
+    subs            r3,  r2,  #8
+    blt             2f
+1:
+    subs            r3,  r3,  #8
+    vld1.16         {q0}, [r1,:128]!
+    vrev16.8        q1,  q0
+    vmovl.s16       q0,  d2
+    vmovl.s16       q1,  d3
+    vcvt.f32.s32    q0,  q0,  #8
+    vcvt.f32.s32    q1,  q1,  #8
+    vst1.32         {q0,q1}, [r0,:128]!
+    bge             1b
+2:
+    adds            r3,  r3,  #8
+    bxeq            lr
+3:
+    subs            r3,  r3,  #1
+    vld1.16         {d0[0]}, [r1]!
+    vrev16.8        d0,  d0
+    vmovl.s16       q0,  d0
+    vcvt.f32.s32    d0,  d0,  #8
+    vst1.32         {d0[0]}, [r0]!
+    bgt             3b
+
     bx              lr
 endfunc

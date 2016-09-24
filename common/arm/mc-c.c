@@ -48,8 +48,8 @@ void x264_pixel_avg2_w8_neon ( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t
 void x264_pixel_avg2_w16_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t *, int );
 void x264_pixel_avg2_w20_neon( uint8_t *, intptr_t, uint8_t *, intptr_t, uint8_t *, int );
 
-void x264_plane_copy_neon( pixel *dst, intptr_t i_dst,
-                           pixel *src, intptr_t i_src, int w, int h );
+void x264_plane_copy_core_neon( pixel *dst, intptr_t i_dst,
+                                pixel *src, intptr_t i_src, int w, int h );
 void x264_plane_copy_deinterleave_neon(  pixel *dstu, intptr_t i_dstu,
                                          pixel *dstv, intptr_t i_dstv,
                                          pixel *src,  intptr_t i_src, int w, int h );
@@ -57,11 +57,11 @@ void x264_plane_copy_deinterleave_rgb_neon( pixel *dsta, intptr_t i_dsta,
                                             pixel *dstb, intptr_t i_dstb,
                                             pixel *dstc, intptr_t i_dstc,
                                             pixel *src,  intptr_t i_src, int pw, int w, int h );
-void x264_plane_copy_interleave_neon( pixel *dst,  intptr_t i_dst,
-                                      pixel *srcu, intptr_t i_srcu,
-                                      pixel *srcv, intptr_t i_srcv, int w, int h );
-void x264_plane_copy_swap_neon( pixel *dst, intptr_t i_dst,
-                                pixel *src, intptr_t i_src, int w, int h );
+void x264_plane_copy_interleave_core_neon( pixel *dst,  intptr_t i_dst,
+                                           pixel *srcu, intptr_t i_srcu,
+                                           pixel *srcv, intptr_t i_srcv, int w, int h );
+void x264_plane_copy_swap_core_neon( pixel *dst, intptr_t i_dst,
+                                     pixel *src, intptr_t i_src, int w, int h );
 
 void x264_store_interleave_chroma_neon( pixel *dst, intptr_t i_dst, pixel *srcu, pixel *srcv, int height );
 void x264_load_deinterleave_chroma_fdec_neon( pixel *dst, pixel *src, intptr_t i_src, int height );
@@ -108,6 +108,9 @@ void integral_init8h_neon( uint16_t *, uint8_t *, intptr_t );
 void integral_init8v_neon( uint16_t *, intptr_t );
 
 void x264_mbtree_propagate_cost_neon( int16_t *, uint16_t *, uint16_t *, uint16_t *, uint16_t *, float *, int );
+
+void x264_mbtree_fix8_pack_neon( uint16_t *dst, float *src, int count );
+void x264_mbtree_fix8_unpack_neon( float *dst, uint16_t *src, int count );
 
 #if !HIGH_BIT_DEPTH
 static void x264_weight_cache_neon( x264_t *h, x264_weight_t *w )
@@ -229,6 +232,10 @@ static void hpel_filter_neon( uint8_t *dsth, uint8_t *dstv, uint8_t *dstc, uint8
         src  += stride;
     }
 }
+
+PLANE_COPY(16, neon)
+PLANE_COPY_SWAP(16, neon)
+PLANE_INTERLEAVE(neon)
 #endif // !HIGH_BIT_DEPTH
 
 PROPAGATE_LIST(neon)
@@ -291,6 +298,8 @@ void x264_mc_init_arm( int cpu, x264_mc_functions_t *pf )
 
     pf->mbtree_propagate_cost = x264_mbtree_propagate_cost_neon;
     pf->mbtree_propagate_list = x264_mbtree_propagate_list_neon;
+    pf->mbtree_fix8_pack      = x264_mbtree_fix8_pack_neon;
+    pf->mbtree_fix8_unpack    = x264_mbtree_fix8_unpack_neon;
 #endif // !HIGH_BIT_DEPTH
 
 // Apple's gcc stupidly cannot align stack variables, and ALIGNED_ARRAY can't work on structs
