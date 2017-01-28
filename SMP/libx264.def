@@ -13,7 +13,7 @@ x264_encoder_reconfig
 x264_encoder_parameters
 x264_encoder_headers
 x264_encoder_encode
-x264_encoder_close  
+x264_encoder_close
 x264_encoder_delayed_frames
 x264_encoder_maximum_delayed_frames
 x264_encoder_intra_refresh
