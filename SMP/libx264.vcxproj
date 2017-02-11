@@ -388,6 +388,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -458,6 +459,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
       <Command>mkdir $(OutDir)\include
@@ -865,6 +867,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <LargeAddressAware>true</LargeAddressAware>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -947,6 +950,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>

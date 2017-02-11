@@ -157,6 +157,7 @@
       <LargeAddressAware>true</LargeAddressAware>
       <ProgramDatabaseFile>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -226,6 +227,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <SubSystem>Console</SubSystem>
       <ProgramDatabaseFile>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -307,6 +309,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <LargeAddressAware>true</LargeAddressAware>
       <ProgramDatabaseFile>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
@@ -387,6 +390,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <SubSystem>Console</SubSystem>
       <ProgramDatabaseFile>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDatabaseFile>
       <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
