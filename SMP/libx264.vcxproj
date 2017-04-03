@@ -131,7 +131,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\vsyasm.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\yasm.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -249,9 +249,8 @@
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
-      <ErrorFile>
-      </ErrorFile>
+      <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -320,7 +319,8 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
+      <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -399,7 +399,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
+      <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -470,7 +471,8 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
+      <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -544,7 +546,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
+      <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -625,7 +627,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
+      <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -706,7 +708,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
+      <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -787,7 +789,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Lib>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
+      <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -871,7 +873,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(Defines)</Defines>
+      <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -954,7 +956,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </Link>
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
-      <Defines>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(Defines)</Defines>
+      <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -1167,6 +1169,6 @@ del /f /q $(OutDir)\licenses\x264.txt
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\vsyasm.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\yasm.targets" />
   </ImportGroup>
 </Project>
