@@ -251,6 +251,7 @@
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=0;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -321,6 +322,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=1;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -401,6 +403,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=0;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -473,6 +476,7 @@ copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=1;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -547,6 +551,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=0;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -628,6 +633,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=0;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -709,6 +715,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=1;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -790,6 +797,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=1;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -874,6 +882,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=0;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
@@ -957,6 +966,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <YASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Defines>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;ARCH_X86_64=1;</Defines>
     </YASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
