@@ -1,7 +1,7 @@
 /*****************************************************************************
  * mc.c: motion compensation
  *****************************************************************************
- * Copyright (C) 2003-2016 x264 project
+ * Copyright (C) 2003-2017 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -676,7 +676,7 @@ void x264_mc_init( int cpu, x264_mc_functions_t *pf, int cpu_independent )
 #endif
 #if HAVE_ALTIVEC
     if( cpu&X264_CPU_ALTIVEC )
-        x264_mc_altivec_init( pf );
+        x264_mc_init_altivec( pf );
 #endif
 #if HAVE_ARMV6
     x264_mc_init_arm( cpu, pf );

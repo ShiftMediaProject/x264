@@ -1,7 +1,7 @@
 /****************************************************************************
  * checkasm-aarch64.S: assembly check tool
  *****************************************************************************
- * Copyright (C) 2015-2016 x264 project
+ * Copyright (C) 2015-2017 x264 project
  *
  * Authors: Martin Storsjo <martin@martin.st>
  *
@@ -149,7 +149,7 @@ function x264_checkasm_call, export=1
     mov         w9,  #0
     str         w9,  [x2]
     movrel      x0, error_message
-    bl          puts
+    bl          X(puts)
 0:
     ldp         x0,  x1,  [sp], #16
     ldp         d14, d15, [sp], #16

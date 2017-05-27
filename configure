@@ -778,7 +778,7 @@ case $host_cpu in
         stack_alignment=16
         if [ "$SYS" = MACOSX ] ; then
             AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch aarch64 -- ${CC}}"
-            ASFLAGS="$ASFLAGS -DPREFIX"
+            ASFLAGS="$ASFLAGS -DPREFIX -DPIC"
         else
             AS="${AS-${CC}}"
         fi
@@ -1512,7 +1512,7 @@ cat conftest.log >> config.log
 cat conftest.log
 
 [ "$SRCPATH" != "." ] && ln -sf ${SRCPATH}/Makefile ./Makefile
-mkdir -p common/{aarch64,arm,ppc,x86} encoder extras filters/video input output tools
+mkdir -p common/{aarch64,arm,mips,ppc,x86} encoder extras filters/video input output tools
 
 echo
 echo "You can run 'make' or 'make fprofiled' now."

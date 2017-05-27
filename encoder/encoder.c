@@ -1,7 +1,7 @@
 /*****************************************************************************
  * encoder.c: top-level encoder functions
  *****************************************************************************
- * Copyright (C) 2003-2016 x264 project
+ * Copyright (C) 2003-2017 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -100,10 +100,10 @@ static void x264_frame_dump( x264_t *h )
         {
             int cw = h->param.i_width>>1;
             int ch = h->param.i_height>>CHROMA_V_SHIFT;
-            pixel *planeu = x264_malloc( (cw*ch*2+32)*sizeof(pixel) );
+            pixel *planeu = x264_malloc( 2 * (cw*ch*sizeof(pixel) + 32) );
             if( planeu )
             {
-                pixel *planev = planeu + cw*ch + 16;
+                pixel *planev = planeu + cw*ch + 32/sizeof(pixel);
                 h->mc.plane_copy_deinterleave( planeu, cw, planev, cw, h->fdec->plane[1], h->fdec->i_stride[1], cw, ch );
                 fwrite( planeu, 1, cw*ch*sizeof(pixel), f );
                 fwrite( planev, 1, cw*ch*sizeof(pixel), f );

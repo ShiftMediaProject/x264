@@ -1,7 +1,7 @@
 /*****************************************************************************
  * ratecontrol.c: ratecontrol
  *****************************************************************************
- * Copyright (C) 2005-2016 x264 project
+ * Copyright (C) 2005-2017 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Michael Niedermayer <michaelni@gmx.at>
@@ -243,7 +243,7 @@ static ALWAYS_INLINE uint32_t ac_energy_plane( x264_t *h, int mb_x, int mb_y, x2
     stride <<= b_field;
     if( b_chroma )
     {
-        ALIGNED_ARRAY_16( pixel, pix,[FENC_STRIDE*16] );
+        ALIGNED_ARRAY_N( pixel, pix,[FENC_STRIDE*16] );
         int chromapix = h->luma2chroma_pixel[PIXEL_16x16];
         int shift = 7 - CHROMA_V_SHIFT;
 

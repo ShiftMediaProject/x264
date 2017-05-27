@@ -1,7 +1,7 @@
 /*****************************************************************************
  * common.h: misc common functions
  *****************************************************************************
- * Copyright (C) 2003-2016 x264 project
+ * Copyright (C) 2003-2017 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -256,9 +256,6 @@ void  x264_free( void * );
 
 /* x264_slurp_file: malloc space for the whole file and read it */
 char *x264_slurp_file( const char *filename );
-
-/* mdate: return the current date in microsecond */
-int64_t x264_mdate( void );
 
 /* x264_param2string: return a (malloced) string containing most of
  * the encoding options */
@@ -781,7 +778,7 @@ struct x264_t
             /* space for p_fenc and p_fdec */
 #define FENC_STRIDE 16
 #define FDEC_STRIDE 32
-            ALIGNED_16( pixel fenc_buf[48*FENC_STRIDE] );
+            ALIGNED_N( pixel fenc_buf[48*FENC_STRIDE] );
             ALIGNED_N( pixel fdec_buf[52*FDEC_STRIDE] );
 
             /* i4x4 and i8x8 backup data, for skipping the encode stage when possible */

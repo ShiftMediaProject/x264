@@ -1,7 +1,7 @@
 /*****************************************************************************
  * raw.c: raw input
  *****************************************************************************
- * Copyright (C) 2003-2016 x264 project
+ * Copyright (C) 2003-2017 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -98,6 +98,7 @@ static int open_file( char *psz_filename, hnd_t *p_handle, video_info_t *info, c
         uint64_t size = ftell( h->fh );
         fseek( h->fh, 0, SEEK_SET );
         info->num_frames = size / h->frame_size;
+        FAIL_IF_ERROR( !info->num_frames, "empty input file\n" );
 
         /* Attempt to use memory-mapped input frames if possible */
         if( !(h->bit_depth & 7) )
