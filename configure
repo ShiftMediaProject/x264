@@ -305,7 +305,8 @@ configure_system_override() {
     return $res
 }
 
-rm -f x264_config.h config.h config.mak config.log x264.pc x264.def conftest*
+rm -f x264_config.h config.h config.mak config.log x264.pc x264.def
+rm -rf conftest*
 
 # Construct a path to the specified directory relative to the working directory
 relative_path() {
@@ -376,7 +377,7 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA MMAP WINRT VSX"
+             MSA MMAP WINRT VSX ARM_INLINE_ASM"
 
 # parse options
 
@@ -540,7 +541,7 @@ host="${host#*-}"
 host_vendor="${host%%-*}"
 host_os="${host#*-}"
 
-trap 'rm -f conftest*' EXIT
+trap 'rm -rf conftest*' EXIT
 
 # test for use of compilers that require specific handling
 cc_base=`basename "$CC"`
@@ -632,8 +633,8 @@ case $host_os in
         else
             SYS="WINDOWS"
             DEVNULL="NUL"
-            LDFLAGSCLI="$LDFLAGSCLI -lshell32"
-            [ $compiler = GNU ] && RC="${RC-${cross_prefix}windres}" || RC="${RC-rc}"
+            cc_check '' -lshell32 && LDFLAGSCLI="$LDFLAGSCLI -lshell32"
+            [ $compiler = GNU ] && RC="${RC-${cross_prefix}windres}" || RC="${RC-rc.exe}"
         fi
         ;;
     sunos*|solaris*)
@@ -762,13 +763,15 @@ case $host_cpu in
     arm*)
         ARCH="ARM"
         if [ "$SYS" = MACOSX ] ; then
-            AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch arm -- ${CC}}"
+            AS="${AS-${CC}}"
             ASFLAGS="$ASFLAGS -DPREFIX -DPIC"  # apple's ld doesn't support movw/movt relocations at all
             # build for armv7 by default
             if ! echo $CFLAGS | grep -Eq '\-arch' ; then
                 CFLAGS="$CFLAGS -arch armv7"
                 LDFLAGS="$LDFLAGS -arch armv7"
             fi
+        elif [ "$SYS" = WINDOWS ] ; then
+            AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch arm -as-type armasm -force-thumb -- armasm -nologo -ignore 4509}"
         else
             AS="${AS-${CC}}"
         fi
@@ -776,11 +779,9 @@ case $host_cpu in
     aarch64)
         ARCH="AARCH64"
         stack_alignment=16
+        AS="${AS-${CC}}"
         if [ "$SYS" = MACOSX ] ; then
-            AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch aarch64 -- ${CC}}"
             ASFLAGS="$ASFLAGS -DPREFIX -DPIC"
-        else
-            AS="${AS-${CC}}"
         fi
         ;;
     s390|s390x)
@@ -889,9 +890,14 @@ fi
 
 if [ $asm = auto -a $ARCH = ARM ] ; then
     # set flags so neon is built by default
-    echo $CFLAGS | grep -Eq '(-mcpu|-march|-mfpu)' || CFLAGS="$CFLAGS -mcpu=cortex-a8 -mfpu=neon"
+    [ $compiler == CL ] || echo $CFLAGS | grep -Eq '(-mcpu|-march|-mfpu)' || CFLAGS="$CFLAGS -mcpu=cortex-a8 -mfpu=neon"
 
-    if  cc_check '' '' '__asm__("rev ip, ip");' ; then      define HAVE_ARMV6
+    cc_check '' '' '__asm__("add r0, r1, r2");' && define HAVE_ARM_INLINE_ASM
+    if [ $compiler = CL ] && cpp_check '' '' 'defined(_M_ARM) && _M_ARM >= 7' ; then
+        define HAVE_ARMV6
+        define HAVE_ARMV6T2
+        define HAVE_NEON
+    elif cc_check '' '' '__asm__("rev ip, ip");' ; then     define HAVE_ARMV6
         cc_check '' '' '__asm__("movt r0, #0");'         && define HAVE_ARMV6T2
         cc_check '' '' '__asm__("vadd.i16 q0, q0, q0");' && define HAVE_NEON
         ASFLAGS="$ASFLAGS -c"
@@ -1315,13 +1321,13 @@ fi
 DEPMM="${QPRE}MM"
 DEPMT="${QPRE}MT"
 if [ $compiler_style = MS ]; then
-    AR="lib -nologo -out:"
-    LD="link -out:"
+    AR="lib.exe -nologo -out:"
+    LD="link.exe -out:"
     if [ $compiler = ICL ]; then
         AR="xi$AR"
         LD="xi$LD"
     else
-        mslink="$(dirname "$(command -v cl 2>/dev/null)")/link"
+        mslink="$(dirname "$(command -v cl.exe 2>/dev/null)")/link.exe"
         [ -x "$mslink" ] && LD="\"$mslink\" -out:"
     fi
     HAVE_GETOPT_LONG=0
