@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-VisualStudioVersion = 12.0.30723.0
-MinimumVisualStudioVersion = 10.0.40219.1
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 12.0.30501.0
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libx264", "libx264.vcxproj", "{20179127-853B-4FE9-B7C0-9E817E6A3A72}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "program", "program", "{20A224A6-544D-49B2-B0B0-4B5B5FF9689D}"
