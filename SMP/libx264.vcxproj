@@ -131,7 +131,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\yasm.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\nasm.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -245,11 +245,11 @@
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -315,11 +315,11 @@ del /f /q $(OutDir)\licenses\x264.txt
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -395,11 +395,11 @@ copy .\x264_config.h "$(OutDir)"\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -467,11 +467,11 @@ copy .\x264_config.h "$(OutDir)"\include
 mkdir $(OutDir)\licenses
 copy ..\COPYING $(OutDir)\licenses\x264.txt</Command>
     </PostBuildEvent>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -538,10 +538,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -615,10 +615,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -692,10 +692,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -769,10 +769,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <TargetMachine>MachineX64</TargetMachine>
       <SubSystem>Windows</SubSystem>
     </Lib>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -849,10 +849,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>PREFIX;STACK_ALIGNMENT=4;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -928,10 +928,10 @@ del /f /q $(OutDir)\licenses\x264.txt
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
-    <YASM>
+    <NASM>
       <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
       <PreprocessorDefinitions>STACK_ALIGNMENT=16;HIGH_BIT_DEPTH=0;BIT_DEPTH=8;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </YASM>
+    </NASM>
     <PreBuildEvent>
       <Command>if exist ..\config.h (
 del ..\config.h
@@ -1067,66 +1067,66 @@ del /f /q $(OutDir)\licenses\x264.txt
     <None Include="..\common\opencl\subpel.cl" />
     <None Include="..\common\opencl\weightp.cl" />
     <None Include="libx264.def" />
-    <YASM Include="..\common\x86\bitstream-a.asm">
+    <NASM Include="..\common\x86\bitstream-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\cabac-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\cabac-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\const-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\const-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\cpu-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\cpu-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\dct-32.asm">
+    </NASM>
+    <NASM Include="..\common\x86\dct-32.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\dct-64.asm">
+    </NASM>
+    <NASM Include="..\common\x86\dct-64.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\dct-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\dct-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\deblock-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\deblock-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\mc-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\mc-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\mc-a2.asm">
+    </NASM>
+    <NASM Include="..\common\x86\mc-a2.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\pixel-32.asm">
+    </NASM>
+    <NASM Include="..\common\x86\pixel-32.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\pixel-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\pixel-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\predict-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\predict-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\quant-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\quant-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\sad-a.asm">
+    </NASM>
+    <NASM Include="..\common\x86\sad-a.asm">
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\trellis-64.asm">
+    </NASM>
+    <NASM Include="..\common\x86\trellis-64.asm">
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-    </YASM>
-    <YASM Include="..\common\x86\x86inc.asm">
+    </NASM>
+    <NASM Include="..\common\x86\x86inc.asm">
       <FileType>Document</FileType>
       <ExcludedFromBuild>true</ExcludedFromBuild>
-    </YASM>
-    <YASM Include="..\common\x86\x86util.asm">
+    </NASM>
+    <NASM Include="..\common\x86\x86util.asm">
       <FileType>Document</FileType>
       <ExcludedFromBuild>true</ExcludedFromBuild>
-    </YASM>
+    </NASM>
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
@@ -1143,6 +1143,6 @@ del /f /q $(OutDir)\licenses\x264.txt
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\yasm.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\nasm.targets" />
   </ImportGroup>
 </Project>

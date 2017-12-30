@@ -7,9 +7,9 @@ Choose whichever project configuration meets your requirements.
 
 *** Building with YASM ***
 
-In order to build gmp using msvc you must first download and install YASM.
-YASM is required to compile all gmp assembly files.
+In order to build x264 using msvc you must first download and install YASM.
+YASM is required to compile all x264 assembly files.
 
-1) Visual Studio YASM integration can be downloaded from https://github.com/ShiftMediaProject/VSYASM/releases/latest
+1) Visual Studio NASM integration can be downloaded from https://github.com/ShiftMediaProject/VSNASM/releases/latest
 
 2) Once downloaded simply follow the install instructions included in the download.
