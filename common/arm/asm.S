@@ -28,16 +28,31 @@
 
 .syntax unified
 
-#ifndef __APPLE__
+#ifdef __ELF__
 .arch armv7-a
 .fpu neon
 #endif
 
+#define GLUE(a, b) a ## b
+#define JOIN(a, b) GLUE(a, b)
+
 #ifdef PREFIX
-#   define EXTERN_ASM _
+#   define BASE _x264_
+#   define SYM_PREFIX _
 #else
-#   define EXTERN_ASM
+#   define BASE x264_
+#   define SYM_PREFIX
 #endif
+
+#ifdef BIT_DEPTH
+#   define EXTERN_ASM JOIN(JOIN(BASE, BIT_DEPTH), _)
+#else
+#   define EXTERN_ASM BASE
+#endif
+
+#define X(s) JOIN(EXTERN_ASM, s)
+#define X264(s) JOIN(BASE, s)
+#define EXT(s) JOIN(SYM_PREFIX, s)
 
 #ifdef __ELF__
 #   define ELF
@@ -75,7 +90,11 @@ ELF     .eabi_attribute 25, \val
 
 .macro function name, export=1
     .macro endfunc
+.if \export
+ELF     .size   EXTERN_ASM\name, . - EXTERN_ASM\name
+.else
 ELF     .size   \name, . - \name
+.endif
 FUNC    .endfunc
         .purgem endfunc
     .endm
@@ -168,10 +187,6 @@ MACH    .const_data
     ldr         \rd, =\val
 #endif
 .endm
-
-#define GLUE(a, b) a ## b
-#define JOIN(a, b) GLUE(a, b)
-#define X(s) JOIN(EXTERN_ASM, s)
 
 #define FENC_STRIDE 16
 #define FDEC_STRIDE 32

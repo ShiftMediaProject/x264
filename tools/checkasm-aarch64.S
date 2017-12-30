@@ -58,7 +58,7 @@ endconst
 
 #define CLOBBER_STACK ((8*MAX_ARGS + 15) & ~15)
 
-function x264_checkasm_stack_clobber, export=1
+function checkasm_stack_clobber, export=1
     mov         x3,  sp
     mov         x2,  #CLOBBER_STACK
 1:
@@ -71,7 +71,7 @@ endfunc
 
 #define ARG_STACK ((8*(MAX_ARGS - 8) + 15) & ~15)
 
-function x264_checkasm_call, export=1
+function checkasm_call, export=1
     stp         x29, x30, [sp, #-16]!
     mov         x29, sp
     stp         x19, x20, [sp, #-16]!
@@ -149,7 +149,7 @@ function x264_checkasm_call, export=1
     mov         w9,  #0
     str         w9,  [x2]
     movrel      x0, error_message
-    bl          X(puts)
+    bl          EXT(puts)
 0:
     ldp         x0,  x1,  [sp], #16
     ldp         d14, d15, [sp], #16

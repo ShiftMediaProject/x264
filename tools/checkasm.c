@@ -27,7 +27,6 @@
 
 #include <ctype.h>
 #include "common/common.h"
-#include "common/cpu.h"
 #include "encoder/macroblock.h"
 
 #ifdef _WIN32
@@ -41,15 +40,15 @@
 #endif
 
 /* buf1, buf2: initialised to random data and shouldn't write into them */
-uint8_t *buf1, *buf2;
+static uint8_t *buf1, *buf2;
 /* buf3, buf4: used to store output */
-uint8_t *buf3, *buf4;
+static uint8_t *buf3, *buf4;
 /* pbuf1, pbuf2: initialised to random pixel data and shouldn't write into them. */
-pixel *pbuf1, *pbuf2;
+static pixel *pbuf1, *pbuf2;
 /* pbuf3, pbuf4: point to buf3, buf4, just for type convenience */
-pixel *pbuf3, *pbuf4;
+static pixel *pbuf3, *pbuf4;
 
-int quiet = 0;
+static int quiet = 0;
 
 #define report( name ) { \
     if( used_asm && !quiet ) \
@@ -75,10 +74,10 @@ typedef struct
     bench_t vers[MAX_CPUS];
 } bench_func_t;
 
-int do_bench = 0;
-int bench_pattern_len = 0;
-const char *bench_pattern = "";
-char func_name[100];
+static int do_bench = 0;
+static int bench_pattern_len = 0;
+static const char *bench_pattern = "";
+static char func_name[100];
 static bench_func_t benchs[MAX_FUNCS];
 
 static const char *pixel_names[12] = { "16x16", "16x8", "8x16", "8x8", "8x4", "4x8", "4x4", "4x16", "4x2", "2x8", "2x4", "2x2" };
@@ -1800,6 +1799,8 @@ static int check_mc( int cpu_ref, int cpu_new )
         }
     }
 
+    static const uint16_t mbtree_fix8_counts[] = { 5, 384, 392, 400, 415 };
+
     if( mc_a.mbtree_fix8_pack != mc_ref.mbtree_fix8_pack )
     {
         set_func_name( "mbtree_fix8_pack" );
@@ -1807,9 +1808,9 @@ static int check_mc( int cpu_ref, int cpu_new )
         float *fix8_src = (float*)(buf3 + 0x800);
         uint16_t *dstc = (uint16_t*)buf3;
         uint16_t *dsta = (uint16_t*)buf4;
-        for( int i = 0; i < 5; i++ )
+        for( int i = 0; i < ARRAY_SIZE(mbtree_fix8_counts); i++ )
         {
-            int count = 256 + i;
+            int count = mbtree_fix8_counts[i];
 
             for( int j = 0; j < count; j++ )
                 fix8_src[j] = (int16_t)(rand()) / 256.0f;
@@ -1834,9 +1835,9 @@ static int check_mc( int cpu_ref, int cpu_new )
         uint16_t *fix8_src = (uint16_t*)(buf3 + 0x800);
         float *dstc = (float*)buf3;
         float *dsta = (float*)buf4;
-        for( int i = 0; i < 5; i++ )
+        for( int i = 0; i < ARRAY_SIZE(mbtree_fix8_counts); i++ )
         {
-            int count = 256 + i;
+            int count = mbtree_fix8_counts[i];
 
             for( int j = 0; j < count; j++ )
                 fix8_src[j] = rand();

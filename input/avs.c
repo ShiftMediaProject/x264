@@ -25,6 +25,7 @@
  *****************************************************************************/
 
 #include "input.h"
+
 #if USE_AVXSYNTH
 #include <dlfcn.h>
 #if SYS_MACOSX
@@ -39,7 +40,6 @@
 #define avs_close FreeLibrary
 #define avs_address GetProcAddress
 #endif
-#define FAIL_IF_ERROR( cond, ... ) FAIL_IF_ERR( cond, "avs", __VA_ARGS__ )
 
 #define AVSC_NO_DECLSPEC
 #undef EXTERN_C
@@ -49,6 +49,8 @@
 #include "extras/avisynth_c.h"
 #endif
 #define AVSC_DECLARE_FUNC(name) name##_func name
+
+#define FAIL_IF_ERROR( cond, ... ) FAIL_IF_ERR( cond, "avs", __VA_ARGS__ )
 
 /* AVS uses a versioned interface to control backwards compatibility */
 /* YV12 support is required, which was added in 2.5 */
@@ -123,7 +125,7 @@ typedef struct
 } avs_hnd_t;
 
 /* load the library and functions we require from it */
-static int x264_avs_load_library( avs_hnd_t *h )
+static int custom_avs_load_library( avs_hnd_t *h )
 {
     h->library = avs_open();
     if( !h->library )
@@ -259,7 +261,7 @@ static int open_file( char *psz_filename, hnd_t *p_handle, video_info_t *info, c
     avs_hnd_t *h = calloc( 1, sizeof(avs_hnd_t) );
     if( !h )
         return -1;
-    FAIL_IF_ERROR( x264_avs_load_library( h ), "failed to load avisynth\n" );
+    FAIL_IF_ERROR( custom_avs_load_library( h ), "failed to load avisynth\n" );
     h->env = h->func.avs_create_script_environment( AVS_INTERFACE_25 );
     if( h->func.avs_get_error )
     {

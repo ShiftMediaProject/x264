@@ -29,9 +29,9 @@
 // w11 holds x264_cabac_t.i_low
 // w12 holds x264_cabac_t.i_range
 
-function x264_cabac_encode_decision_asm, export=1
-    movrel      x8,  X(x264_cabac_range_lps)
-    movrel      x9,  X(x264_cabac_transition)
+function cabac_encode_decision_asm, export=1
+    movrel      x8,  X264(cabac_range_lps)
+    movrel      x9,  X264(cabac_transition)
     add         w10, w1, #CABAC_STATE
     ldrb        w3,  [x0,  x10]         // i_state
     ldr         w12, [x0,  #CABAC_I_RANGE]
@@ -82,10 +82,10 @@ cabac_putbyte:
 1:
     ldr         x7,  [x0, #CABAC_P]
     asr         w5,  w4,  #8            // carry
-    ldrb        w8,  [x7, #-1]
+    ldurb       w8,  [x7, #-1]
     add         w8,  w8,  w5
     sub         w5,  w5,  #1
-    strb        w8,  [x7, #-1]
+    sturb       w8,  [x7, #-1]
     cbz         w6,  3f
 2:
     subs        w6,  w6,  #1
@@ -101,7 +101,7 @@ cabac_putbyte:
     ret
 endfunc
 
-function x264_cabac_encode_bypass_asm, export=1
+function cabac_encode_bypass_asm, export=1
     ldr         w12, [x0, #CABAC_I_RANGE]
     ldr         w11, [x0, #CABAC_I_LOW]
     ldr         w2,  [x0, #CABAC_I_QUEUE]
@@ -114,7 +114,7 @@ function x264_cabac_encode_bypass_asm, export=1
     ret
 endfunc
 
-function x264_cabac_encode_terminal_asm, export=1
+function cabac_encode_terminal_asm, export=1
     ldr         w12, [x0, #CABAC_I_RANGE]
     ldr         w11, [x0, #CABAC_I_LOW]
     sub         w12, w12, #2

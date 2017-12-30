@@ -31,7 +31,7 @@
 
 // Indexed by pic_struct values
 static const uint8_t num_clock_ts[10] = { 0, 1, 1, 1, 2, 2, 3, 3, 2, 3 };
-const static uint8_t avcintra_uuid[] = {0xF7, 0x49, 0x3E, 0xB3, 0xD4, 0x00, 0x47, 0x96, 0x86, 0x86, 0xC9, 0x70, 0x7B, 0x64, 0x37, 0x2A};
+static const uint8_t avcintra_uuid[] = {0xF7, 0x49, 0x3E, 0xB3, 0xD4, 0x00, 0x47, 0x96, 0x86, 0x86, 0xC9, 0x70, 0x7B, 0x64, 0x37, 0x2A};
 
 static void transpose( uint8_t *buf, int w )
 {
@@ -197,8 +197,8 @@ void x264_sps_init( x264_sps_t *sps, int i_id, x264_param_t *param )
     sps->vui.b_color_description_present = 0;
 
     sps->vui.i_colorprim = ( param->vui.i_colorprim >= 0 && param->vui.i_colorprim <= 12 ? param->vui.i_colorprim : 2 );
-    sps->vui.i_transfer  = ( param->vui.i_transfer  >= 0 && param->vui.i_transfer  <= 17 ? param->vui.i_transfer  : 2 );
-    sps->vui.i_colmatrix = ( param->vui.i_colmatrix >= 0 && param->vui.i_colmatrix <= 11 ? param->vui.i_colmatrix :
+    sps->vui.i_transfer  = ( param->vui.i_transfer  >= 0 && param->vui.i_transfer  <= 18 ? param->vui.i_transfer  : 2 );
+    sps->vui.i_colmatrix = ( param->vui.i_colmatrix >= 0 && param->vui.i_colmatrix <= 14 ? param->vui.i_colmatrix :
                            ( csp >= X264_CSP_BGR ? 0 : 2 ) );
     if( sps->vui.i_colorprim != 2 ||
         sps->vui.i_transfer  != 2 ||
@@ -690,6 +690,23 @@ void x264_sei_frame_packing_write( x264_t *h, bs_t *s )
     x264_sei_write( s, tmp_buf, bs_pos( &q ) / 8, SEI_FRAME_PACKING );
 }
 
+void x264_sei_alternative_transfer_write( x264_t *h, bs_t *s )
+{
+    bs_t q;
+    ALIGNED_4( uint8_t tmp_buf[100] );
+    M32( tmp_buf ) = 0; // shut up gcc
+    bs_init( &q, tmp_buf, 100 );
+
+    bs_realign( &q );
+
+    bs_write ( &q, 8, h->param.i_alternative_transfer ); // preferred_transfer_characteristics
+
+    bs_align_10( &q );
+    bs_flush( &q );
+
+    x264_sei_write( s, tmp_buf, bs_pos( &q ) / 8, SEI_ALTERNATIVE_TRANSFER );
+}
+
 void x264_filler_write( x264_t *h, bs_t *s, int filler )
 {
     bs_realign( s );
@@ -780,31 +797,6 @@ int x264_sei_avcintra_vanc_write( x264_t *h, bs_t *s, int len )
 
     return 0;
 }
-
-const x264_level_t x264_levels[] =
-{
-    { 10,     1485,     99,    396,     64,    175,   64, 64,  0, 2, 0, 0, 1 },
-    {  9,     1485,     99,    396,    128,    350,   64, 64,  0, 2, 0, 0, 1 }, /* "1b" */
-    { 11,     3000,    396,    900,    192,    500,  128, 64,  0, 2, 0, 0, 1 },
-    { 12,     6000,    396,   2376,    384,   1000,  128, 64,  0, 2, 0, 0, 1 },
-    { 13,    11880,    396,   2376,    768,   2000,  128, 64,  0, 2, 0, 0, 1 },
-    { 20,    11880,    396,   2376,   2000,   2000,  128, 64,  0, 2, 0, 0, 1 },
-    { 21,    19800,    792,   4752,   4000,   4000,  256, 64,  0, 2, 0, 0, 0 },
-    { 22,    20250,   1620,   8100,   4000,   4000,  256, 64,  0, 2, 0, 0, 0 },
-    { 30,    40500,   1620,   8100,  10000,  10000,  256, 32, 22, 2, 0, 1, 0 },
-    { 31,   108000,   3600,  18000,  14000,  14000,  512, 16, 60, 4, 1, 1, 0 },
-    { 32,   216000,   5120,  20480,  20000,  20000,  512, 16, 60, 4, 1, 1, 0 },
-    { 40,   245760,   8192,  32768,  20000,  25000,  512, 16, 60, 4, 1, 1, 0 },
-    { 41,   245760,   8192,  32768,  50000,  62500,  512, 16, 24, 2, 1, 1, 0 },
-    { 42,   522240,   8704,  34816,  50000,  62500,  512, 16, 24, 2, 1, 1, 1 },
-    { 50,   589824,  22080, 110400, 135000, 135000,  512, 16, 24, 2, 1, 1, 1 },
-    { 51,   983040,  36864, 184320, 240000, 240000,  512, 16, 24, 2, 1, 1, 1 },
-    { 52,  2073600,  36864, 184320, 240000, 240000,  512, 16, 24, 2, 1, 1, 1 },
-    { 60,  4177920, 139264, 696320, 240000, 240000, 8192, 16, 24, 2, 1, 1, 1 },
-    { 61,  8355840, 139264, 696320, 480000, 480000, 8192, 16, 24, 2, 1, 1, 1 },
-    { 62, 16711680, 139264, 696320, 800000, 800000, 8192, 16, 24, 2, 1, 1, 1 },
-    { 0 }
-};
 
 #define ERROR(...)\
 {\

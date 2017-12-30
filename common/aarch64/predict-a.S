@@ -62,8 +62,8 @@ endconst
 .endm
 
 
-function x264_predict_4x4_h_aarch64, export=1
-    ldrb    w1,  [x0, #0*FDEC_STRIDE-1]
+function predict_4x4_h_aarch64, export=1
+    ldurb   w1,  [x0, #0*FDEC_STRIDE-1]
     mov     w5,  #0x01010101
     ldrb    w2,  [x0, #1*FDEC_STRIDE-1]
     ldrb    w3,  [x0, #2*FDEC_STRIDE-1]
@@ -79,8 +79,8 @@ function x264_predict_4x4_h_aarch64, export=1
     ret
 endfunc
 
-function x264_predict_4x4_v_aarch64, export=1
-    ldr     w1,  [x0, #0 - 1 * FDEC_STRIDE]
+function predict_4x4_v_aarch64, export=1
+    ldur    w1,  [x0, #0 - 1 * FDEC_STRIDE]
     str     w1,  [x0, #0 + 0 * FDEC_STRIDE]
     str     w1,  [x0, #0 + 1 * FDEC_STRIDE]
     str     w1,  [x0, #0 + 2 * FDEC_STRIDE]
@@ -88,9 +88,9 @@ function x264_predict_4x4_v_aarch64, export=1
     ret
 endfunc
 
-function x264_predict_4x4_dc_neon, export=1
+function predict_4x4_dc_neon, export=1
     sub         x1,  x0,  #FDEC_STRIDE
-    ldrb        w4,  [x0, #-1 + 0 * FDEC_STRIDE]
+    ldurb       w4,  [x0, #-1 + 0 * FDEC_STRIDE]
     ldrb        w5,  [x0, #-1 + 1 * FDEC_STRIDE]
     ldrb        w6,  [x0, #-1 + 2 * FDEC_STRIDE]
     ldrb        w7,  [x0, #-1 + 3 * FDEC_STRIDE]
@@ -110,7 +110,7 @@ function x264_predict_4x4_dc_neon, export=1
     ret
 endfunc
 
-function x264_predict_4x4_dc_top_neon, export=1
+function predict_4x4_dc_top_neon, export=1
     sub         x1,  x0,  #FDEC_STRIDE
     ldr         s0, [x1]
     uaddlv      h0,  v0.8b
@@ -124,7 +124,7 @@ function x264_predict_4x4_dc_top_neon, export=1
     ret
 endfunc
 
-function x264_predict_4x4_ddr_neon, export=1
+function predict_4x4_ddr_neon, export=1
     sub         x1,  x0,  #FDEC_STRIDE+1
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.8b}, [x1], x7            // # -FDEC_STRIDE-1
@@ -152,7 +152,7 @@ function x264_predict_4x4_ddr_neon, export=1
     ret
 endfunc
 
-function x264_predict_4x4_ddl_neon, export=1
+function predict_4x4_ddl_neon, export=1
     sub         x0,  x0,  #FDEC_STRIDE
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.8b}, [x0],  x7
@@ -171,7 +171,7 @@ function x264_predict_4x4_ddl_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_dc_neon, export=1
+function predict_8x8_dc_neon, export=1
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.16b}, [x1], #16
     ld1        {v1.8b},  [x1]
@@ -187,7 +187,7 @@ function x264_predict_8x8_dc_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_h_neon, export=1
+function predict_8x8_h_neon, export=1
     mov         x7,  #FDEC_STRIDE
     ld1        {v16.16b}, [x1]
     dup         v0.8b, v16.b[14]
@@ -209,7 +209,7 @@ function x264_predict_8x8_h_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_v_neon, export=1
+function predict_8x8_v_neon, export=1
     add         x1,  x1,  #16
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.8b}, [x1]
@@ -219,7 +219,7 @@ function x264_predict_8x8_v_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_ddl_neon, export=1
+function predict_8x8_ddl_neon, export=1
     add         x1,  x1,  #16
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.16b}, [x1]
@@ -248,7 +248,7 @@ function x264_predict_8x8_ddl_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_ddr_neon, export=1
+function predict_8x8_ddr_neon, export=1
     ld1        {v0.16b,v1.16b}, [x1]
     ext         v2.16b, v0.16b, v1.16b, #7
     ext         v4.16b, v0.16b, v1.16b, #9
@@ -278,7 +278,7 @@ function x264_predict_8x8_ddr_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_vl_neon, export=1
+function predict_8x8_vl_neon, export=1
     add         x1,  x1,  #16
     mov         x7, #FDEC_STRIDE
 
@@ -309,7 +309,7 @@ function x264_predict_8x8_vl_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_vr_neon, export=1
+function predict_8x8_vr_neon, export=1
     add         x1,  x1,  #8
     mov         x7,  #FDEC_STRIDE
     ld1        {v2.16b}, [x1]
@@ -343,7 +343,7 @@ function x264_predict_8x8_vr_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_hd_neon, export=1
+function predict_8x8_hd_neon, export=1
     add         x1,  x1,  #7
     mov         x7, #FDEC_STRIDE
 
@@ -378,7 +378,7 @@ function x264_predict_8x8_hd_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8_hu_neon, export=1
+function predict_8x8_hu_neon, export=1
     add         x1,  x1,  #7
     mov         x7,  #FDEC_STRIDE
     ld1        {v7.8b}, [x1]
@@ -416,7 +416,7 @@ function x264_predict_8x8_hu_neon, export=1
 endfunc
 
 
-function x264_predict_8x8c_dc_top_neon, export=1
+function predict_8x8c_dc_top_neon, export=1
     sub         x2,  x0,  #FDEC_STRIDE
     mov         x1,  #FDEC_STRIDE
     ld1        {v0.8b},  [x2]
@@ -429,8 +429,8 @@ function x264_predict_8x8c_dc_top_neon, export=1
     b           pred8x8c_dc_end
 endfunc
 
-function x264_predict_8x8c_dc_left_neon, export=1
-    ldrb        w2,  [x0, #0 * FDEC_STRIDE - 1]
+function predict_8x8c_dc_left_neon, export=1
+    ldurb       w2,  [x0, #0 * FDEC_STRIDE - 1]
     ldrb        w3,  [x0, #1 * FDEC_STRIDE - 1]
     ldrb        w4,  [x0, #2 * FDEC_STRIDE - 1]
     ldrb        w5,  [x0, #3 * FDEC_STRIDE - 1]
@@ -452,10 +452,10 @@ function x264_predict_8x8c_dc_left_neon, export=1
     b           pred8x8c_dc_end
 endfunc
 
-function x264_predict_8x8c_dc_neon, export=1
+function predict_8x8c_dc_neon, export=1
     mov         x1,  #FDEC_STRIDE
     sub         x2,  x0,  #FDEC_STRIDE
-    ldrb        w10, [x0, #0 * FDEC_STRIDE - 1]
+    ldurb       w10, [x0, #0 * FDEC_STRIDE - 1]
     ldrb        w11, [x0, #1 * FDEC_STRIDE - 1]
     ldrb        w12, [x0, #2 * FDEC_STRIDE - 1]
     ldrb        w13, [x0, #3 * FDEC_STRIDE - 1]
@@ -498,7 +498,7 @@ pred8x8c_dc_end:
     ret
 endfunc
 
-function x264_predict_8x8c_h_neon, export=1
+function predict_8x8c_h_neon, export=1
     sub         x1,  x0,  #1
     mov         x7,  #FDEC_STRIDE
 .rept 4
@@ -510,15 +510,15 @@ function x264_predict_8x8c_h_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x8c_v_aarch64, export=1
-    ldr         x1,  [x0, #-FDEC_STRIDE]
+function predict_8x8c_v_aarch64, export=1
+    ldur        x1,  [x0, #-FDEC_STRIDE]
 .irp c, 0,1,2,3,4,5,6,7
     str         x1,  [x0, #\c * FDEC_STRIDE]
 .endr
     ret
 endfunc
 
-function x264_predict_8x8c_p_neon, export=1
+function predict_8x8c_p_neon, export=1
     sub         x3,  x0,  #FDEC_STRIDE
     mov         x1,  #FDEC_STRIDE
     add         x2,  x3,  #4
@@ -568,7 +568,11 @@ endfunc
 
 
 .macro loadsum4 wd, t1, t2, t3, x, idx
+  .if \idx == 0
+    ldurb       \wd,  [\x, #(\idx + 0) * FDEC_STRIDE - 1]
+  .else
     ldrb        \wd,  [\x, #(\idx + 0) * FDEC_STRIDE - 1]
+  .endif
     ldrb        \t1,  [\x, #(\idx + 1) * FDEC_STRIDE - 1]
     ldrb        \t2,  [\x, #(\idx + 2) * FDEC_STRIDE - 1]
     ldrb        \t3,  [\x, #(\idx + 3) * FDEC_STRIDE - 1]
@@ -577,7 +581,7 @@ endfunc
     add         \wd,  \wd,  \t1
 .endm
 
-function x264_predict_8x16c_h_neon, export=1
+function predict_8x16c_h_neon, export=1
     sub         x2,  x0,  #1
     add         x3,  x0,  #FDEC_STRIDE - 1
     mov         x7,  #2 * FDEC_STRIDE
@@ -595,7 +599,7 @@ function x264_predict_8x16c_h_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x16c_v_neon, export=1
+function predict_8x16c_v_neon, export=1
     sub         x1,  x0,  #FDEC_STRIDE
     mov         x2,  #2 * FDEC_STRIDE
     ld1        {v0.8b}, [x1], x2
@@ -606,7 +610,7 @@ function x264_predict_8x16c_v_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x16c_p_neon, export=1
+function predict_8x16c_p_neon, export=1
     movrel      x4,  p16weight
     ld1        {v17.8h}, [x4]
     sub         x3,  x0,  #FDEC_STRIDE
@@ -673,7 +677,7 @@ function x264_predict_8x16c_p_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x16c_dc_neon, export=1
+function predict_8x16c_dc_neon, export=1
     mov         x1,  #FDEC_STRIDE
     sub         x10, x0,  #FDEC_STRIDE
     loadsum4    w2, w3, w4, w5, x0, 0
@@ -718,9 +722,9 @@ function x264_predict_8x16c_dc_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x16c_dc_left_neon, export=1
+function predict_8x16c_dc_left_neon, export=1
     mov         x1,  #FDEC_STRIDE
-    ldrb        w2,  [x0, # 0 * FDEC_STRIDE - 1]
+    ldurb       w2,  [x0, # 0 * FDEC_STRIDE - 1]
     ldrb        w3,  [x0, # 1 * FDEC_STRIDE - 1]
     ldrb        w4,  [x0, # 2 * FDEC_STRIDE - 1]
     ldrb        w5,  [x0, # 3 * FDEC_STRIDE - 1]
@@ -772,7 +776,7 @@ function x264_predict_8x16c_dc_left_neon, export=1
     ret
 endfunc
 
-function x264_predict_8x16c_dc_top_neon, export=1
+function predict_8x16c_dc_top_neon, export=1
     sub         x2,  x0,  #FDEC_STRIDE
     mov         x1,  #FDEC_STRIDE
     ld1        {v0.8b}, [x2]
@@ -789,7 +793,7 @@ function x264_predict_8x16c_dc_top_neon, export=1
 endfunc
 
 
-function x264_predict_16x16_dc_top_neon, export=1
+function predict_16x16_dc_top_neon, export=1
     sub         x2,  x0,  #FDEC_STRIDE
     mov         x1,  #FDEC_STRIDE
     ld1        {v0.16b}, [x2]
@@ -799,7 +803,7 @@ function x264_predict_16x16_dc_top_neon, export=1
     b           pred16x16_dc_end
 endfunc
 
-function x264_predict_16x16_dc_left_neon, export=1
+function predict_16x16_dc_left_neon, export=1
     sub         x2,  x0,  #1
     mov         x1,  #FDEC_STRIDE
     ldcol.16    v0,  x2,  x1
@@ -809,7 +813,7 @@ function x264_predict_16x16_dc_left_neon, export=1
     b           pred16x16_dc_end
 endfunc
 
-function x264_predict_16x16_dc_neon, export=1
+function predict_16x16_dc_neon, export=1
     sub         x3,  x0,  #FDEC_STRIDE
     sub         x2,  x0,  #1
     mov         x1,  #FDEC_STRIDE
@@ -827,7 +831,7 @@ pred16x16_dc_end:
     ret
 endfunc
 
-function x264_predict_16x16_h_neon, export=1
+function predict_16x16_h_neon, export=1
     sub         x1,  x0,  #1
     mov         x7, #FDEC_STRIDE
 .rept 8
@@ -839,7 +843,7 @@ function x264_predict_16x16_h_neon, export=1
     ret
 endfunc
 
-function x264_predict_16x16_v_neon, export=1
+function predict_16x16_v_neon, export=1
     sub         x0,  x0,  #FDEC_STRIDE
     mov         x7,  #FDEC_STRIDE
     ld1        {v0.16b}, [x0], x7
@@ -849,7 +853,7 @@ function x264_predict_16x16_v_neon, export=1
     ret
 endfunc
 
-function x264_predict_16x16_p_neon, export=1
+function predict_16x16_p_neon, export=1
     sub         x3,  x0,  #FDEC_STRIDE
     mov         x1,  #FDEC_STRIDE
     add         x2,  x3,  #8

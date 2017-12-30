@@ -4,9 +4,9 @@
 ;* Copyright (C) 2005-2017 x264 project
 ;*
 ;* Authors: Loren Merritt <lorenm@u.washington.edu>
+;*          Henrik Gramner <henrik@gramner.com>
 ;*          Anton Mitrofanov <BugMaster@narod.ru>
 ;*          Fiona Glaser <fiona@x264.com>
-;*          Henrik Gramner <henrik@gramner.com>
 ;*
 ;* Permission to use, copy, modify, and/or distribute this software for any
 ;* purpose with or without fee is hereby granted, provided that the above
@@ -80,7 +80,13 @@
 %endif
 
 %macro SECTION_RODATA 0-1 16
-    SECTION .rodata align=%1
+    %ifidn __OUTPUT_FORMAT__,win32
+        SECTION .rdata align=%1
+    %elif WIN64
+        SECTION .rdata align=%1
+    %else
+        SECTION .rodata align=%1
+    %endif
 %endmacro
 
 %if WIN64
@@ -725,6 +731,16 @@ BRANCH_INSTR jz, je, jnz, jne, jl, jle, jnl, jnle, jg, jge, jng, jnge, ja, jae, 
     %endif
 %endmacro
 
+; Create a global symbol from a local label with the correct name mangling and type
+%macro cglobal_label 1
+    %if FORMAT_ELF
+        global current_function %+ %1:function hidden
+    %else
+        global current_function %+ %1
+    %endif
+    %1:
+%endmacro
+
 %macro cextern 1
     %xdefine %1 mangle(private_prefix %+ _ %+ %1)
     CAT_XDEFINE cglobaled_, %1, 1
@@ -1270,12 +1286,12 @@ AVX_INSTR addsd, sse2, 1, 0, 0
 AVX_INSTR addss, sse, 1, 0, 0
 AVX_INSTR addsubpd, sse3, 1, 0, 0
 AVX_INSTR addsubps, sse3, 1, 0, 0
-AVX_INSTR aesdec, fnord, 0, 0, 0
-AVX_INSTR aesdeclast, fnord, 0, 0, 0
-AVX_INSTR aesenc, fnord, 0, 0, 0
-AVX_INSTR aesenclast, fnord, 0, 0, 0
-AVX_INSTR aesimc
-AVX_INSTR aeskeygenassist
+AVX_INSTR aesdec, aesni, 0, 0, 0
+AVX_INSTR aesdeclast, aesni, 0, 0, 0
+AVX_INSTR aesenc, aesni, 0, 0, 0
+AVX_INSTR aesenclast, aesni, 0, 0, 0
+AVX_INSTR aesimc, aesni
+AVX_INSTR aeskeygenassist, aesni
 AVX_INSTR andnpd, sse2, 1, 0, 0
 AVX_INSTR andnps, sse, 1, 0, 0
 AVX_INSTR andpd, sse2, 1, 0, 1
@@ -1284,10 +1300,42 @@ AVX_INSTR blendpd, sse4, 1, 1, 0
 AVX_INSTR blendps, sse4, 1, 1, 0
 AVX_INSTR blendvpd, sse4 ; can't be emulated
 AVX_INSTR blendvps, sse4 ; can't be emulated
+AVX_INSTR cmpeqpd, sse2, 1, 0, 1
+AVX_INSTR cmpeqps, sse, 1, 0, 1
+AVX_INSTR cmpeqsd, sse2, 1, 0, 0
+AVX_INSTR cmpeqss, sse, 1, 0, 0
+AVX_INSTR cmplepd, sse2, 1, 0, 0
+AVX_INSTR cmpleps, sse, 1, 0, 0
+AVX_INSTR cmplesd, sse2, 1, 0, 0
+AVX_INSTR cmpless, sse, 1, 0, 0
+AVX_INSTR cmpltpd, sse2, 1, 0, 0
+AVX_INSTR cmpltps, sse, 1, 0, 0
+AVX_INSTR cmpltsd, sse2, 1, 0, 0
+AVX_INSTR cmpltss, sse, 1, 0, 0
+AVX_INSTR cmpneqpd, sse2, 1, 0, 1
+AVX_INSTR cmpneqps, sse, 1, 0, 1
+AVX_INSTR cmpneqsd, sse2, 1, 0, 0
+AVX_INSTR cmpneqss, sse, 1, 0, 0
+AVX_INSTR cmpnlepd, sse2, 1, 0, 0
+AVX_INSTR cmpnleps, sse, 1, 0, 0
+AVX_INSTR cmpnlesd, sse2, 1, 0, 0
+AVX_INSTR cmpnless, sse, 1, 0, 0
+AVX_INSTR cmpnltpd, sse2, 1, 0, 0
+AVX_INSTR cmpnltps, sse, 1, 0, 0
+AVX_INSTR cmpnltsd, sse2, 1, 0, 0
+AVX_INSTR cmpnltss, sse, 1, 0, 0
+AVX_INSTR cmpordpd, sse2 1, 0, 1
+AVX_INSTR cmpordps, sse 1, 0, 1
+AVX_INSTR cmpordsd, sse2 1, 0, 0
+AVX_INSTR cmpordss, sse 1, 0, 0
 AVX_INSTR cmppd, sse2, 1, 1, 0
 AVX_INSTR cmpps, sse, 1, 1, 0
 AVX_INSTR cmpsd, sse2, 1, 1, 0
 AVX_INSTR cmpss, sse, 1, 1, 0
+AVX_INSTR cmpunordpd, sse2, 1, 0, 1
+AVX_INSTR cmpunordps, sse, 1, 0, 1
+AVX_INSTR cmpunordsd, sse2, 1, 0, 0
+AVX_INSTR cmpunordss, sse, 1, 0, 0
 AVX_INSTR comisd, sse2
 AVX_INSTR comiss, sse
 AVX_INSTR cvtdq2pd, sse2
