@@ -138,6 +138,15 @@
     <ClCompile Include="..\x264dll.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\encoder\api.c">
+      <Filter>Source Files\encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\base.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\tables.c">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\bitstream.h">
@@ -227,9 +236,6 @@
     <ClInclude Include="x264_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\encoder\analyse.h">
       <Filter>Header Files\x264\encoder</Filter>
     </ClInclude>
@@ -238,6 +244,24 @@
     </ClInclude>
     <ClInclude Include="common\oclobj.h">
       <Filter>Header Files\x264\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\base.h">
+      <Filter>Header Files\x264\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\x86\bitstream.h">
+      <Filter>Header Files\x264\common\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\x86\deblock.h">
+      <Filter>Header Files\x264\common\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="..\encoder\slicetype-cl.h">
+      <Filter>Header Files\x264\encoder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\tables.h">
+      <Filter>Header Files\x264\common</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -264,67 +288,70 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <YASM Include="..\common\x86\bitstream-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\cabac-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\const-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\cpu-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\dct-32.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\dct-64.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\dct-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\deblock-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\mc-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\mc-a2.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\pixel-32.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\pixel-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\predict-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\quant-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\sad-a.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\trellis-64.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\x86inc.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-    <YASM Include="..\common\x86\x86util.asm">
-      <Filter>Source Files\common\x86</Filter>
-    </YASM>
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\x264res.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <NASM Include="..\common\x86\sad16-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\x86util.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\cabac-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\const-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\cpu-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\dct-32.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\dct-64.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\dct-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\deblock-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\mc-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\mc-a2.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\pixel-32.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\pixel-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\predict-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\quant-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\sad-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\trellis-64.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\x86inc.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
+    <NASM Include="..\common\x86\bitstream-a.asm">
+      <Filter>Source Files\common\x86</Filter>
+    </NASM>
   </ItemGroup>
 </Project>

@@ -21,7 +21,11 @@
 #define ftell _ftelli64
 #define HAVE_GPL 1
 #define HAVE_INTERLACED 1
-#define HAVE_OPENCL 1
+#if BIT_DEPTH==8
+#   define HAVE_OPENCL 1
+#else
+#   define HAVE_OPENCL 0
+#endif
 #define HAVE_MALLOC_H 0
 #define HAVE_ALTIVEC 0
 #define HAVE_ALTIVEC_H 0
@@ -43,3 +47,5 @@
 #   define HAVE_X86_INLINE_ASM 0
 #endif
 #define HAVE_WINRT 0
+#define HAVE_BITDEPTH8 1
+#define HAVE_BITDEPTH10 1
