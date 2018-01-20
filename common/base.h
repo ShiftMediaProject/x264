@@ -1,7 +1,7 @@
 /*****************************************************************************
  * base.h: misc common functions (bit depth independent)
  *****************************************************************************
- * Copyright (C) 2003-2017 x264 project
+ * Copyright (C) 2003-2018 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -55,7 +55,6 @@
 #define XCHG(type,a,b) do { type t = a; a = b; b = t; } while( 0 )
 #define FIX8(f) ((int)(f*(1<<8)+.5))
 #define ARRAY_ELEMS(a) ((sizeof(a))/(sizeof(a[0])))
-#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 #define ALIGN(x,a) (((x)+((a)-1))&~((a)-1))
 #define IS_DISPOSABLE(type) ( type == X264_TYPE_B )
 

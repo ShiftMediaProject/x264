@@ -1,7 +1,7 @@
 /*****************************************************************************
  * mc.h: motion compensation
  *****************************************************************************
- * Copyright (C) 2004-2017 x264 project
+ * Copyright (C) 2004-2018 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *
@@ -244,8 +244,7 @@ typedef struct x264_weight_t
     weight_fn_t *weightfn;
 } ALIGNED_16( x264_weight_t );
 
-#define x264_weight_none x264_template(weight_none)
-extern const x264_weight_t x264_weight_none[3];
+#define x264_weight_none ((const x264_weight_t*)x264_zero)
 
 #define SET_WEIGHT( w, b, s, d, o )\
 {\

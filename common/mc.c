@@ -1,7 +1,7 @@
 /*****************************************************************************
  * mc.c: motion compensation
  *****************************************************************************
- * Copyright (C) 2003-2017 x264 project
+ * Copyright (C) 2003-2018 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -155,7 +155,7 @@ static weight_fn_t mc_weight_wtab[6] =
     mc_weight_w16,
     mc_weight_w20,
 };
-const x264_weight_t x264_weight_none[3] = { {{0}} };
+
 static void mc_copy( pixel *src, intptr_t i_src_stride, pixel *dst, intptr_t i_dst_stride, int i_width, int i_height )
 {
     for( int y = 0; y < i_height; y++ )

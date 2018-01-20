@@ -1,7 +1,7 @@
 /*****************************************************************************
  * common.h: misc common functions
  *****************************************************************************
- * Copyright (C) 2003-2017 x264 project
+ * Copyright (C) 2003-2018 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -569,16 +569,16 @@ struct x264_t
             ALIGNED_64( pixel fdec_buf[54*FDEC_STRIDE] );
 
             /* i4x4 and i8x8 backup data, for skipping the encode stage when possible */
-            ALIGNED_16( pixel i4x4_fdec_buf[16*16] );
-            ALIGNED_16( pixel i8x8_fdec_buf[16*16] );
+            ALIGNED_32( pixel i4x4_fdec_buf[16*16] );
+            ALIGNED_32( pixel i8x8_fdec_buf[16*16] );
             ALIGNED_64( dctcoef i8x8_dct_buf[3][64] );
             ALIGNED_64( dctcoef i4x4_dct_buf[15][16] );
             uint32_t i4x4_nnz_buf[4];
             uint32_t i8x8_nnz_buf[4];
 
             /* Psy trellis DCT data */
-            ALIGNED_16( dctcoef fenc_dct8[4][64] );
-            ALIGNED_16( dctcoef fenc_dct4[16][16] );
+            ALIGNED_64( dctcoef fenc_dct8[4][64] );
+            ALIGNED_64( dctcoef fenc_dct4[16][16] );
 
             /* Psy RD SATD/SA8D scores cache */
             ALIGNED_64( uint32_t fenc_satd_cache[32] );

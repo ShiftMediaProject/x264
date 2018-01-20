@@ -1,7 +1,7 @@
 /*****************************************************************************
  * analyse.c: macroblock analysis
  *****************************************************************************
- * Copyright (C) 2003-2017 x264 project
+ * Copyright (C) 2003-2018 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -558,12 +558,10 @@ static ALWAYS_INLINE const int8_t *predict_4x4_mode_available( int force_intra, 
 /* For trellis=2, we need to do this for both sizes of DCT, for trellis=1 we only need to use it on the chosen mode. */
 static void inline psy_trellis_init( x264_t *h, int do_both_dct )
 {
-    ALIGNED_16( static pixel zero[16*FDEC_STRIDE] ) = {0};
-
     if( do_both_dct || h->mb.b_transform_8x8 )
-        h->dctf.sub16x16_dct8( h->mb.pic.fenc_dct8, h->mb.pic.p_fenc[0], zero );
+        h->dctf.sub16x16_dct8( h->mb.pic.fenc_dct8, h->mb.pic.p_fenc[0], (pixel*)x264_zero );
     if( do_both_dct || !h->mb.b_transform_8x8 )
-        h->dctf.sub16x16_dct( h->mb.pic.fenc_dct4, h->mb.pic.p_fenc[0], zero );
+        h->dctf.sub16x16_dct( h->mb.pic.fenc_dct4, h->mb.pic.p_fenc[0], (pixel*)x264_zero );
 }
 
 /* Reset fenc satd scores cache for psy RD */
@@ -2011,7 +2009,7 @@ static void mb_analyse_inter_b16x16( x264_t *h, x264_mb_analysis_t *a )
             }
             else
             {
-                ALIGNED_ARRAY_32( pixel, pixuv, [2],[16*FENC_STRIDE] );
+                ALIGNED_ARRAY_64( pixel, pixuv, [2],[16*FENC_STRIDE] );
                 int chromapix = h->luma2chroma_pixel[PIXEL_16x16];
                 int v_shift = CHROMA_V_SHIFT;
 

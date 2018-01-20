@@ -1,7 +1,7 @@
 /*****************************************************************************
  * opencl.c: OpenCL initialization and kernel compilation
  *****************************************************************************
- * Copyright (C) 2012-2017 x264 project
+ * Copyright (C) 2012-2018 x264 project
  *
  * Authors: Steve Borho <sborho@multicorewareinc.com>
  *          Anton Mitrofanov <BugMaster@narod.ru>
@@ -364,7 +364,7 @@ static int opencl_lookahead_alloc( x264_t *h )
     if( !h->opencl.lookahead_program )
         goto fail;
 
-    for( int i = 0; i < ARRAY_SIZE(kernelnames); i++ )
+    for( int i = 0; i < ARRAY_ELEMS(kernelnames); i++ )
     {
         *kernels[i] = ocl->clCreateKernel( h->opencl.lookahead_program, kernelnames[i], &status );
         if( status != CL_SUCCESS )
