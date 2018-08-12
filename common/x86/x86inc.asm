@@ -1077,18 +1077,31 @@ INIT_XMM
     %endif
     %assign %%i 0
     %rep num_mmregs
-        CAT_XDEFINE %%f, %%i, m %+ %%i
+        %xdefine %%tmp m %+ %%i
+        CAT_XDEFINE %%f, %%i, regnumof %+ %%tmp
         %assign %%i %%i+1
     %endrep
 %endmacro
 
-%macro LOAD_MM_PERMUTATION 1 ; name to load from
-    %ifdef %1_m0
+%macro LOAD_MM_PERMUTATION 0-1 ; name to load from
+    %if %0
+        %xdefine %%f %1_m
+    %else
+        %xdefine %%f current_function %+ _m
+    %endif
+    %xdefine %%tmp %%f %+ 0
+    %ifnum %%tmp
+        RESET_MM_PERMUTATION
         %assign %%i 0
         %rep num_mmregs
-            CAT_XDEFINE m, %%i, %1_m %+ %%i
-            CAT_XDEFINE nn, m %+ %%i, %%i
+            %xdefine %%tmp %%f %+ %%i
+            CAT_XDEFINE %%m, %%i, m %+ %%tmp
             %assign %%i %%i+1
+        %endrep
+        %rep num_mmregs
+            %assign %%i %%i-1
+            CAT_XDEFINE m, %%i, %%m %+ %%i
+            CAT_XDEFINE nn, m %+ %%i, %%i
         %endrep
     %endif
 %endmacro
@@ -1240,9 +1253,40 @@ INIT_XMM
     %elif %0 >= 9
         __instr %6, %7, %8, %9
     %elif %0 == 8
-        __instr %6, %7, %8
+        %if avx_enabled && %5
+            %xdefine __src1 %7
+            %xdefine __src2 %8
+            %ifnum regnumof%7
+                %ifnum regnumof%8
+                    %if regnumof%7 < 8 && regnumof%8 >= 8 && regnumof%8 < 16 && sizeof%8 <= 32
+                        ; Most VEX-encoded instructions require an additional byte to encode when
+                        ; src2 is a high register (e.g. m8..15). If the instruction is commutative
+                        ; we can swap src1 and src2 when doing so reduces the instruction length.
+                        %xdefine __src1 %8
+                        %xdefine __src2 %7
+                    %endif
+                %endif
+            %endif
+            __instr %6, __src1, __src2
+        %else
+            __instr %6, %7, %8
+        %endif
     %elif %0 == 7
-        __instr %6, %7
+        %if avx_enabled && %5
+            %xdefine __src1 %6
+            %xdefine __src2 %7
+            %ifnum regnumof%6
+                %ifnum regnumof%7
+                    %if regnumof%6 < 8 && regnumof%7 >= 8 && regnumof%7 < 16 && sizeof%7 <= 32
+                        %xdefine __src1 %7
+                        %xdefine __src2 %6
+                    %endif
+                %endif
+            %endif
+            __instr %6, __src1, __src2
+        %else
+            __instr %6, %7
+        %endif
     %else
         __instr %6
     %endif
@@ -1651,6 +1695,11 @@ FMA4_INSTR fnmsub,   pd, ps, sd, ss
         %endif
         %ifnum regnumof%2
             %if regnumof%2 >= 16 || sizeof%2 > 32
+                %assign %%evex_required 1
+            %endif
+        %endif
+        %ifnum regnumof%3
+            %if regnumof%3 >= 16 || sizeof%3 > 32
                 %assign %%evex_required 1
             %endif
         %endif

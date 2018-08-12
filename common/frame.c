@@ -44,29 +44,16 @@ static int align_plane_size( int x, int disalign )
 
 static int frame_internal_csp( int external_csp )
 {
-    switch( external_csp & X264_CSP_MASK )
-    {
-        case X264_CSP_NV12:
-        case X264_CSP_NV21:
-        case X264_CSP_I420:
-        case X264_CSP_YV12:
-            return X264_CSP_NV12;
-        case X264_CSP_NV16:
-        case X264_CSP_I422:
-        case X264_CSP_YV16:
-        case X264_CSP_YUYV:
-        case X264_CSP_UYVY:
-        case X264_CSP_V210:
-            return X264_CSP_NV16;
-        case X264_CSP_I444:
-        case X264_CSP_YV24:
-        case X264_CSP_BGR:
-        case X264_CSP_BGRA:
-        case X264_CSP_RGB:
-            return X264_CSP_I444;
-        default:
-            return X264_CSP_NONE;
-    }
+    int csp = external_csp & X264_CSP_MASK;
+    if( csp == X264_CSP_I400 )
+        return X264_CSP_I400;
+    if( csp >= X264_CSP_I420 && csp < X264_CSP_I422 )
+        return X264_CSP_NV12;
+    if( csp >= X264_CSP_I422 && csp < X264_CSP_I444 )
+        return X264_CSP_NV16;
+    if( csp >= X264_CSP_I444 && csp <= X264_CSP_RGB )
+        return X264_CSP_I444;
+    return X264_CSP_NONE;
 }
 
 static x264_frame_t *frame_new( x264_t *h, int b_fdec )
@@ -88,6 +75,9 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
 #else
     int disalign = 1<<10;
 #endif
+
+    /* ensure frame alignment after PADH is added */
+    int padh_align = X264_MAX( align - PADH * sizeof(pixel), 0 ) / sizeof(pixel);
 
     CHECKED_MALLOCZERO( frame, sizeof(x264_frame_t) );
     PREALLOC_INIT
@@ -118,6 +108,14 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
             frame->i_lines[i] = i_lines;
             frame->i_stride[i] = i_stride;
         }
+    }
+    else if( i_csp == X264_CSP_I400 )
+    {
+        luma_plane_count = 1;
+        frame->i_plane = 1;
+        frame->i_width[0] = i_width;
+        frame->i_lines[0] = i_lines;
+        frame->i_stride[0] = i_stride;
     }
     else
         goto fail;
@@ -154,9 +152,9 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
     {
         int chroma_padv = i_padv >> (i_csp == X264_CSP_NV12);
         int chroma_plane_size = (frame->i_stride[1] * (frame->i_lines[1] + 2*chroma_padv));
-        PREALLOC( frame->buffer[1], chroma_plane_size * sizeof(pixel) );
+        PREALLOC( frame->buffer[1], (chroma_plane_size + padh_align) * sizeof(pixel) );
         if( PARAM_INTERLACED )
-            PREALLOC( frame->buffer_fld[1], chroma_plane_size * sizeof(pixel) );
+            PREALLOC( frame->buffer_fld[1], (chroma_plane_size + padh_align) * sizeof(pixel) );
     }
 
     /* all 4 luma planes allocated together, since the cacheline split code
@@ -166,18 +164,12 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
     {
         int luma_plane_size = align_plane_size( frame->i_stride[p] * (frame->i_lines[p] + 2*i_padv), disalign );
         if( h->param.analyse.i_subpel_refine && b_fdec )
-        {
-            /* FIXME: Don't allocate both buffers in non-adaptive MBAFF. */
-            PREALLOC( frame->buffer[p], 4*luma_plane_size * sizeof(pixel) );
-            if( PARAM_INTERLACED )
-                PREALLOC( frame->buffer_fld[p], 4*luma_plane_size * sizeof(pixel) );
-        }
-        else
-        {
-            PREALLOC( frame->buffer[p], luma_plane_size * sizeof(pixel) );
-            if( PARAM_INTERLACED )
-                PREALLOC( frame->buffer_fld[p], luma_plane_size * sizeof(pixel) );
-        }
+            luma_plane_size *= 4;
+
+        /* FIXME: Don't allocate both buffers in non-adaptive MBAFF. */
+        PREALLOC( frame->buffer[p], (luma_plane_size + padh_align) * sizeof(pixel) );
+        if( PARAM_INTERLACED )
+            PREALLOC( frame->buffer_fld[p], (luma_plane_size + padh_align) * sizeof(pixel) );
     }
 
     frame->b_duplicate = 0;
@@ -215,7 +207,7 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
         {
             int luma_plane_size = align_plane_size( frame->i_stride_lowres * (frame->i_lines[0]/2 + 2*PADV), disalign );
 
-            PREALLOC( frame->buffer_lowres[0], 4 * luma_plane_size * sizeof(pixel) );
+            PREALLOC( frame->buffer_lowres, (4 * luma_plane_size + padh_align) * sizeof(pixel) );
 
             for( int j = 0; j <= !!h->param.i_bframe; j++ )
                 for( int i = 0; i <= h->param.i_bframe; i++ )
@@ -245,9 +237,9 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
     if( i_csp == X264_CSP_NV12 || i_csp == X264_CSP_NV16 )
     {
         int chroma_padv = i_padv >> (i_csp == X264_CSP_NV12);
-        frame->plane[1] = frame->buffer[1] + frame->i_stride[1] * chroma_padv + PADH;
+        frame->plane[1] = frame->buffer[1] + frame->i_stride[1] * chroma_padv + PADH + padh_align;
         if( PARAM_INTERLACED )
-            frame->plane_fld[1] = frame->buffer_fld[1] + frame->i_stride[1] * chroma_padv + PADH;
+            frame->plane_fld[1] = frame->buffer_fld[1] + frame->i_stride[1] * chroma_padv + PADH + padh_align;
     }
 
     for( int p = 0; p < luma_plane_count; p++ )
@@ -257,16 +249,16 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
         {
             for( int i = 0; i < 4; i++ )
             {
-                frame->filtered[p][i] = frame->buffer[p] + i*luma_plane_size + frame->i_stride[p] * i_padv + PADH;
-                frame->filtered_fld[p][i] = frame->buffer_fld[p] + i*luma_plane_size + frame->i_stride[p] * i_padv + PADH;
+                frame->filtered[p][i] = frame->buffer[p] + i*luma_plane_size + frame->i_stride[p] * i_padv + PADH + padh_align;
+                frame->filtered_fld[p][i] = frame->buffer_fld[p] + i*luma_plane_size + frame->i_stride[p] * i_padv + PADH + padh_align;
             }
             frame->plane[p] = frame->filtered[p][0];
             frame->plane_fld[p] = frame->filtered_fld[p][0];
         }
         else
         {
-            frame->filtered[p][0] = frame->plane[p] = frame->buffer[p] + frame->i_stride[p] * i_padv + PADH;
-            frame->filtered_fld[p][0] = frame->plane_fld[p] = frame->buffer_fld[p] + frame->i_stride[p] * i_padv + PADH;
+            frame->filtered[p][0] = frame->plane[p] = frame->buffer[p] + frame->i_stride[p] * i_padv + PADH + padh_align;
+            frame->filtered_fld[p][0] = frame->plane_fld[p] = frame->buffer_fld[p] + frame->i_stride[p] * i_padv + PADH + padh_align;
         }
     }
 
@@ -284,7 +276,7 @@ static x264_frame_t *frame_new( x264_t *h, int b_fdec )
         {
             int luma_plane_size = align_plane_size( frame->i_stride_lowres * (frame->i_lines[0]/2 + 2*PADV), disalign );
             for( int i = 0; i < 4; i++ )
-                frame->lowres[i] = frame->buffer_lowres[0] + (frame->i_stride_lowres * PADV + PADH) + i * luma_plane_size;
+                frame->lowres[i] = frame->buffer_lowres + frame->i_stride_lowres * PADV + PADH + padh_align + i * luma_plane_size;
 
             for( int j = 0; j <= !!h->param.i_bframe; j++ )
                 for( int i = 0; i <= h->param.i_bframe; i++ )
@@ -470,7 +462,7 @@ int x264_frame_copy_picture( x264_t *h, x264_frame_t *dst, x264_picture_t *src )
                                          (pixel*)pix[2], stride[2]/sizeof(pixel),
                                          h->param.i_width>>1, h->param.i_height>>v_shift );
         }
-        else //if( i_csp == X264_CSP_I444 || i_csp == X264_CSP_YV24 )
+        else if( i_csp == X264_CSP_I444 || i_csp == X264_CSP_YV24 )
         {
             get_plane_ptr( h, src, &pix[1], &stride[1], i_csp==X264_CSP_I444 ? 1 : 2, 0, 0 );
             get_plane_ptr( h, src, &pix[2], &stride[2], i_csp==X264_CSP_I444 ? 2 : 1, 0, 0 );
@@ -483,7 +475,7 @@ int x264_frame_copy_picture( x264_t *h, x264_frame_t *dst, x264_picture_t *src )
     return 0;
 }
 
-static void ALWAYS_INLINE pixel_memset( pixel *dst, pixel *src, int len, int size )
+static ALWAYS_INLINE void pixel_memset( pixel *dst, pixel *src, int len, int size )
 {
     uint8_t *dstp = (uint8_t*)dst;
     uint32_t v1 = *src;
@@ -535,7 +527,7 @@ static void ALWAYS_INLINE pixel_memset( pixel *dst, pixel *src, int len, int siz
     }
 }
 
-static void ALWAYS_INLINE plane_expand_border( pixel *pix, int i_stride, int i_width, int i_height, int i_padh, int i_padv, int b_pad_top, int b_pad_bottom, int b_chroma )
+static ALWAYS_INLINE void plane_expand_border( pixel *pix, int i_stride, int i_width, int i_height, int i_padh, int i_padv, int b_pad_top, int b_pad_bottom, int b_chroma )
 {
 #define PPIXEL(x, y) ( pix + (x) + (y)*i_stride )
     for( int y = 0; y < i_height; y++ )

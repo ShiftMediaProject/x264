@@ -33,7 +33,7 @@
 static const uint8_t delta_tfi_divisor[10] = { 0, 2, 1, 1, 2, 2, 3, 3, 4, 6 };
 
 static int slicetype_frame_cost( x264_t *h, x264_mb_analysis_t *a,
-                                      x264_frame_t **frames, int p0, int p1, int b );
+                                 x264_frame_t **frames, int p0, int p1, int b );
 
 #define x264_weights_analyse x264_template(weights_analyse)
 void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int b_lookahead );
@@ -297,11 +297,12 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
     float ref_mean[3];
     for( int plane = 0; plane <= 2*!b_lookahead; plane++ )
     {
-        float fenc_var = fenc->i_pixel_ssd[plane] + !ref->i_pixel_ssd[plane];
-        float ref_var  =  ref->i_pixel_ssd[plane] + !ref->i_pixel_ssd[plane];
+        int zero_bias = !ref->i_pixel_ssd[plane];
+        float fenc_var = fenc->i_pixel_ssd[plane] + zero_bias;
+        float ref_var  =  ref->i_pixel_ssd[plane] + zero_bias;
         guess_scale[plane] = sqrtf( fenc_var / ref_var );
-        fenc_mean[plane] = (float)fenc->i_pixel_sum[plane] / (fenc->i_lines[!!plane] * fenc->i_width[!!plane]) / (1 << (BIT_DEPTH - 8));
-        ref_mean[plane]  = (float) ref->i_pixel_sum[plane] / (fenc->i_lines[!!plane] * fenc->i_width[!!plane]) / (1 << (BIT_DEPTH - 8));
+        fenc_mean[plane] = (float)(fenc->i_pixel_sum[plane] + zero_bias) / (fenc->i_lines[!!plane] * fenc->i_width[!!plane]) / (1 << (BIT_DEPTH - 8));
+        ref_mean[plane]  = (float)( ref->i_pixel_sum[plane] + zero_bias) / (fenc->i_lines[!!plane] * fenc->i_width[!!plane]) / (1 << (BIT_DEPTH - 8));
     }
 
     int chroma_denom = 7;
@@ -318,7 +319,7 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
     }
 
     /* Don't check chroma in lookahead, or if there wasn't a luma weight. */
-    for( int plane = 0; plane <= 2 && !( plane && ( !weights[0].weightfn || b_lookahead ) ); plane++ )
+    for( int plane = 0; plane < (CHROMA_FORMAT ? 3 : 1) && !( plane && ( !weights[0].weightfn || b_lookahead ) ); plane++ )
     {
         int minoff, minscale, mindenom;
         unsigned int minscore, origscore;
@@ -482,7 +483,7 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
     if( weights[0].weightfn && b_lookahead )
     {
         //scale lowres in lookahead for slicetype_frame_cost
-        pixel *src = ref->buffer_lowres[0];
+        pixel *src = ref->buffer_lowres;
         pixel *dst = h->mb.p_weight_buf[0];
         int width = ref->i_width_lowres + PADH*2;
         int height = ref->i_lines_lowres + PADV*2;
@@ -1277,10 +1278,10 @@ static void vbv_lookahead( x264_t *h, x264_mb_analysis_t *a, x264_frame_t **fram
     frames[next_nonb]->i_planned_type[idx] = X264_TYPE_AUTO;
 }
 
-static int slicetype_path_cost( x264_t *h, x264_mb_analysis_t *a, x264_frame_t **frames, char *path, int threshold )
+static uint64_t slicetype_path_cost( x264_t *h, x264_mb_analysis_t *a, x264_frame_t **frames, char *path, uint64_t threshold )
 {
+    uint64_t cost = 0;
     int loc = 1;
-    int cost = 0;
     int cur_nonb = 0;
     path--; /* Since the 1st path element is really the second frame */
     while( path[loc] )
@@ -1326,7 +1327,7 @@ static void slicetype_path( x264_t *h, x264_mb_analysis_t *a, x264_frame_t **fra
 {
     char paths[2][X264_LOOKAHEAD_MAX+1];
     int num_paths = X264_MIN( h->param.i_bframe+1, length );
-    int best_cost = COST_MAX;
+    uint64_t best_cost = COST_MAX64;
     int best_possible = 0;
     int idx = 0;
 
@@ -1357,9 +1358,9 @@ static void slicetype_path( x264_t *h, x264_mb_analysis_t *a, x264_frame_t **fra
         if( possible || !best_possible )
         {
             if( possible && !best_possible )
-                best_cost = COST_MAX;
+                best_cost = COST_MAX64;
             /* Calculate the actual cost of the current path */
-            int cost = slicetype_path_cost( h, a, frames, paths[idx], best_cost );
+            uint64_t cost = slicetype_path_cost( h, a, frames, paths[idx], best_cost );
             if( cost < best_cost )
             {
                 best_cost = cost;
@@ -1602,9 +1603,9 @@ void x264_slicetype_analyse( x264_t *h, int intra_minigop )
                 int bframes = j - last_nonb - 1;
                 memset( path, 'B', bframes );
                 strcpy( path+bframes, "PP" );
-                int cost_p = slicetype_path_cost( h, &a, frames+last_nonb, path, COST_MAX );
+                uint64_t cost_p = slicetype_path_cost( h, &a, frames+last_nonb, path, COST_MAX64 );
                 strcpy( path+bframes, "BP" );
-                int cost_b = slicetype_path_cost( h, &a, frames+last_nonb, path, cost_p );
+                uint64_t cost_b = slicetype_path_cost( h, &a, frames+last_nonb, path, cost_p );
 
                 if( cost_b < cost_p )
                     frames[j]->i_type = X264_TYPE_B;

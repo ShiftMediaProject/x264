@@ -437,7 +437,7 @@ static void add16x16_idct8( pixel *dst, dctcoef dct[4][64] )
     add8x8_idct8( &dst[8*FDEC_STRIDE+8], dct[3] );
 }
 
-static void inline add4x4_idct_dc( pixel *p_dst, dctcoef dc )
+static inline void add4x4_idct_dc( pixel *p_dst, dctcoef dc )
 {
     dc = (dc + 32) >> 6;
     for( int i = 0; i < 4; i++, p_dst += FDEC_STRIDE )
@@ -667,6 +667,7 @@ void x264_dct_init( int cpu, x264_dct_function_t *dctf )
         dctf->sub16x16_dct  = x264_sub16x16_dct_altivec;
 
         dctf->add8x8_idct_dc = x264_add8x8_idct_dc_altivec;
+        dctf->add16x16_idct_dc = x264_add16x16_idct_dc_altivec;
 
         dctf->add4x4_idct   = x264_add4x4_idct_altivec;
         dctf->add8x8_idct   = x264_add8x8_idct_altivec;

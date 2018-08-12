@@ -208,9 +208,11 @@ void x264_analyse_free_costs( x264_t *h )
     {
         if( h->cost_mv[i] )
             x264_free( h->cost_mv[i] - 2*4*mv_range );
-        if( h->cost_mv_fpel[i][0] )
-            for( int j = 0; j < 4; j++ )
+        for( int j = 0; j < 4; j++ )
+        {
+            if( h->cost_mv_fpel[i][j] )
                 x264_free( h->cost_mv_fpel[i][j] - 2*mv_range );
+        }
     }
 }
 
@@ -307,8 +309,8 @@ static void mb_analyse_init( x264_t *h, x264_mb_analysis_t *a, int qp )
     /* I: Intra part */
     a->i_satd_i16x16 =
     a->i_satd_i8x8   =
-    a->i_satd_i4x4   =
-    a->i_satd_chroma = COST_MAX;
+    a->i_satd_i4x4   = COST_MAX;
+    a->i_satd_chroma = CHROMA_FORMAT ? COST_MAX : 0;
 
     /* non-RD PCM decision is inaccurate (as is psy-rd), so don't do it.
      * PCM cost can overflow with high lambda2, so cap it at COST_MAX. */
@@ -556,7 +558,7 @@ static ALWAYS_INLINE const int8_t *predict_4x4_mode_available( int force_intra, 
 }
 
 /* For trellis=2, we need to do this for both sizes of DCT, for trellis=1 we only need to use it on the chosen mode. */
-static void inline psy_trellis_init( x264_t *h, int do_both_dct )
+static inline void psy_trellis_init( x264_t *h, int do_both_dct )
 {
     if( do_both_dct || h->mb.b_transform_8x8 )
         h->dctf.sub16x16_dct8( h->mb.pic.fenc_dct8, h->mb.pic.p_fenc[0], (pixel*)x264_zero );
@@ -1033,7 +1035,7 @@ static void intra_rd_refine( x264_t *h, x264_mb_analysis_t *a )
     }
 
     /* RD selection for chroma prediction */
-    if( !CHROMA444 )
+    if( CHROMA_FORMAT == CHROMA_420 || CHROMA_FORMAT == CHROMA_422 )
     {
         const int8_t *predict_mode = predict_chroma_mode_available( h->mb.i_neighbour_intra );
         if( predict_mode[1] >= 0 )

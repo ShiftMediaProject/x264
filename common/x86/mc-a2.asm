@@ -1017,6 +1017,143 @@ PLANE_COPY_CORE 0
 INIT_YMM avx2
 PLANE_COPY_CORE 1
 
+%macro PLANE_COPY_AVX512 1 ; swap
+%if %1
+cglobal plane_copy_swap, 6,7
+    vbroadcasti32x4 m4, [copy_swap_shuf]
+%else
+cglobal plane_copy, 6,7
+%endif
+    movsxdifnidn r4, r4d
+%if %1 && HIGH_BIT_DEPTH
+    %define %%mload vmovdqu32
+    lea         r2, [r2+4*r4-64]
+    lea         r0, [r0+4*r4-64]
+    neg         r4
+    mov        r6d, r4d
+    shl         r4, 2
+    or         r6d, 0xffff0010
+    shrx       r6d, r6d, r6d ; (1 << (w & 15)) - 1
+    kmovw       k1, r6d
+%elif %1 || HIGH_BIT_DEPTH
+    %define %%mload vmovdqu16
+    lea         r2, [r2+2*r4-64]
+    lea         r0, [r0+2*r4-64]
+    mov        r6d, -1
+    neg         r4
+    shrx       r6d, r6d, r4d
+    add         r4, r4
+    kmovd       k1, r6d
+%else
+    %define %%mload vmovdqu8
+    lea         r2, [r2+1*r4-64]
+    lea         r0, [r0+1*r4-64]
+    mov         r6, -1
+    neg         r4
+    shrx        r6, r6, r4
+%if ARCH_X86_64
+    kmovq       k1, r6
+%else
+    kmovd       k1, r6d
+    test       r4d, 32
+    jnz .l32
+    kxnord      k2, k2, k2
+    kunpckdq    k1, k1, k2
+.l32:
+%endif
+%endif
+    FIX_STRIDES r3, r1
+    add         r4, 4*64
+    jge .small
+    mov         r6, r4
+
+.loop: ; >256 bytes/row
+    PREFETCHNT_ITER r2+r4+64, 4*64
+    movu        m0, [r2+r4-3*64]
+    movu        m1, [r2+r4-2*64]
+    movu        m2, [r2+r4-1*64]
+    movu        m3, [r2+r4-0*64]
+%if %1
+    pshufb      m0, m4
+    pshufb      m1, m4
+    pshufb      m2, m4
+    pshufb      m3, m4
+%endif
+    movnta [r0+r4-3*64], m0
+    movnta [r0+r4-2*64], m1
+    movnta [r0+r4-1*64], m2
+    movnta [r0+r4-0*64], m3
+    add         r4, 4*64
+    jl .loop
+    PREFETCHNT_ITER r2+r4+64, 4*64
+    sub         r4, 3*64
+    jge .tail
+.loop2:
+    movu        m0, [r2+r4]
+%if %1
+    pshufb      m0, m4
+%endif
+    movnta [r0+r4], m0
+    add         r4, 64
+    jl .loop2
+.tail:
+    %%mload     m0 {k1}{z}, [r2+r4]
+%if %1
+    pshufb      m0, m4
+%endif
+    movnta [r0+r4], m0
+    add         r2, r3
+    add         r0, r1
+    mov         r4, r6
+    dec        r5d
+    jg .loop
+    sfence
+    RET
+
+.small: ; 65-256 bytes/row. skip non-temporal stores
+    sub         r4, 3*64
+    jge .tiny
+    mov         r6, r4
+.small_loop:
+    PREFETCHNT_ITER r2+r4+64, 64
+    movu        m0, [r2+r4]
+%if %1
+    pshufb      m0, m4
+%endif
+    mova   [r0+r4], m0
+    add         r4, 64
+    jl .small_loop
+    PREFETCHNT_ITER r2+r4+64, 64
+    %%mload     m0 {k1}{z}, [r2+r4]
+%if %1
+    pshufb      m0, m4
+%endif
+    mova   [r0+r4], m0
+    add         r2, r3
+    add         r0, r1
+    mov         r4, r6
+    dec        r5d
+    jg .small_loop
+    RET
+
+.tiny: ; 1-64 bytes/row. skip non-temporal stores
+    PREFETCHNT_ITER r2+r4+64, 64
+    %%mload     m0 {k1}{z}, [r2+r4]
+%if %1
+    pshufb      m0, m4
+%endif
+    mova   [r0+r4], m0
+    add         r2, r3
+    add         r0, r1
+    dec        r5d
+    jg .tiny
+    RET
+%endmacro
+
+INIT_ZMM avx512
+PLANE_COPY_AVX512 0
+PLANE_COPY_AVX512 1
+
 %macro INTERLEAVE 4-5 ; dst, srcu, srcv, is_aligned, nt_hint
 %if HIGH_BIT_DEPTH
 %assign x 0
@@ -2518,8 +2655,8 @@ cglobal mbtree_propagate_list_internal, 5,7,21
     paddd           m6, m7             ; i_mb_x += 8
     pand            m3, m8             ; {x, y}
     vprold          m1, m3, 20         ; {y, x} << 4
-    psubw           m3 {k4}, m9, m3    ; {32-x, 32-y}, {32-x, y}
-    psubw           m1 {k5}, m10, m1   ; ({32-y, x}, {y, x}) << 4
+    vpsubw          m3 {k4}, m9, m3    ; {32-x, 32-y}, {32-x, y}
+    vpsubw          m1 {k5}, m10, m1   ; ({32-y, x}, {y, x}) << 4
     pmullw          m3, m1
     paddsw          m3, m3             ; prevent signed overflow in idx0 (32*32<<5 == 0x8000)
     pmulhrsw        m2, m3, m4         ; idx01weight idx23weightp
@@ -2530,11 +2667,11 @@ cglobal mbtree_propagate_list_internal, 5,7,21
     vpcmpuw         k2, ym1, ym20, 1    ; {mbx, mbx+1} < width
     kunpckwd        k2, k2, k2
     psrad           m1, m0, 16
-    paddd           m1 {k6}, m11
+    vpaddd          m1 {k6}, m11
     vpcmpud         k1 {k1}, m1, m13, 1 ; mby < height | mby+1 < height
 
     pmaddwd         m0, m15
-    paddd           m0 {k6}, m14        ; idx0 | idx2
+    vpaddd          m0 {k6}, m14        ; idx0 | idx2
     vmovdqu16       m2 {k2}{z}, m2      ; idx01weight | idx23weight
     vptestmd        k1 {k1}, m2, m2     ; mask out offsets with no changes
 

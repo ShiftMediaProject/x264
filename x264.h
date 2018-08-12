@@ -45,7 +45,7 @@ extern "C" {
 
 #include "x264_config.h"
 
-#define X264_BUILD 155
+#define X264_BUILD 157
 
 /* Application developers planning to link against a shared library version of
  * libx264 from a Microsoft Visual Studio or similar development environment
@@ -170,6 +170,7 @@ typedef struct x264_nal_t
 #define X264_ANALYSE_PSUB16x16  0x0010  /* Analyse p16x8, p8x16 and p8x8 */
 #define X264_ANALYSE_PSUB8x8    0x0020  /* Analyse p8x4, p4x8, p4x4 */
 #define X264_ANALYSE_BSUB16x16  0x0100  /* Analyse b16x8, b8x16 and b8x8 */
+
 #define X264_DIRECT_PRED_NONE        0
 #define X264_DIRECT_PRED_SPATIAL     1
 #define X264_DIRECT_PRED_TEMPORAL    2
@@ -202,6 +203,10 @@ typedef struct x264_nal_t
 #define X264_KEYINT_MIN_AUTO         0
 #define X264_KEYINT_MAX_INFINITE     (1<<30)
 
+/* AVC-Intra flavors */
+#define X264_AVCINTRA_FLAVOR_PANASONIC 0
+#define X264_AVCINTRA_FLAVOR_SONY      1
+
 static const char * const x264_direct_pred_names[] = { "none", "spatial", "temporal", "auto", 0 };
 static const char * const x264_motion_est_names[] = { "dia", "hex", "umh", "esa", "tesa", 0 };
 static const char * const x264_b_pyramid_names[] = { "none", "strict", "normal", 0 };
@@ -215,26 +220,28 @@ static const char * const x264_transfer_names[] = { "", "bt709", "undef", "", "b
 static const char * const x264_colmatrix_names[] = { "GBR", "bt709", "undef", "", "fcc", "bt470bg", "smpte170m", "smpte240m", "YCgCo", "bt2020nc", "bt2020c",
                                                      "smpte2085", "chroma-derived-nc", "chroma-derived-c", "ICtCp", 0 };
 static const char * const x264_nal_hrd_names[] = { "none", "vbr", "cbr", 0 };
+static const char * const x264_avcintra_flavor_names[] = { "panasonic", "sony", 0 };
 
 /* Colorspace type */
 #define X264_CSP_MASK           0x00ff  /* */
 #define X264_CSP_NONE           0x0000  /* Invalid mode     */
-#define X264_CSP_I420           0x0001  /* yuv 4:2:0 planar */
-#define X264_CSP_YV12           0x0002  /* yvu 4:2:0 planar */
-#define X264_CSP_NV12           0x0003  /* yuv 4:2:0, with one y plane and one packed u+v */
-#define X264_CSP_NV21           0x0004  /* yuv 4:2:0, with one y plane and one packed v+u */
-#define X264_CSP_I422           0x0005  /* yuv 4:2:2 planar */
-#define X264_CSP_YV16           0x0006  /* yvu 4:2:2 planar */
-#define X264_CSP_NV16           0x0007  /* yuv 4:2:2, with one y plane and one packed u+v */
-#define X264_CSP_YUYV           0x0008  /* yuyv 4:2:2 packed */
-#define X264_CSP_UYVY           0x0009  /* uyvy 4:2:2 packed */
-#define X264_CSP_V210           0x000a  /* 10-bit yuv 4:2:2 packed in 32 */
-#define X264_CSP_I444           0x000b  /* yuv 4:4:4 planar */
-#define X264_CSP_YV24           0x000c  /* yvu 4:4:4 planar */
-#define X264_CSP_BGR            0x000d  /* packed bgr 24bits */
-#define X264_CSP_BGRA           0x000e  /* packed bgr 32bits */
-#define X264_CSP_RGB            0x000f  /* packed rgb 24bits */
-#define X264_CSP_MAX            0x0010  /* end of list */
+#define X264_CSP_I400           0x0001  /* monochrome 4:0:0 */
+#define X264_CSP_I420           0x0002  /* yuv 4:2:0 planar */
+#define X264_CSP_YV12           0x0003  /* yvu 4:2:0 planar */
+#define X264_CSP_NV12           0x0004  /* yuv 4:2:0, with one y plane and one packed u+v */
+#define X264_CSP_NV21           0x0005  /* yuv 4:2:0, with one y plane and one packed v+u */
+#define X264_CSP_I422           0x0006  /* yuv 4:2:2 planar */
+#define X264_CSP_YV16           0x0007  /* yvu 4:2:2 planar */
+#define X264_CSP_NV16           0x0008  /* yuv 4:2:2, with one y plane and one packed u+v */
+#define X264_CSP_YUYV           0x0009  /* yuyv 4:2:2 packed */
+#define X264_CSP_UYVY           0x000a  /* uyvy 4:2:2 packed */
+#define X264_CSP_V210           0x000b  /* 10-bit yuv 4:2:2 packed in 32 */
+#define X264_CSP_I444           0x000c  /* yuv 4:4:4 planar */
+#define X264_CSP_YV24           0x000d  /* yvu 4:4:4 planar */
+#define X264_CSP_BGR            0x000e  /* packed bgr 24bits */
+#define X264_CSP_BGRA           0x000f  /* packed bgr 32bits */
+#define X264_CSP_RGB            0x0010  /* packed rgb 24bits */
+#define X264_CSP_MAX            0x0011  /* end of list */
 #define X264_CSP_VFLIP          0x1000  /* the csp is vertically flipped */
 #define X264_CSP_HIGH_DEPTH     0x2000  /* the csp has a depth of 16 bits per pixel component */
 
@@ -337,6 +344,7 @@ typedef struct x264_param_t
     int         b_open_gop;
     int         b_bluray_compat;
     int         i_avcintra_class;
+    int         i_avcintra_flavor;
 
     int         b_deblocking_filter;
     int         i_deblocking_filter_alphac0;    /* [-6, 6] -6 light filter, 6 strong */

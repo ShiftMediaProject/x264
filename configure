@@ -31,7 +31,7 @@ Configuration options:
   --disable-win32thread    disable win32threads (windows only)
   --disable-interlaced     disable interlaced encoding support
   --bit-depth=BIT_DEPTH    set output bit depth (8, 10, all) [all]
-  --chroma-format=FORMAT   output chroma format (420, 422, 444, all) [all]
+  --chroma-format=FORMAT   output chroma format (400, 420, 422, 444, all) [all]
 
 Advanced options:
   --disable-asm            disable platform-specific assembly optimizations
@@ -396,7 +396,7 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R BITDEPTH8 BITDEPTH10"
+             MSA MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10"
 
 # parse options
 
@@ -517,8 +517,8 @@ for opt do
             ;;
         --chroma-format=*)
             chroma_format="$optarg"
-            if [ $chroma_format != "420" -a $chroma_format != "422" -a $chroma_format != "444" -a $chroma_format != "all" ]; then
-                echo "Supplied chroma format must be 420, 422, 444 or all."
+            if [ $chroma_format != "400" -a $chroma_format != "420" -a $chroma_format != "422" -a $chroma_format != "444" -a $chroma_format != "all" ]; then
+                echo "Supplied chroma format must be 400, 420, 422, 444 or all."
                 exit 1
             fi
             ;;
@@ -798,8 +798,10 @@ case $host_cpu in
                 CFLAGS="$CFLAGS -arch armv7"
                 LDFLAGS="$LDFLAGS -arch armv7"
             fi
-        elif [ "$SYS" = WINDOWS ] ; then
+        elif [ "$SYS" = WINDOWS ] && [ "$compiler" = CL ] ; then
             AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch arm -as-type armasm -force-thumb -- armasm -nologo -ignore 4509}"
+        elif [ "$SYS" = WINDOWS ] ; then
+            AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch arm -as-type clang -force-thumb -- ${CC} -mimplicit-it=always}"
         else
             AS="${AS-${CC}}"
         fi
@@ -810,7 +812,7 @@ case $host_cpu in
         if [ "$SYS" = MACOSX ] ; then
             AS="${AS-${CC}}"
             ASFLAGS="$ASFLAGS -DPREFIX -DPIC"
-        elif [ "$SYS" = WINDOWS ] ; then
+        elif [ "$SYS" = WINDOWS ] && [ "$compiler" = CL ] ; then
             AS="${AS-${SRCPATH}/tools/gas-preprocessor.pl -arch aarch64 -as-type armasm -- armasm64 -nologo}"
         else
             AS="${AS-${CC}}"
@@ -917,7 +919,7 @@ fi
 
 if [ $asm = auto -a \( $ARCH = X86 -o $ARCH = X86_64 \) ] ; then
     if ! as_check "vmovdqa32 [eax]{k1}{z}, zmm0" ; then
-        VER="$(($AS --version || echo no assembler) 2>/dev/null | head -n 1)"
+        VER="$( ($AS --version || echo no assembler) 2>/dev/null | head -n 1 )"
         echo "Found $VER"
         echo "Minimum version is nasm-2.13"
         echo "If you really want to compile without asm, configure with --disable-asm."
@@ -1073,6 +1075,13 @@ if cc_check 'string.h' '' 'strtok_r(0, 0, 0);' ; then
     define HAVE_STRTOK_R
 fi
 
+if cc_check 'time.h' '' 'clock_gettime(CLOCK_MONOTONIC, 0);' ; then
+    define HAVE_CLOCK_GETTIME
+elif cc_check 'time.h' '-lrt' 'clock_gettime(CLOCK_MONOTONIC, 0);' ; then
+    define HAVE_CLOCK_GETTIME
+    LDFLAGS="$LDFLAGS -lrt"
+fi
+
 if [ "$SYS" != "WINDOWS" ] && cpp_check "sys/mman.h unistd.h" "" "defined(MAP_PRIVATE)"; then
     define HAVE_MMAP
 fi
@@ -1100,10 +1109,10 @@ if [ "$swscale" = "auto" ] ; then
     [ -z "$SWSCALE_LIBS" ] && SWSCALE_LIBS="-lswscale -lavutil"
 
     if cc_check "libswscale/swscale.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "sws_init_context(0,0,0);" ; then
-        if cpp_check "libavutil/pixdesc.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "defined(AV_PIX_FMT_FLAG_RGB)" ; then
+        if cc_check "libavutil/pixdesc.h" "$SWSCALE_CFLAGS $SWSCALE_LIBS" "AVComponentDescriptor x; x.depth = 8;" ; then
             swscale="yes"
         else
-            echo "Warning: AV_PIX_FMT_FLAG_RGB is missing from libavutil, update for swscale support"
+            echo "Warning: libswscale is too old"
         fi
     fi
 fi
@@ -1122,11 +1131,15 @@ if [ "$lavf" = "auto" ] ; then
     fi
 
     if cc_check libavformat/avformat.h "$LAVF_CFLAGS $LAVF_LIBS" "av_register_all();" ; then
-        if [ "$swscale" = "yes" ]; then
+        if cc_check libavcodec/avcodec.h "$LAVF_CFLAGS $LAVF_LIBS" "avcodec_send_packet(0,0);" ; then
             lavf="yes"
         else
-            echo "Warning: libavformat is not supported without swscale support"
+            echo "Warning: libavformat is too old"
         fi
+    fi
+    if [ "$lavf" = "yes" -a "$swscale" = "no" ]; then
+        echo "Warning: libavformat is not supported without swscale support"
+        lavf="no"
     fi
 fi
 
