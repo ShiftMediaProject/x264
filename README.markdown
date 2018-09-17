@@ -28,11 +28,11 @@ Any issues related to the ShiftMediaProject specific changes should be sent to t
 
 ## License
 
-ShiftMediaProject original code is released under [GPLv2](https://www.gnu.org/licenses/gpl-2.0.html). All code from the upstream repository remains under its original license (see the license information of the upstream repository for more details).
+ShiftMediaProject original code is released under [LGPLv2.1](https://www.gnu.org/licenses/lgpl-2.1.html). All code from the upstream repository remains under its original license (see the license information of the upstream repository for more details).
 
 ## Copyright
 
-As this repository includes code from upstream project(s) it includes many copyright owners. ShiftMediaProject makes NO claim of copyright on any upstream code. However, all original ShiftMediaProject authored code is copyright ShiftMediaProject. For a complete copyright list please checkout the source code to examine license headers. Unless expressly stated otherwise all code submitted to the ShiftMediaProject project (in any form) is licensed under [GPLv2](https://www.gnu.org/licenses/gpl-2.0.html) and copyright is donated to ShiftMediaProject. If you submit code that is not your own work it is your responsibility to place a header stating the copyright.
+As this repository includes code from upstream project(s) it includes many copyright owners. ShiftMediaProject makes NO claim of copyright on any upstream code. However, all original ShiftMediaProject authored code is copyright ShiftMediaProject. For a complete copyright list please checkout the source code to examine license headers. Unless expressly stated otherwise all code submitted to the ShiftMediaProject project (in any form) is licensed under [LGPLv2.1](https://www.gnu.org/licenses/lgpl-2.1.html) and copyright is donated to ShiftMediaProject. If you submit code that is not your own work it is your responsibility to place a header stating the copyright.
 
 ## Contributing
 
