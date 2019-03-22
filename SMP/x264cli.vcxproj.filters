@@ -140,5 +140,8 @@
     <ClCompile Include="..\extras\getopt.c">
       <Filter>Source Files\getopt</Filter>
     </ClCompile>
+    <ClCompile Include="..\autocomplete.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

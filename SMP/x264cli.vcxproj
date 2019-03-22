@@ -47,6 +47,7 @@
     <ClInclude Include="x264_config.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\autocomplete.c" />
     <ClCompile Include="..\extras\getopt.c">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
