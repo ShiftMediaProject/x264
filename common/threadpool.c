@@ -1,7 +1,7 @@
 /*****************************************************************************
  * threadpool.c: thread pooling
  *****************************************************************************
- * Copyright (C) 2010-2018 x264 project
+ * Copyright (C) 2010-2019 x264 project
  *
  * Authors: Steven Walters <kemuri9@gmail.com>
  *
@@ -34,7 +34,7 @@ typedef struct
 
 struct x264_threadpool_t
 {
-    int            exit;
+    volatile int   exit;
     int            threads;
     x264_pthread_t *thread_handle;
     void           (*init_func)(void *);

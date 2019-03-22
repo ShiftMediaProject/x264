@@ -1,7 +1,7 @@
 ;*****************************************************************************
 ;* predict-a.asm: x86 intra prediction
 ;*****************************************************************************
-;* Copyright (C) 2005-2018 x264 project
+;* Copyright (C) 2005-2019 x264 project
 ;*
 ;* Authors: Loren Merritt <lorenm@u.washington.edu>
 ;*          Holger Lubitz <holger@lubitz.org>
@@ -688,7 +688,7 @@ INIT_XMM cpuname
     je .fix_lt_2
 .do_top:
     and        r2d, 4
-%ifdef PIC
+%if ARCH_X86_64
     lea         r3, [shuf_fixtr]
     pshufb      m3, [r3+r2*4]
 %else

@@ -1,7 +1,7 @@
 /*****************************************************************************
  * encoder.c: top-level encoder functions
  *****************************************************************************
- * Copyright (C) 2003-2018 x264 project
+ * Copyright (C) 2003-2019 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -508,7 +508,7 @@ static int validate_parameters( x264_t *h, int b_open )
     }
 
     int w_mod = 1;
-    int h_mod = 1 << PARAM_INTERLACED;
+    int h_mod = 1 << (PARAM_INTERLACED || h->param.b_fake_interlaced);
     if( i_csp == X264_CSP_I400 )
     {
         h->param.analyse.i_chroma_qp_offset = 0;
@@ -821,6 +821,8 @@ static int validate_parameters( x264_t *h, int b_open )
         if( h->param.i_avcintra_flavor == X264_AVCINTRA_FLAVOR_SONY )
         {
             h->param.i_slice_count = 8;
+            if( h->param.b_sliced_threads )
+                h->param.i_threads = h->param.i_slice_count;
             /* Sony XAVC unlike AVC-Intra doesn't seem to have a QP floor */
         }
         else
@@ -887,13 +889,6 @@ static int validate_parameters( x264_t *h, int b_open )
         /* 8x8dct is not useful without RD in CAVLC lossless */
         if( !h->param.b_cabac && h->param.analyse.i_subpel_refine < 6 )
             h->param.analyse.b_transform_8x8 = 0;
-        h->param.analyse.inter &= ~X264_ANALYSE_I8x8;
-        h->param.analyse.intra &= ~X264_ANALYSE_I8x8;
-    }
-    if( i_csp >= X264_CSP_I444 && h->param.b_cabac )
-    {
-        /* Disable 8x8dct during 4:4:4+CABAC encoding for compatibility with libavcodec */
-        h->param.analyse.b_transform_8x8 = 0;
     }
     if( h->param.rc.i_rc_method == X264_RC_CQP )
     {
@@ -1762,10 +1757,13 @@ x264_t *x264_encoder_open( x264_param_t *param )
 
     const char *profile = h->sps->i_profile_idc == PROFILE_BASELINE ? "Constrained Baseline" :
                           h->sps->i_profile_idc == PROFILE_MAIN ? "Main" :
-                          h->sps->i_profile_idc == PROFILE_HIGH ? "High" :
-                          h->sps->i_profile_idc == PROFILE_HIGH10 ? (h->sps->b_constraint_set3 == 1 ? "High 10 Intra" : "High 10") :
-                          h->sps->i_profile_idc == PROFILE_HIGH422 ? (h->sps->b_constraint_set3 == 1 ? "High 4:2:2 Intra" : "High 4:2:2") :
-                          h->sps->b_constraint_set3 == 1 ? "High 4:4:4 Intra" : "High 4:4:4 Predictive";
+                          h->sps->i_profile_idc == PROFILE_HIGH ?
+                              (h->sps->b_constraint_set4 ? (h->sps->b_constraint_set5 ? "Constrained High" : "Progressive High") : "High") :
+                          h->sps->i_profile_idc == PROFILE_HIGH10 ?
+                              (h->sps->b_constraint_set3 ? "High 10 Intra" : (h->sps->b_constraint_set4 ? "Progressive High 10" : "High 10")) :
+                          h->sps->i_profile_idc == PROFILE_HIGH422 ?
+                              (h->sps->b_constraint_set3 ? "High 4:2:2 Intra" : "High 4:2:2") :
+                          h->sps->b_constraint_set3 ? "High 4:4:4 Intra" : "High 4:4:4 Predictive";
     char level[4];
     snprintf( level, sizeof(level), "%d.%d", h->sps->i_level_idc/10, h->sps->i_level_idc%10 );
     if( h->sps->i_level_idc == 9 || ( h->sps->i_level_idc == 11 && h->sps->b_constraint_set3 &&
@@ -3076,6 +3074,7 @@ static void *slices_write( x264_t *h )
 {
     int i_slice_num = 0;
     int last_thread_mb = h->sh.i_last_mb;
+    int round_bias = h->param.i_avcintra_class ? 0 : h->param.i_slice_count/2;
 
     /* init stats */
     memset( &h->stat.frame, 0, sizeof(h->stat.frame) );
@@ -3110,7 +3109,7 @@ static void *slices_write( x264_t *h )
                 int height = h->mb.i_mb_height >> PARAM_INTERLACED;
                 int width = h->mb.i_mb_width << PARAM_INTERLACED;
                 i_slice_num++;
-                h->sh.i_last_mb = (height * i_slice_num + h->param.i_slice_count/2) / h->param.i_slice_count * width - 1;
+                h->sh.i_last_mb = (height * i_slice_num + round_bias) / h->param.i_slice_count * width - 1;
             }
         }
         h->sh.i_last_mb = X264_MIN( h->sh.i_last_mb, last_thread_mb );
@@ -3133,6 +3132,8 @@ fail:
 
 static int threaded_slices_write( x264_t *h )
 {
+    int round_bias = h->param.i_avcintra_class ? 0 : h->param.i_slice_count/2;
+
     /* set first/last mb and sync contexts */
     for( int i = 0; i < h->param.i_threads; i++ )
     {
@@ -3143,8 +3144,8 @@ static int threaded_slices_write( x264_t *h )
             memcpy( &t->i_frame, &h->i_frame, offsetof(x264_t, rc) - offsetof(x264_t, i_frame) );
         }
         int height = h->mb.i_mb_height >> PARAM_INTERLACED;
-        t->i_threadslice_start = ((height *  i    + h->param.i_slice_count/2) / h->param.i_threads) << PARAM_INTERLACED;
-        t->i_threadslice_end   = ((height * (i+1) + h->param.i_slice_count/2) / h->param.i_threads) << PARAM_INTERLACED;
+        t->i_threadslice_start = ((height *  i    + round_bias) / h->param.i_threads) << PARAM_INTERLACED;
+        t->i_threadslice_end   = ((height * (i+1) + round_bias) / h->param.i_threads) << PARAM_INTERLACED;
         t->sh.i_first_mb = t->i_threadslice_start * h->mb.i_mb_width;
         t->sh.i_last_mb  =   t->i_threadslice_end * h->mb.i_mb_width - 1;
     }

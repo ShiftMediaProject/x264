@@ -738,7 +738,7 @@ case $host_cpu in
         stack_alignment=16
         [ $compiler = GNU ] && CFLAGS="-m64 $CFLAGS" && LDFLAGS="-m64 $LDFLAGS"
         if [ "$SYS" = MACOSX ]; then
-            ASFLAGS="$ASFLAGS -f macho64 -DPIC -DPREFIX"
+            ASFLAGS="$ASFLAGS -f macho64 -DPREFIX"
             if cc_check '' "-arch x86_64"; then
                 CFLAGS="$CFLAGS -arch x86_64"
                 LDFLAGS="$LDFLAGS -arch x86_64"
@@ -1067,7 +1067,7 @@ if [ "$thread" = "posix" ]; then
 fi
 [ "$thread" != "no" ] && define HAVE_THREAD
 
-if cc_check 'math.h' '' 'log2f(2);' ; then
+if cc_check 'math.h' '' 'volatile float x = 2; return log2f(x);' ; then
     define HAVE_LOG2F
 fi
 
@@ -1253,7 +1253,7 @@ cc_check "stdint.h" "" "uint32_t test_vec __attribute__ ((vector_size (16))) = {
 
 if [ "$pic" = "yes" ] ; then
     [ "$SYS" != WINDOWS -a "$SYS" != CYGWIN ] && CFLAGS="$CFLAGS -fPIC"
-    ASFLAGS="$ASFLAGS -DPIC"
+    [[ "$ASFLAGS" != *"-DPIC"* ]] && ASFLAGS="$ASFLAGS -DPIC"
     # resolve textrels in the x86 asm
     cc_check stdio.h "-shared -Wl,-Bsymbolic" && SOFLAGS="$SOFLAGS -Wl,-Bsymbolic"
     [ $SYS = SunOS -a "$ARCH" = "X86" ] && SOFLAGS="$SOFLAGS -mimpure-text"

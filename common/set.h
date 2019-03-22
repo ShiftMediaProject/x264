@@ -1,7 +1,7 @@
 /*****************************************************************************
  * set.h: quantization init
  *****************************************************************************
- * Copyright (C) 2003-2018 x264 project
+ * Copyright (C) 2003-2019 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -53,6 +53,8 @@ typedef struct
     int b_constraint_set1;
     int b_constraint_set2;
     int b_constraint_set3;
+    int b_constraint_set4;
+    int b_constraint_set5;
 
     int i_log2_max_frame_num;
 

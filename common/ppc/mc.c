@@ -1,7 +1,7 @@
 /*****************************************************************************
  * mc.c: ppc motion compensation
  *****************************************************************************
- * Copyright (C) 2003-2018 x264 project
+ * Copyright (C) 2003-2019 x264 project
  *
  * Authors: Eric Petit <eric.petit@lapsus.org>
  *          Guillaume Poirier <gpoirier@mplayerhq.hu>
@@ -38,8 +38,16 @@ static inline void pixel_avg2_w4_altivec( uint8_t *dst,  intptr_t i_dst,
 {
     for( int y = 0; y < i_height; y++ )
     {
+#ifndef __POWER9_VECTOR__
         for( int x = 0; x < 4; x++ )
             dst[x] = ( src1[x] + src2[x] + 1 ) >> 1;
+#else
+        vec_u8_t s1 = vec_vsx_ld( 0, src1 );
+        vec_u8_t s2 = vec_vsx_ld( 0, src2 );
+        vec_u8_t avg = vec_avg( s1, s2 );
+
+        vec_xst_len( avg, dst, 4 );
+#endif
         dst  += i_dst;
         src1 += i_src1;
         src2 += i_src1;
@@ -51,7 +59,6 @@ static inline void pixel_avg2_w8_altivec( uint8_t *dst,  intptr_t i_dst,
                                           uint8_t *src2, int i_height )
 {
     vec_u8_t src1v, src2v;
-    PREP_STORE8;
 
     for( int y = 0; y < i_height; y++ )
     {
@@ -95,6 +102,12 @@ static inline void pixel_avg2_w20_altivec( uint8_t *dst,  intptr_t i_dst,
 }
 
 /* mc_copy: plain c */
+
+#ifndef __POWER9_VECTOR__
+#define tiny_copy( d, s, l ) memcpy( d, s, l )
+#else
+#define tiny_copy( d, s, l ) vec_xst_len( vec_vsx_ld( 0, s ), d, l )
+#endif
 
 #define MC_COPY( name, a )                                \
 static void name( uint8_t *dst, intptr_t i_dst,           \
@@ -416,6 +429,14 @@ static void mc_chroma_2xh( uint8_t *dstu, uint8_t *dstv, intptr_t i_dst_stride,
 #define VSLD(a,b,n) vec_sld(b,a,16-n)
 #endif
 
+#ifndef __POWER9_VECTOR__
+#define STORE4_ALIGNED(d, s) vec_ste( (vec_u32_t)s, 0, (uint32_t*) d )
+#define STORE2_UNALIGNED(d, s) vec_ste( vec_splat( (vec_u16_t)s, 0 ), 0, (uint16_t*)d )
+#else
+#define STORE4_ALIGNED(d, s) vec_xst_len( (vec_u8_t)s, d, 4 )
+#define STORE2_UNALIGNED(d, s) vec_xst_len( (vec_u8_t)s, d, 2 )
+#endif
+
 static void mc_chroma_4xh_altivec( uint8_t *dstu, uint8_t *dstv, intptr_t i_dst_stride,
                                    uint8_t *src, intptr_t i_src_stride,
                                    int mvx, int mvy, int i_height )
@@ -476,8 +497,8 @@ static void mc_chroma_4xh_altivec( uint8_t *dstu, uint8_t *dstv, intptr_t i_dst_
 
         dstuv = (vec_u8_t)vec_perm( dstv16, dstv16, perm0v );
         dstvv = (vec_u8_t)vec_perm( dstv16, dstv16, perm1v );
-        vec_ste( (vec_u32_t)dstuv, 0, (uint32_t*) dstu );
-        vec_ste( (vec_u32_t)dstvv, 0, (uint32_t*) dstv );
+        STORE4_ALIGNED( dstu, dstuv );
+        STORE4_ALIGNED( dstv, dstvv );
 
         srcp += i_src_stride;
         dstu += i_dst_stride;
@@ -498,8 +519,8 @@ static void mc_chroma_4xh_altivec( uint8_t *dstu, uint8_t *dstv, intptr_t i_dst_
 
         dstuv = (vec_u8_t)vec_perm( dstv16, dstv16, perm0v );
         dstvv = (vec_u8_t)vec_perm( dstv16, dstv16, perm1v );
-        vec_ste( (vec_u32_t)dstuv, 0, (uint32_t*) dstu );
-        vec_ste( (vec_u32_t)dstvv, 0, (uint32_t*) dstv );
+        STORE4_ALIGNED( dstu, dstuv );
+        STORE4_ALIGNED( dstv, dstvv );
 
         srcp += i_src_stride;
         dstu += i_dst_stride;
@@ -525,7 +546,6 @@ static void mc_chroma_8xh_altivec( uint8_t *dstu, uint8_t *dstv, intptr_t i_dst_
     srcp = &src[i_src_stride];
 
     LOAD_ZERO;
-    PREP_STORE8;
     vec_u16_t   coeff0v, coeff1v, coeff2v, coeff3v;
     vec_u8_t    src0v_8, src1v_8, src2v_8, src3v_8;
     vec_u8_t    dstuv, dstvv;
@@ -804,20 +824,13 @@ void x264_hpel_filter_altivec( uint8_t *dsth, uint8_t *dstv, uint8_t *dstc, uint
 
     vec_u16_t twov, fourv, fivev, sixv;
     vec_s16_t sixteenv, thirtytwov;
-    vec_u16_u temp_u;
 
-    temp_u.s[0]=2;
-    twov = vec_splat( temp_u.v, 0 );
-    temp_u.s[0]=4;
-    fourv = vec_splat( temp_u.v, 0 );
-    temp_u.s[0]=5;
-    fivev = vec_splat( temp_u.v, 0 );
-    temp_u.s[0]=6;
-    sixv = vec_splat( temp_u.v, 0 );
-    temp_u.s[0]=16;
-    sixteenv = (vec_s16_t)vec_splat( temp_u.v, 0 );
-    temp_u.s[0]=32;
-    thirtytwov = (vec_s16_t)vec_splat( temp_u.v, 0 );
+    twov = vec_splats( (uint16_t)2 );
+    fourv = vec_splats( (uint16_t)4 );
+    fivev = vec_splats( (uint16_t)5 );
+    sixv = vec_splats( (uint16_t)6 );
+    sixteenv = vec_splats( (int16_t)16 );
+    thirtytwov = vec_splats( (int16_t)32 );
 
     for( int y = 0; y < i_height; y++ )
     {
@@ -968,18 +981,14 @@ static void frame_init_lowres_core_altivec( uint8_t *src0, uint8_t *dst0, uint8_
             hv = vec_perm(avgleftv, avgrightv, inverse_bridge_shuffle_1);
 #endif
 
-            vec_ste((vec_u32_t)lv,16*x,(uint32_t*)dst0);
-            vec_ste((vec_u32_t)lv,16*x+4,(uint32_t*)dst0);
-            vec_ste((vec_u32_t)hv,16*x,(uint32_t*)dsth);
-            vec_ste((vec_u32_t)hv,16*x+4,(uint32_t*)dsth);
+            VEC_STORE8( lv, dst0 + 16 * x );
+            VEC_STORE8( hv, dsth + 16 * x );
 
             lv = vec_sld(lv, lv, 8);
             hv = vec_sld(hv, hv, 8);
 
-            vec_ste((vec_u32_t)lv,16*x,(uint32_t*)dstv);
-            vec_ste((vec_u32_t)lv,16*x+4,(uint32_t*)dstv);
-            vec_ste((vec_u32_t)hv,16*x,(uint32_t*)dstc);
-            vec_ste((vec_u32_t)hv,16*x+4,(uint32_t*)dstc);
+            VEC_STORE8( lv, dstv + 16 * x );
+            VEC_STORE8( hv, dstc + 16 * x );
         }
 
         src0 += src_stride*2;
@@ -997,23 +1006,16 @@ static void mc_weight_w2_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, in
     vec_u8_t srcv;
     vec_s16_t weightv;
     vec_s16_t scalev, offsetv, denomv, roundv;
-    vec_s16_u loadv;
 
     int denom = weight->i_denom;
 
-    loadv.s[0] = weight->i_scale;
-    scalev = vec_splat( loadv.v, 0 );
-
-    loadv.s[0] = weight->i_offset;
-    offsetv = vec_splat( loadv.v, 0 );
+    scalev = vec_splats( (int16_t)weight->i_scale );
+    offsetv = vec_splats( (int16_t)weight->i_offset );
 
     if( denom >= 1 )
     {
-        loadv.s[0] = denom;
-        denomv = vec_splat( loadv.v, 0 );
-
-        loadv.s[0] = 1<<(denom - 1);
-        roundv = vec_splat( loadv.v, 0 );
+        denomv = vec_splats( (int16_t)denom );
+        roundv = vec_splats( (int16_t)(1 << (denom - 1)) );
 
         for( int y = 0; y < i_height; y++, dst += i_dst, src += i_src )
         {
@@ -1025,7 +1027,7 @@ static void mc_weight_w2_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, in
             weightv = vec_add( weightv, offsetv );
 
             srcv = vec_packsu( weightv, zero_s16v );
-            vec_ste( vec_splat( (vec_u16_t)srcv, 0 ), 0, (uint16_t*)dst );
+            STORE2_UNALIGNED( dst, srcv );
         }
     }
     else
@@ -1038,7 +1040,7 @@ static void mc_weight_w2_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, in
             weightv = vec_mladd( weightv, scalev, offsetv );
 
             srcv = vec_packsu( weightv, zero_s16v );
-            vec_ste( vec_splat( (vec_u16_t)srcv, 0 ), 0, (uint16_t*)dst );
+            STORE2_UNALIGNED( dst, srcv );
         }
     }
 }
@@ -1049,23 +1051,16 @@ static void mc_weight_w4_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, in
     vec_u8_t srcv;
     vec_s16_t weightv;
     vec_s16_t scalev, offsetv, denomv, roundv;
-    vec_s16_u loadv;
 
     int denom = weight->i_denom;
 
-    loadv.s[0] = weight->i_scale;
-    scalev = vec_splat( loadv.v, 0 );
-
-    loadv.s[0] = weight->i_offset;
-    offsetv = vec_splat( loadv.v, 0 );
+    scalev = vec_splats( (int16_t)weight->i_scale );
+    offsetv = vec_splats( (int16_t)weight->i_offset );
 
     if( denom >= 1 )
     {
-        loadv.s[0] = denom;
-        denomv = vec_splat( loadv.v, 0 );
-
-        loadv.s[0] = 1<<(denom - 1);
-        roundv = vec_splat( loadv.v, 0 );
+        denomv = vec_splats( (int16_t)denom );
+        roundv = vec_splats( (int16_t)(1 << (denom - 1)) );
 
         for( int y = 0; y < i_height; y++, dst += i_dst, src += i_src )
         {
@@ -1098,27 +1093,19 @@ static void mc_weight_w8_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, in
                                   const x264_weight_t *weight, int i_height )
 {
     LOAD_ZERO;
-    PREP_STORE8;
     vec_u8_t srcv;
     vec_s16_t weightv;
     vec_s16_t scalev, offsetv, denomv, roundv;
-    vec_s16_u loadv;
 
     int denom = weight->i_denom;
 
-    loadv.s[0] = weight->i_scale;
-    scalev = vec_splat( loadv.v, 0 );
-
-    loadv.s[0] = weight->i_offset;
-    offsetv = vec_splat( loadv.v, 0 );
+    scalev = vec_splats( (int16_t)weight->i_scale );
+    offsetv = vec_splats( (int16_t)weight->i_offset );
 
     if( denom >= 1 )
     {
-        loadv.s[0] = denom;
-        denomv = vec_splat( loadv.v, 0 );
-
-        loadv.s[0] = 1<<(denom - 1);
-        roundv = vec_splat( loadv.v, 0 );
+        denomv = vec_splats( (int16_t)denom );
+        roundv = vec_splats( (int16_t)(1 << (denom - 1)) );
 
         for( int y = 0; y < i_height; y++, dst += i_dst, src += i_src )
         {
@@ -1154,23 +1141,16 @@ static void mc_weight_w16_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, i
     vec_u8_t srcv;
     vec_s16_t weight_lv, weight_hv;
     vec_s16_t scalev, offsetv, denomv, roundv;
-    vec_s16_u loadv;
 
     int denom = weight->i_denom;
 
-    loadv.s[0] = weight->i_scale;
-    scalev = vec_splat( loadv.v, 0 );
-
-    loadv.s[0] = weight->i_offset;
-    offsetv = vec_splat( loadv.v, 0 );
+    scalev = vec_splats( (int16_t)weight->i_scale );
+    offsetv = vec_splats( (int16_t)weight->i_offset );
 
     if( denom >= 1 )
     {
-        loadv.s[0] = denom;
-        denomv = vec_splat( loadv.v, 0 );
-
-        loadv.s[0] = 1<<(denom - 1);
-        roundv = vec_splat( loadv.v, 0 );
+        denomv = vec_splats( (int16_t)denom );
+        roundv = vec_splats( (int16_t)(1 << (denom - 1)) );
 
         for( int y = 0; y < i_height; y++, dst += i_dst, src += i_src )
         {
@@ -1212,15 +1192,11 @@ static void mc_weight_w20_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, i
     vec_u8_t srcv, srcv2;
     vec_s16_t weight_lv, weight_hv, weight_3v;
     vec_s16_t scalev, offsetv, denomv, roundv;
-    vec_s16_u loadv;
 
     int denom = weight->i_denom;
 
-    loadv.s[0] = weight->i_scale;
-    scalev = vec_splat( loadv.v, 0 );
-
-    loadv.s[0] = weight->i_offset;
-    offsetv = vec_splat( loadv.v, 0 );
+    scalev = vec_splats( (int16_t)weight->i_scale );
+    offsetv = vec_splats( (int16_t)weight->i_offset );
 
     if( denom >= 1 )
     {
@@ -1232,11 +1208,8 @@ static void mc_weight_w20_altivec( uint8_t *dst, intptr_t i_dst, uint8_t *src, i
             { round, round, round, round, 0, 0, 0, 0 },
         };
 
-        loadv.s[0] = denom;
-        denomv = vec_splat( loadv.v, 0 );
-
-        loadv.s[0] = round;
-        roundv = vec_splat( loadv.v, 0 );
+        denomv = vec_splats( (int16_t)denom );
+        roundv = vec_splats( (int16_t)(1 << (denom - 1)) );
 
         for( int y = 0; y < i_height; y++, dst += i_dst, src += i_src )
         {

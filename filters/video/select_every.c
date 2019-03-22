@@ -1,7 +1,7 @@
 /*****************************************************************************
  * select_every.c: select-every video filter
  *****************************************************************************
- * Copyright (C) 2010-2018 x264 project
+ * Copyright (C) 2010-2019 x264 project
  *
  * Authors: Steven Walters <kemuri9@gmail.com>
  *
@@ -63,7 +63,7 @@ static int init( hnd_t *handle, cli_vid_filter_t *filter, video_info_t *info, x2
     h->pattern_len = 0;
     h->step_size = 0;
     int offsets[MAX_PATTERN_SIZE];
-    for( char *tok, *p = opt_string; (tok = strtok( p, "," )); p = NULL )
+    for( char *tok, *p = opt_string, UNUSED *saveptr = NULL; (tok = strtok_r( p, ",", &saveptr )); p = NULL )
     {
         int val = x264_otoi( tok, -1 );
         if( p )

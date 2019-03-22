@@ -1,7 +1,7 @@
 /*****************************************************************************
  * quant.c: ppc quantization
  *****************************************************************************
- * Copyright (C) 2007-2018 x264 project
+ * Copyright (C) 2007-2019 x264 project
  *
  * Authors: Guillaume Poirier <gpoirier@mplayerhq.hu>
  *
@@ -70,7 +70,7 @@ int x264_quant_4x4_altivec( int16_t dct[16], uint16_t mf[16], uint16_t bias[16] 
 {
     LOAD_ZERO;
     vector bool short mskA;
-    vec_u32_t i_qbitsv;
+    vec_u32_t i_qbitsv = vec_splats( (uint32_t)16 );
     vec_u16_t coefvA;
     vec_u32_t multEvenvA, multOddvA;
     vec_u16_t mfvA;
@@ -86,12 +86,210 @@ int x264_quant_4x4_altivec( int16_t dct[16], uint16_t mf[16], uint16_t bias[16] 
 
     vec_s16_t temp1v, temp2v, tmpv;
 
-    vec_u32_u qbits_u;
-    qbits_u.s[0]=16;
-    i_qbitsv = vec_splat(qbits_u.v, 0);
-
     QUANT_16_U( 0, 16 );
     return vec_any_ne(nz, zero_s16v);
+}
+
+int x264_quant_4x4x4_altivec( dctcoef dcta[4][16], udctcoef mf[16], udctcoef bias[16] )
+{
+    LOAD_ZERO;
+    vec_u32_t i_qbitsv = vec_splats( (uint32_t)16 );
+    vec_s16_t one = vec_splat_s16( 1 );
+    vec_s16_t nz0, nz1, nz2, nz3;
+
+    vector bool short mskA0;
+    vec_u16_t coefvA0;
+    vec_u32_t multEvenvA0, multOddvA0;
+    vec_u16_t mfvA0;
+    vec_u16_t biasvA0;
+    vector bool short mskB0;
+    vec_u16_t coefvB0;
+    vec_u32_t multEvenvB0, multOddvB0;
+    vec_u16_t mfvB0;
+    vec_u16_t biasvB0;
+
+    vector bool short mskA1;
+    vec_u16_t coefvA1;
+    vec_u32_t multEvenvA1, multOddvA1;
+    vec_u16_t mfvA1;
+    vec_u16_t biasvA1;
+    vector bool short mskB1;
+    vec_u16_t coefvB1;
+    vec_u32_t multEvenvB1, multOddvB1;
+    vec_u16_t mfvB1;
+    vec_u16_t biasvB1;
+
+    vector bool short mskA2;
+    vec_u16_t coefvA2;
+    vec_u32_t multEvenvA2, multOddvA2;
+    vec_u16_t mfvA2;
+    vec_u16_t biasvA2;
+    vector bool short mskB2;
+    vec_u16_t coefvB2;
+    vec_u32_t multEvenvB2, multOddvB2;
+    vec_u16_t mfvB2;
+    vec_u16_t biasvB2;
+
+    vector bool short mskA3;
+    vec_u16_t coefvA3;
+    vec_u32_t multEvenvA3, multOddvA3;
+    vec_u16_t mfvA3;
+    vec_u16_t biasvA3;
+    vector bool short mskB3;
+    vec_u16_t coefvB3;
+    vec_u32_t multEvenvB3, multOddvB3;
+    vec_u16_t mfvB3;
+    vec_u16_t biasvB3;
+
+    vec_s16_t temp1v, temp2v;
+    vec_s16_t tmpv0;
+    vec_s16_t tmpv1;
+
+    dctcoef *dct0 = dcta[0];
+    dctcoef *dct1 = dcta[1];
+    dctcoef *dct2 = dcta[2];
+    dctcoef *dct3 = dcta[3];
+
+    temp1v = vec_ld( 0,  dct0 );
+    temp2v = vec_ld( 16, dct0 );
+    mfvA0 = vec_ld( 0,  mf );
+    mfvB0 = vec_ld( 16, mf );
+    biasvA0 = vec_ld( 0,  bias );
+    biasvB0 = vec_ld( 16, bias );
+    mskA0 = vec_cmplt( temp1v, zero_s16v );
+    mskB0 = vec_cmplt( temp2v, zero_s16v );
+    coefvA0 = (vec_u16_t)vec_abs( temp1v );
+    coefvB0 = (vec_u16_t)vec_abs( temp2v );
+    temp1v = vec_ld( 0,  dct1 );
+    temp2v = vec_ld( 16, dct1 );
+    mfvA1 = vec_ld( 0,  mf );
+    mfvB1 = vec_ld( 16, mf );
+    biasvA1 = vec_ld( 0,  bias );
+    biasvB1 = vec_ld( 16, bias );
+    mskA1 = vec_cmplt( temp1v, zero_s16v );
+    mskB1 = vec_cmplt( temp2v, zero_s16v );
+    coefvA1 = (vec_u16_t)vec_abs( temp1v );
+    coefvB1 = (vec_u16_t)vec_abs( temp2v );
+    temp1v = vec_ld( 0,  dct2 );
+    temp2v = vec_ld( 16, dct2 );
+    mfvA2 = vec_ld( 0,  mf );
+    mfvB2 = vec_ld( 16, mf );
+    biasvA2 = vec_ld( 0,  bias );
+    biasvB2 = vec_ld( 16, bias );
+    mskA2 = vec_cmplt( temp1v, zero_s16v );
+    mskB2 = vec_cmplt( temp2v, zero_s16v );
+    coefvA2 = (vec_u16_t)vec_abs( temp1v );
+    coefvB2 = (vec_u16_t)vec_abs( temp2v );
+    temp1v = vec_ld( 0,  dct3 );
+    temp2v = vec_ld( 16, dct3 );
+    mfvA3 = vec_ld( 0,  mf );
+    mfvB3 = vec_ld( 16, mf );
+    biasvA3 = vec_ld( 0,  bias );
+    biasvB3 = vec_ld( 16, bias );
+    mskA3 = vec_cmplt( temp1v, zero_s16v );
+    mskB3 = vec_cmplt( temp2v, zero_s16v );
+    coefvA3 = (vec_u16_t)vec_abs( temp1v );
+    coefvB3 = (vec_u16_t)vec_abs( temp2v );
+
+    coefvA0 = vec_adds( coefvA0, biasvA0 );
+    coefvB0 = vec_adds( coefvB0, biasvB0 );
+    coefvA1 = vec_adds( coefvA1, biasvA1 );
+    coefvB1 = vec_adds( coefvB1, biasvB1 );
+    coefvA2 = vec_adds( coefvA2, biasvA2 );
+    coefvB2 = vec_adds( coefvB2, biasvB2 );
+    coefvA3 = vec_adds( coefvA3, biasvA3 );
+    coefvB3 = vec_adds( coefvB3, biasvB3 );
+
+    multEvenvA0 = vec_mule( coefvA0, mfvA0 );
+    multOddvA0  = vec_mulo( coefvA0, mfvA0 );
+    multEvenvB0 = vec_mule( coefvB0, mfvB0 );
+    multOddvB0  = vec_mulo( coefvB0, mfvB0 );
+    multEvenvA0 = vec_sr( multEvenvA0, i_qbitsv );
+    multOddvA0  = vec_sr( multOddvA0,  i_qbitsv );
+    multEvenvB0 = vec_sr( multEvenvB0, i_qbitsv );
+    multOddvB0  = vec_sr( multOddvB0,  i_qbitsv );
+    temp1v = (vec_s16_t)vec_packs( multEvenvA0, multOddvA0 );
+    temp2v = (vec_s16_t)vec_packs( multEvenvB0, multOddvB0 );
+    tmpv0 = xxpermdi( temp1v, temp1v, 2 );
+    tmpv1 = xxpermdi( temp2v, temp2v, 2 );
+    temp1v = vec_mergeh( temp1v, tmpv0 );
+    temp2v = vec_mergeh( temp2v, tmpv1 );
+    temp1v = vec_xor( temp1v, mskA0 );
+    temp2v = vec_xor( temp2v, mskB0 );
+    temp1v = vec_adds( temp1v, vec_and( mskA0, one ) );
+    temp2v = vec_adds( temp2v, vec_and( mskB0, one ) );
+    vec_st( temp1v, 0,  dct0 );
+    vec_st( temp2v, 16, dct0 );
+    nz0 = vec_or( temp1v, temp2v );
+
+    multEvenvA1 = vec_mule( coefvA1, mfvA1 );
+    multOddvA1  = vec_mulo( coefvA1, mfvA1 );
+    multEvenvB1 = vec_mule( coefvB1, mfvB1 );
+    multOddvB1  = vec_mulo( coefvB1, mfvB1 );
+    multEvenvA1 = vec_sr( multEvenvA1, i_qbitsv );
+    multOddvA1  = vec_sr( multOddvA1,  i_qbitsv );
+    multEvenvB1 = vec_sr( multEvenvB1, i_qbitsv );
+    multOddvB1  = vec_sr( multOddvB1,  i_qbitsv );
+    temp1v = (vec_s16_t)vec_packs( multEvenvA1, multOddvA1 );
+    temp2v = (vec_s16_t)vec_packs( multEvenvB1, multOddvB1 );
+    tmpv0 = xxpermdi( temp1v, temp1v, 2 );
+    tmpv1 = xxpermdi( temp2v, temp2v, 2 );
+    temp1v = vec_mergeh( temp1v, tmpv0 );
+    temp2v = vec_mergeh( temp2v, tmpv1 );
+    temp1v = vec_xor( temp1v, mskA1 );
+    temp2v = vec_xor( temp2v, mskB1 );
+    temp1v = vec_adds( temp1v, vec_and( mskA1, one ) );
+    temp2v = vec_adds( temp2v, vec_and( mskB1, one ) );
+    vec_st( temp1v, 0,  dct1 );
+    vec_st( temp2v, 16, dct1 );
+    nz1 = vec_or( temp1v, temp2v );
+
+    multEvenvA2 = vec_mule( coefvA2, mfvA2 );
+    multOddvA2  = vec_mulo( coefvA2, mfvA2 );
+    multEvenvB2 = vec_mule( coefvB2, mfvB2 );
+    multOddvB2  = vec_mulo( coefvB2, mfvB2 );
+    multEvenvA2 = vec_sr( multEvenvA2, i_qbitsv );
+    multOddvA2  = vec_sr( multOddvA2,  i_qbitsv );
+    multEvenvB2 = vec_sr( multEvenvB2, i_qbitsv );
+    multOddvB2  = vec_sr( multOddvB2,  i_qbitsv );
+    temp1v = (vec_s16_t)vec_packs( multEvenvA2, multOddvA2 );
+    temp2v = (vec_s16_t)vec_packs( multEvenvB2, multOddvB2 );
+    tmpv0 = xxpermdi( temp1v, temp1v, 2 );
+    tmpv1 = xxpermdi( temp2v, temp2v, 2 );
+    temp1v = vec_mergeh( temp1v, tmpv0 );
+    temp2v = vec_mergeh( temp2v, tmpv1 );
+    temp1v = vec_xor( temp1v, mskA2 );
+    temp2v = vec_xor( temp2v, mskB2 );
+    temp1v = vec_adds( temp1v, vec_and( mskA2, one ) );
+    temp2v = vec_adds( temp2v, vec_and( mskB2, one ) );
+    vec_st( temp1v, 0,  dct2 );
+    vec_st( temp2v, 16, dct2 );
+    nz2 = vec_or( temp1v, temp2v );
+
+    multEvenvA3 = vec_mule( coefvA3, mfvA3 );
+    multOddvA3  = vec_mulo( coefvA3, mfvA3 );
+    multEvenvB3 = vec_mule( coefvB3, mfvB3 );
+    multOddvB3  = vec_mulo( coefvB3, mfvB3 );
+    multEvenvA3 = vec_sr( multEvenvA3, i_qbitsv );
+    multOddvA3  = vec_sr( multOddvA3,  i_qbitsv );
+    multEvenvB3 = vec_sr( multEvenvB3, i_qbitsv );
+    multOddvB3  = vec_sr( multOddvB3,  i_qbitsv );
+    temp1v = (vec_s16_t)vec_packs( multEvenvA3, multOddvA3 );
+    temp2v = (vec_s16_t)vec_packs( multEvenvB3, multOddvB3 );
+    tmpv0 = xxpermdi( temp1v, temp1v, 2 );
+    tmpv1 = xxpermdi( temp2v, temp2v, 2 );
+    temp1v = vec_mergeh( temp1v, tmpv0 );
+    temp2v = vec_mergeh( temp2v, tmpv1 );
+    temp1v = vec_xor( temp1v, mskA3 );
+    temp2v = vec_xor( temp2v, mskB3 );
+    temp1v = vec_adds( temp1v, vec_and( mskA3, one ) );
+    temp2v = vec_adds( temp2v, vec_and( mskB3, one ) );
+    vec_st( temp1v, 0,  dct3 );
+    vec_st( temp2v, 16, dct3 );
+    nz3 = vec_or( temp1v, temp2v );
+
+    return (vec_any_ne( nz0, zero_s16v ) << 0) | (vec_any_ne( nz1, zero_s16v ) << 1) |
+           (vec_any_ne( nz2, zero_s16v ) << 2) | (vec_any_ne( nz3, zero_s16v ) << 3);
 }
 
 // DC quant of a whole 4x4 block, unrolled 2x and "pre-scheduled"
@@ -180,6 +378,7 @@ int x264_quant_2x2_dc_altivec( int16_t dct[4], int mf, int bias )
     vec_u32_t multEvenvA, multOddvA;
     vec_s16_t one = vec_splat_s16(1);
     vec_s16_t nz = zero_s16v;
+    static const vec_s16_t mask2 = CV(-1, -1, -1, -1,  0, 0, 0, 0);
 
     vec_s16_t temp1v, temp2v;
 
@@ -190,7 +389,6 @@ int x264_quant_2x2_dc_altivec( int16_t dct[4], int mf, int bias )
     i_qbitsv = vec_splats( (uint32_t) 16 );
     biasv = vec_splats( (uint16_t)bias );
 
-    static const vec_s16_t mask2 = CV(-1, -1, -1, -1,  0, 0, 0, 0);
     QUANT_4_U_DC(0);
     return vec_any_ne(vec_and(nz, mask2), zero_s16v);
 }
@@ -215,9 +413,7 @@ int x264_quant_8x8_altivec( int16_t dct[64], uint16_t mf[64], uint16_t bias[64] 
 
     vec_s16_t temp1v, temp2v, tmpv;
 
-    vec_u32_u qbits_u;
-    qbits_u.s[0]=16;
-    i_qbitsv = vec_splat(qbits_u.v, 0);
+    i_qbitsv = vec_splats( (uint32_t)16 );
 
     for( int i = 0; i < 4; i++ )
         QUANT_16_U( i*2*16, i*2*16+16 );
@@ -233,8 +429,6 @@ int x264_quant_8x8_altivec( int16_t dct[64], uint16_t mf[64], uint16_t bias[64] 
                                                                      \
     multEvenvA = vec_mule(dctv, mfv);                                \
     multOddvA = vec_mulo(dctv, mfv);                                 \
-    dctv = (vec_s16_t) vec_packs(vec_mergeh(multEvenvA, multOddvA),  \
-                                 vec_mergel(multEvenvA, multOddvA)); \
     dctv = (vec_s16_t) vec_packs( multEvenvA, multOddvA );           \
     tmpv = xxpermdi( dctv, dctv, 2 );                                \
     dctv = vec_mergeh( dctv, tmpv );                                 \
