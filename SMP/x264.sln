@@ -21,8 +21,6 @@ Global
 		Release|x86 = Release|x86
 		ReleaseDLL|x64 = ReleaseDLL|x64
 		ReleaseDLL|x86 = ReleaseDLL|x86
-		ReleaseLTO|x64 = ReleaseLTO|x64
-		ReleaseLTO|x86 = ReleaseLTO|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.Debug|x64.ActiveCfg = Debug|x64
@@ -41,10 +39,6 @@ Global
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
 		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
-		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseLTO|x64.ActiveCfg = ReleaseLTO|x64
-		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseLTO|x64.Build.0 = ReleaseLTO|x64
-		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseLTO|x86.ActiveCfg = ReleaseLTO|Win32
-		{20179127-853B-4FE9-B7C0-9E817E6A3A72}.ReleaseLTO|x86.Build.0 = ReleaseLTO|Win32
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|x64.ActiveCfg = Debug|x64
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Debug|x86.ActiveCfg = Debug|Win32
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.DebugDLL|x64.ActiveCfg = Debug|x64
@@ -55,13 +49,14 @@ Global
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.Release|x86.Build.0 = Release|Win32
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|x64.ActiveCfg = Release|x64
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseDLL|x86.ActiveCfg = Release|Win32
-		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseLTO|x64.ActiveCfg = Release|x64
-		{DF0E4003-C938-4CE6-A06A-F7741512B46C}.ReleaseLTO|x86.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DF0E4003-C938-4CE6-A06A-F7741512B46C} = {20A224A6-544D-49B2-B0B0-4B5B5FF9689D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19BF6666-D4B7-480B-95F1-FED39B71775B}
 	EndGlobalSection
 EndGlobal
