@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <x264.h>
+#include <config.h>
 
 #define FAIL_IF_ERROR( cond, ... )\
 do\
