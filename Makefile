@@ -8,6 +8,9 @@ vpath %.S $(SRCPATH)
 vpath %.asm $(SRCPATH)
 vpath %.rc $(SRCPATH)
 
+CFLAGS += $(CFLAGSPROF)
+LDFLAGS += $(LDFLAGSPROF)
+
 GENERATED =
 
 all: default
@@ -246,6 +249,8 @@ $(LIBX264): $(GENERATED) .depend $(OBJS) $(OBJASM)
 $(SONAME): $(GENERATED) .depend $(OBJS) $(OBJASM) $(OBJSO)
 	$(LD)$@ $(OBJS) $(OBJASM) $(OBJSO) $(SOFLAGS) $(LDFLAGS)
 
+$(IMPLIBNAME): $(SONAME)
+
 ifneq ($(EXE),)
 .PHONY: x264 checkasm8 checkasm10 example
 x264: x264$(EXE)
@@ -265,6 +270,9 @@ checkasm10$(EXE): $(GENERATED) .depend $(OBJCHK) $(OBJCHK_10) $(LIBX264)
 
 example$(EXE): $(GENERATED) .depend $(OBJEXAMPLE) $(LIBX264)
 	$(LD)$@ $(OBJEXAMPLE) $(LIBX264) $(LDFLAGS)
+
+$(OBJS) $(OBJSO): CFLAGS += $(CFLAGSSO)
+$(OBJCLI): CFLAGS += $(CFLAGSCLI)
 
 $(OBJS) $(OBJASM) $(OBJSO) $(OBJCLI) $(OBJCHK) $(OBJCHK_8) $(OBJCHK_10) $(OBJEXAMPLE): .depend
 
@@ -336,7 +344,7 @@ ifneq ($(wildcard .depend),)
 include .depend
 endif
 
-OBJPROF = $(OBJS) $(OBJCLI)
+OBJPROF = $(OBJS) $(OBJSO) $(OBJCLI)
 # These should cover most of the important codepaths
 OPT0 = --crf 30 -b1 -m1 -r1 --me dia --no-cabac --direct temporal --ssim --no-weightb
 OPT1 = --crf 16 -b2 -m3 -r3 --me hex --no-8x8dct --direct spatial --no-dct-decimate -t0  --slice-max-mbs 50
@@ -354,7 +362,7 @@ fprofiled:
 	@echo 'i.e. YUV with resolution in the filename, y4m, or avisynth.'
 else
 fprofiled: clean
-	$(MAKE) x264$(EXE) CFLAGS="$(CFLAGS) $(PROF_GEN_CC)" LDFLAGS="$(LDFLAGS) $(PROF_GEN_LD)"
+	$(MAKE) x264$(EXE) CFLAGSPROF="$(PROF_GEN_CC)" LDFLAGSPROF="$(PROF_GEN_LD)"
 	$(foreach V, $(VIDS), $(foreach I, 0 1 2 3 4 5 6 7, ./x264$(EXE) $(OPT$I) --threads 1 $(V) -o $(DEVNULL) ;))
 ifeq ($(COMPILER),CL)
 # Because Visual Studio timestamps the object files within the PGD, it fails to build if they change - only the executable should be deleted
@@ -362,7 +370,7 @@ ifeq ($(COMPILER),CL)
 else
 	rm -f $(OBJPROF)
 endif
-	$(MAKE) CFLAGS="$(CFLAGS) $(PROF_USE_CC)" LDFLAGS="$(LDFLAGS) $(PROF_USE_LD)"
+	$(MAKE) CFLAGSPROF="$(PROF_USE_CC)" LDFLAGSPROF="$(PROF_USE_LD)"
 	rm -f $(OBJPROF:%.o=%.gcda) $(OBJPROF:%.o=%.gcno) *.dyn pgopti.dpi pgopti.dpi.lock *.pgd *.pgc
 endif
 
