@@ -8,7 +8,7 @@ x264_param_apply_profile
 x264_picture_init
 x264_picture_alloc
 x264_picture_clean
-x264_encoder_open_159
+x264_encoder_open_160
 x264_encoder_reconfig
 x264_encoder_parameters
 x264_encoder_headers
