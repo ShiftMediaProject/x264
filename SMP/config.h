@@ -21,7 +21,7 @@
 #define ftell _ftelli64
 #define HAVE_GPL 1
 #define HAVE_INTERLACED 1
-#if BIT_DEPTH==8
+#if (BIT_DEPTH==8) && (!defined(WINAPI_FAMILY) || (WINAPI_FAMILY!=WINAPI_FAMILY_PC_APP && WINAPI_FAMILY!=WINAPI_FAMILY_PHONE_APP))
 #   define HAVE_OPENCL 1
 #else
 #   define HAVE_OPENCL 0
@@ -46,6 +46,10 @@
 #else
 #   define HAVE_X86_INLINE_ASM 0
 #endif
+#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY==WINAPI_FAMILY_PC_APP || WINAPI_FAMILY==WINAPI_FAMILY_PHONE_APP)
+#define HAVE_WINRT 1
+#else
 #define HAVE_WINRT 0
+#endif
 #define HAVE_BITDEPTH8 1
 #define HAVE_BITDEPTH10 1
