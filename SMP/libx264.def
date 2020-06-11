@@ -18,5 +18,5 @@ x264_encoder_delayed_frames
 x264_encoder_maximum_delayed_frames
 x264_encoder_intra_refresh
 x264_encoder_invalidate_reference
-x264_levels DATA
-x264_chroma_format DATA
+x264_levels ;DATA
+x264_chroma_format ;DATA
