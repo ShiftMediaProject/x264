@@ -356,7 +356,7 @@ DECLARE_REG_TMP_SIZE 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
 %define vzeroupper_required (mmsize > 16 && (ARCH_X86_64 == 0 || xmm_regs_used > 16 || notcpuflag(avx512)))
 %define high_mm_regs (16*cpuflag(avx512))
 
-%macro ALLOC_STACK 1-2 0 ; stack_size, n_xmm_regs (for win64 only)
+%macro ALLOC_STACK 0-2 0, 0 ; stack_size, n_xmm_regs (for win64 only)
     %ifnum %1
         %if %1 != 0
             %assign %%pad 0
@@ -401,7 +401,7 @@ DECLARE_REG_TMP_SIZE 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
     %endif
 %endmacro
 
-%macro SETUP_STACK_POINTER 1
+%macro SETUP_STACK_POINTER 0-1 0
     %ifnum %1
         %if %1 != 0 && required_stack_alignment > STACK_ALIGNMENT
             %if %1 > 0
@@ -423,16 +423,6 @@ DECLARE_REG_TMP_SIZE 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
     %endif
 %endmacro
 
-%macro DEFINE_ARGS_INTERNAL 3+
-    %ifnum %2
-        DEFINE_ARGS %3
-    %elif %1 == 4
-        DEFINE_ARGS %2
-    %elif %1 > 4
-        DEFINE_ARGS %2, %3
-    %endif
-%endmacro
-
 %if WIN64 ; Windows x64 ;=================================================
 
 DECLARE_REG 0,  rcx
@@ -451,7 +441,7 @@ DECLARE_REG 12, R15, 104
 DECLARE_REG 13, R12, 112
 DECLARE_REG 14, R13, 120
 
-%macro PROLOGUE 2-5+ 0 ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
+%macro PROLOGUE 2-5+ 0, 0 ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
     %assign num_args %1
     %assign regs_used %2
     ASSERT regs_used >= num_args
@@ -463,7 +453,15 @@ DECLARE_REG 14, R13, 120
         WIN64_SPILL_XMM %3
     %endif
     LOAD_IF_USED 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-    DEFINE_ARGS_INTERNAL %0, %4, %5
+    %if %0 > 4
+        %ifnum %4
+            DEFINE_ARGS %5
+        %else
+            DEFINE_ARGS %4, %5
+        %endif
+    %elifnnum %4
+        DEFINE_ARGS %4
+    %endif
 %endmacro
 
 %macro WIN64_PUSH_XMM 0
@@ -559,7 +557,7 @@ DECLARE_REG 12, R15, 56
 DECLARE_REG 13, R12, 64
 DECLARE_REG 14, R13, 72
 
-%macro PROLOGUE 2-5+ 0 ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
+%macro PROLOGUE 2-5+ 0, 0 ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
     %assign num_args %1
     %assign regs_used %2
     %assign xmm_regs_used %3
@@ -569,7 +567,15 @@ DECLARE_REG 14, R13, 72
     PUSH_IF_USED 9, 10, 11, 12, 13, 14
     ALLOC_STACK %4
     LOAD_IF_USED 6, 7, 8, 9, 10, 11, 12, 13, 14
-    DEFINE_ARGS_INTERNAL %0, %4, %5
+    %if %0 > 4
+        %ifnum %4
+            DEFINE_ARGS %5
+        %else
+            DEFINE_ARGS %4, %5
+        %endif
+    %elifnnum %4
+        DEFINE_ARGS %4
+    %endif
 %endmacro
 
 %define has_epilogue regs_used > 9 || stack_size > 0 || vzeroupper_required
@@ -610,7 +616,7 @@ DECLARE_REG 6, ebp, 28
 
 DECLARE_ARG 7, 8, 9, 10, 11, 12, 13, 14
 
-%macro PROLOGUE 2-5+ ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
+%macro PROLOGUE 2-5+ 0, 0 ; #args, #regs, #xmm_regs, [stack_size,] arg_names...
     %assign num_args %1
     %assign regs_used %2
     ASSERT regs_used >= num_args
@@ -625,7 +631,15 @@ DECLARE_ARG 7, 8, 9, 10, 11, 12, 13, 14
     PUSH_IF_USED 3, 4, 5, 6
     ALLOC_STACK %4
     LOAD_IF_USED 0, 1, 2, 3, 4, 5, 6
-    DEFINE_ARGS_INTERNAL %0, %4, %5
+    %if %0 > 4
+        %ifnum %4
+            DEFINE_ARGS %5
+        %else
+            DEFINE_ARGS %4, %5
+        %endif
+    %elifnnum %4
+        DEFINE_ARGS %4
+    %endif
 %endmacro
 
 %define has_epilogue regs_used > 3 || stack_size > 0 || vzeroupper_required

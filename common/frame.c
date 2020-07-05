@@ -318,7 +318,10 @@ void x264_frame_delete( x264_frame_t *frame )
         x264_free( frame->base );
 
         if( frame->param && frame->param->param_free )
+        {
+            x264_param_cleanup( frame->param );
             frame->param->param_free( frame->param );
+        }
         if( frame->mb_info_free )
             frame->mb_info_free( frame->mb_info );
         if( frame->extra_sei.sei_free )
@@ -685,12 +688,14 @@ void x264_frame_cond_broadcast( x264_frame_t *frame, int i_lines_completed )
     x264_pthread_mutex_unlock( &frame->mutex );
 }
 
-void x264_frame_cond_wait( x264_frame_t *frame, int i_lines_completed )
+int x264_frame_cond_wait( x264_frame_t *frame, int i_lines_completed )
 {
+    int completed;
     x264_pthread_mutex_lock( &frame->mutex );
-    while( frame->i_lines_completed < i_lines_completed )
+    while( (completed = frame->i_lines_completed) < i_lines_completed && i_lines_completed >= 0 )
         x264_pthread_cond_wait( &frame->cv, &frame->mutex );
     x264_pthread_mutex_unlock( &frame->mutex );
+    return completed;
 }
 
 void x264_threadslice_cond_broadcast( x264_t *h, int pass )

@@ -541,6 +541,7 @@ done
 
 CC="${CC-${cross_prefix}gcc}"
 STRIP="${STRIP-${cross_prefix}strip}"
+STRINGS="${STRINGS-${cross_prefix}strings}"
 INSTALL="${INSTALL-install}"
 PKGCONFIG="${PKGCONFIG-${cross_prefix}pkg-config}"
 
@@ -573,7 +574,7 @@ trap 'rm -rf conftest*' EXIT
 # test for use of compilers that require specific handling
 cc_base="$(basename "$CC")"
 QPRE="-"
-if [[ $host_os = mingw* || $host_os = cygwin* ]]; then
+if [[ $host_os = mingw* || $host_os = msys* || $host_os = cygwin* ]]; then
     if [[ "$cc_base" = icl || "$cc_base" = icl[\ .]* ]]; then
         # Windows Intel Compiler creates dependency generation with absolute Windows paths, Cygwin's make does not support Windows paths.
         [[ $host_os = cygwin* ]] && die "Windows Intel Compiler support requires MSYS"
@@ -1017,10 +1018,10 @@ CPU_ENDIAN="little-endian"
 if [ $compiler = GNU ]; then
     echo "int i[2] = {0x42494745,0}; double f[2] = {0x1.0656e6469616ep+102,0};" > conftest.c
     $CC $CFLAGS conftest.c -c -o conftest.o 2>/dev/null || die "endian test failed"
-    if (${cross_prefix}strings -a conftest.o | grep -q BIGE) && (${cross_prefix}strings -a conftest.o | grep -q FPendian) ; then
+    if (${STRINGS} -a conftest.o | grep -q BIGE) && (${STRINGS} -a conftest.o | grep -q FPendian) ; then
         define WORDS_BIGENDIAN
         CPU_ENDIAN="big-endian"
-    elif !(${cross_prefix}strings -a conftest.o | grep -q EGIB && ${cross_prefix}strings -a conftest.o | grep -q naidnePF) ; then
+    elif !(${STRINGS} -a conftest.o | grep -q EGIB && ${STRINGS} -a conftest.o | grep -q naidnePF) ; then
         die "endian test failed"
     fi
 fi
@@ -1153,7 +1154,7 @@ if [ "$lavf" = "auto" ] ; then
         done
     fi
 
-    if cc_check libavformat/avformat.h "$LAVF_CFLAGS $LAVF_LIBS" "av_register_all();" ; then
+    if cc_check libavformat/avformat.h "$LAVF_CFLAGS $LAVF_LIBS" "av_demuxer_iterate(0);" ; then
         if cc_check libavcodec/avcodec.h "$LAVF_CFLAGS $LAVF_LIBS" "avcodec_send_packet(0,0);" ; then
             lavf="yes"
         else
@@ -1231,15 +1232,16 @@ if [ "$gpac" = "auto" -a "$lsmash" != "yes" ] ; then
     gpac="no"
     GPAC_LIBS="-lgpac_static"
     cc_check "" -lz && GPAC_LIBS="$GPAC_LIBS -lz"
+    cc_check "" -ldl && GPAC_LIBS="$GPAC_LIBS -ldl"
     if [ "$SYS" = "WINDOWS" ] ; then
         cc_check "" -lws2_32 && GPAC_LIBS="$GPAC_LIBS -lws2_32"
         cc_check "" -lwinmm && GPAC_LIBS="$GPAC_LIBS -lwinmm"
     fi
     if cc_check gpac/isomedia.h "$GPAC_LIBS" "gf_isom_close(0);" ; then
-        if cc_check gpac/isomedia.h "$GPAC_LIBS" "gf_isom_set_pixel_aspect_ratio(0,0,0,0,0);" ; then
+        if cc_check gpac/isomedia.h "$GPAC_LIBS" "gf_isom_set_pixel_aspect_ratio(0,0,0,0,0,0);" ; then
             gpac="yes"
         else
-            echo "Warning: gpac is too old, update to 2007-06-21 UTC or later"
+            echo "Warning: gpac is too old, update to v0.8.0 or later"
         fi
     fi
 fi
@@ -1527,6 +1529,9 @@ fi
 if [ "$cli" = "yes" ]; then
     echo 'default: cli' >> config.mak
     echo 'install: install-cli' >> config.mak
+    if pkg_check bash-completion ; then
+        echo "BASHCOMPLETIONSDIR=$($PKGCONFIG --variable=completionsdir bash-completion)" >> config.mak
+    fi
 fi
 
 if [ "$shared" = "yes" ]; then
