@@ -1,0 +1,364 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B0179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
+    <RootNamespace>x264</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug_10bWinRT|Win32">
+      <Configuration>Debug_10bWinRT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_10bWinRT|x64">
+      <Configuration>Debug_10bWinRT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_10bWinRT|Win32">
+      <Configuration>Release_10bWinRT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_10bWinRT|x64">
+      <Configuration>Release_10bWinRT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' != ''">$(WindowsTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'&gt;= '16.0'">10.0</WindowsTargetPlatformVersion>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <WindowsAppContainer>true</WindowsAppContainer>
+    <AppContainerApplication>true</AppContainerApplication>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision Condition="'$(VisualStudioVersion)' == '16.0'">10.0</ApplicationTypeRevision>
+    <ApplicationTypeRevision Condition="'$(VisualStudioVersion)' == '15.0'">10.0</ApplicationTypeRevision>
+    <ApplicationTypeRevision Condition="'$(VisualStudioVersion)' == '14.0'">8.1</ApplicationTypeRevision>
+    <ApplicationTypeRevision Condition="'$(VisualStudioVersion)' == '12.0'">8.1</ApplicationTypeRevision>
+    <WindowsTargetPlatformVersion Condition="'$(ApplicationTypeRevision)|$(WindowsTargetPlatformVersion)' == '10.0|'">10.0.10240.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion Condition="'$(ApplicationTypeRevision)' == '10.0'">10.0.10240.0</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="libx264_files.props" />
+  </ImportGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\nasm.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|Win32'">
+    <TargetName>libx264_10bd_winrt</TargetName>
+    <OutDir>$(ProjectDir)obj\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|x64'">
+    <TargetName>libx264_10bd_winrt</TargetName>
+    <OutDir>$(ProjectDir)obj\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|Win32'">
+    <TargetName>libx264_10b_winrt</TargetName>
+    <OutDir>$(ProjectDir)obj\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|x64'">
+    <TargetName>libx264_10b_winrt</TargetName>
+    <OutDir>$(ProjectDir)obj\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;HIGH_BIT_DEPTH=1;BIT_DEPTH=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Console</SubSystem>
+    </Lib>
+    <NASM>
+      <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
+      <PreprocessorDefinitions>HIGH_BIT_DEPTH=1;BIT_DEPTH=10;private_prefix=x264_10;PREFIX;STACK_ALIGNMENT=4;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </NASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
+)
+if exist "$(OutDir)"\include\x264.h (
+del "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del "$(OutDir)"\include\x264_config.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist "$(OutDir)"\include\x264.h (
+del /f /q "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del /f /q "$(OutDir)"\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_10bWinRT|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;HIGH_BIT_DEPTH=1;BIT_DEPTH=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
+      <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Console</SubSystem>
+    </Lib>
+    <NASM>
+      <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
+      <PreprocessorDefinitions>HIGH_BIT_DEPTH=1;BIT_DEPTH=10;private_prefix=x264_10;STACK_ALIGNMENT=16;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </NASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
+)
+if exist "$(OutDir)"\include\x264.h (
+del "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del "$(OutDir)"\include\x264_config.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist "$(OutDir)"\include\x264.h (
+del /f /q "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del /f /q "$(OutDir)"\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;HIGH_BIT_DEPTH=1;BIT_DEPTH=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Console</SubSystem>
+    </Lib>
+    <NASM>
+      <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
+      <PreprocessorDefinitions>HIGH_BIT_DEPTH=1;BIT_DEPTH=10;private_prefix=x264_10;PREFIX;STACK_ALIGNMENT=4;WIN32=1;ARCH_X86_64=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </NASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
+)
+if exist "$(OutDir)"\include\x264.h (
+del "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del "$(OutDir)"\include\x264_config.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist "$(OutDir)"\include\x264.h (
+del /f /q "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del /f /q "$(OutDir)"\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_10bWinRT|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;HIGH_BIT_DEPTH=1;BIT_DEPTH=10;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Lib>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Console</SubSystem>
+    </Lib>
+    <NASM>
+      <IncludePaths>$(ProjectDir)\..\common\x86;%(IncludePaths)</IncludePaths>
+      <PreprocessorDefinitions>HIGH_BIT_DEPTH=1;BIT_DEPTH=10;private_prefix=x264_10;STACK_ALIGNMENT=16;WIN32=1;ARCH_X86_64=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </NASM>
+    <PreBuildEvent>
+      <Command>if exist ..\config.h (
+del ..\config.h
+)
+if exist ..\x264_config.h (
+del ..\x264_config.h
+)
+if exist ..\common\oclobj.h (
+del ..\common\oclobj.h
+)
+if not exist .\common\oclobj.h (
+echo "Error: Missing oclobj.h, can not regenerate!"
+exit /b 1
+)
+if exist "$(OutDir)"\include\x264.h (
+del "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del "$(OutDir)"\include\x264_config.h
+)</Command>
+    </PreBuildEvent>
+    <PostBuildEvent />
+    <CustomBuildStep>
+      <Message>Custom Clean Step</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>force_clean</Outputs>
+      <Command>if exist "$(OutDir)"\include\x264.h (
+del /f /q "$(OutDir)"\include\x264.h
+)
+if exist "$(OutDir)"\include\x264_config.h (
+del /f /q "$(OutDir)"\include\x264_config.h
+)
+if exist $(OutDir)\licenses\x264.txt (
+del /f /q $(OutDir)\licenses\x264.txt
+)</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\nasm.targets" />
+  </ImportGroup>
+</Project>

@@ -320,7 +320,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(Platform)\;$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264d.lib;x264cli_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -461,7 +461,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(Platform)\;$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264d.lib;x264cli_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <ProgramDatabaseFile>$(OutDir)\bin\x64\$(TargetName).pdb</ProgramDatabaseFile>
@@ -604,7 +604,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(Platform)\;$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;$(OutDir)\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264.lib;x264cli_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
@@ -761,7 +761,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)obj\$(Platform)\;$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;$(OutDir)\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libx264.lib;x264cli_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <ProgramDatabaseFile>$(OutDir)\bin\x64\$(TargetName).pdb</ProgramDatabaseFile>

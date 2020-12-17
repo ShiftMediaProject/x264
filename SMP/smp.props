@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugDLL|Win32">
+      <Configuration>DebugDLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugDLL|x64">
+      <Configuration>DebugDLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLL|Win32">
+      <Configuration>ReleaseDLL</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseDLL|x64">
+      <Configuration>ReleaseDLL</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WindowsTargetPlatformVersion Condition="'$(WindowsTargetPlatformVersion)' != ''">$(WindowsTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'&gt;= '16.0'">10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>lib$(RootNamespace)d</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>lib$(RootNamespace)d</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+    <TargetName>$(RootNamespace)d</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+    <TargetName>$(RootNamespace)d</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>lib$(RootNamespace)</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>lib$(RootNamespace)</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+    <TargetName>$(RootNamespace)</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+    <TargetName>$(RootNamespace)</TargetName>
+    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
+    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\x86\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\x64\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>$(OutDir)\lib\x86\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <MinimalRebuild>false</MinimalRebuild>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>$(OutDir)\lib\x64\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+      <ProgramDataBaseFileName>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDataBaseFileName>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\x86\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX86</TargetMachine>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
+      <ProgramDataBaseFileName>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDataBaseFileName>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\lib\x64\$(TargetName)$(TargetExt)</OutputFile>
+      <TargetMachine>MachineX64</TargetMachine>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\x86\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\lib\x86\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>$(OutDir)\lib\x86\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <LargeAddressAware>true</LargeAddressAware>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x86\;$(ProjectDir)\..\..\prebuilt\lib\x86\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(OutDir)\bin\x64\$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)\lib\x64\$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>$(OutDir)\lib\x64\$(TargetName).lib</ImportLibrary>
+      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
+      <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup />
+</Project>

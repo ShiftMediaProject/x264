@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{20179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
+    <ProjectGuid>{A0179127-853B-4FE9-B7C0-9E817E6A3A72}</ProjectGuid>
     <RootNamespace>x264</RootNamespace>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="smp.props" />
+    <Import Project="smp_winrt.props" />
     <Import Project="libx264_files.props" />
   </ImportGroup>
   <ImportGroup Label="ExtensionSettings">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\nasm.props" />
   </ImportGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -19,7 +19,7 @@
       <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libx264_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10bd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <NASM>
@@ -46,7 +46,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Debug_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Debug_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -71,7 +71,7 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -79,7 +79,7 @@ del /f /q $(OutDir)\licenses\x264.txt
       <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libx264_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10bd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <NASM>
@@ -106,7 +106,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Debug_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Debug_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -131,7 +131,7 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -141,8 +141,8 @@ del /f /q $(OutDir)\licenses\x264.txt
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libx264_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libx264_10bd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -175,7 +175,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Debug_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Debug_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Message>Custom Clean Step</Message>
@@ -193,7 +193,7 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLLWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -203,7 +203,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libx264_10bd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10bd_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -237,7 +237,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Debug_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Debug_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <CustomBuildStep>
       <Message>Custom Clean Step</Message>
@@ -255,14 +255,14 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libx264_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10b_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <NASM>
@@ -289,7 +289,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Release_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Release_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -314,14 +314,14 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4018;4146;4003;4305;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>libx264_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10b_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <NASM>
@@ -348,7 +348,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Release_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Release_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -373,7 +373,7 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRT|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -381,7 +381,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libx264_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10b_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <NASM>
@@ -408,7 +408,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Release_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Release_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include
@@ -433,7 +433,7 @@ del /f /q $(OutDir)\licenses\x264.txt
 )</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLWinRT|x64'">
     <ClCompile>
       <PreprocessorDefinitions>HIGH_BIT_DEPTH=0;BIT_DEPTH=8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -441,7 +441,7 @@ del /f /q $(OutDir)\licenses\x264.txt
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>libx264.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libx264_10b.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libx264_10b_winrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)obj\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <NASM>
@@ -468,7 +468,7 @@ del "$(OutDir)"\include\x264.h
 if exist "$(OutDir)"\include\x264_config.h (
 del "$(OutDir)"\include\x264_config.h
 )
-MSBuild libx264bit.vcxproj /property:Configuration="Release_10b",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
+MSBuild libx264bit_winrt.vcxproj /property:Configuration="Release_10bWinRT",Platform="$(Platform)",SolutionDir="$(SolutionDir)\",SolutionFileName="$(SolutionFileName)" /verbosity:m /nologo</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)"\include

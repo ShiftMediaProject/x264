@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\common\base.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\cpu.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\osdep.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\tables.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\win32thread.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\encoder\api.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\bitstream.c" />
+    <ClCompile Include="..\common\cabac.c" />
+    <ClCompile Include="..\common\common.c" />
+    <ClCompile Include="..\common\dct.c" />
+    <ClCompile Include="..\common\deblock.c" />
+    <ClCompile Include="..\common\frame.c" />
+    <ClCompile Include="..\common\macroblock.c" />
+    <ClCompile Include="..\common\mc.c" />
+    <ClCompile Include="..\common\mvpred.c" />
+    <ClCompile Include="..\common\opencl.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugDLLWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseDLLWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\common\pixel.c" />
+    <ClCompile Include="..\common\predict.c" />
+    <ClCompile Include="..\common\quant.c" />
+    <ClCompile Include="..\common\rectangle.c" />
+    <ClCompile Include="..\common\set.c" />
+    <ClCompile Include="..\common\threadpool.c" />
+    <ClCompile Include="..\common\vlc.c" />
+    <ClCompile Include="..\common\x86\mc-c.c" />
+    <ClCompile Include="..\common\x86\predict-c.c" />
+    <ClCompile Include="..\encoder\analyse.c" />
+    <ClCompile Include="..\encoder\cabac.c">
+      <ObjectFileName>$(IntDir)\cabacEnc.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\encoder\cavlc.c" />
+    <ClCompile Include="..\encoder\encoder.c" />
+    <ClCompile Include="..\encoder\lookahead.c" />
+    <ClCompile Include="..\encoder\macroblock.c">
+      <ObjectFileName>$(IntDir)\macroblockEnc.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\encoder\me.c" />
+    <ClCompile Include="..\encoder\ratecontrol.c" />
+    <ClCompile Include="..\encoder\set.c">
+      <ObjectFileName>$(IntDir)\setEnc.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\encoder\slicetype-cl.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\x264dll.c">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\base.h" />
+    <ClInclude Include="..\common\bitstream.h" />
+    <ClInclude Include="..\common\cabac.h" />
+    <ClInclude Include="..\common\common.h" />
+    <ClInclude Include="..\common\cpu.h" />
+    <ClInclude Include="..\common\dct.h" />
+    <ClInclude Include="..\common\frame.h" />
+    <ClInclude Include="..\common\macroblock.h" />
+    <ClInclude Include="..\common\mc.h" />
+    <ClInclude Include="..\common\opencl.h" />
+    <ClInclude Include="..\common\opencl\x264-cl.h" />
+    <ClInclude Include="..\common\osdep.h" />
+    <ClInclude Include="..\common\pixel.h" />
+    <ClInclude Include="..\common\predict.h" />
+    <ClInclude Include="..\common\quant.h" />
+    <ClInclude Include="..\common\rectangle.h" />
+    <ClInclude Include="..\common\set.h" />
+    <ClInclude Include="..\common\tables.h" />
+    <ClInclude Include="..\common\threadpool.h" />
+    <ClInclude Include="..\common\win32thread.h" />
+    <ClInclude Include="..\common\x86\bitstream.h" />
+    <ClInclude Include="..\common\x86\dct.h" />
+    <ClInclude Include="..\common\x86\deblock.h" />
+    <ClInclude Include="..\common\x86\mc.h" />
+    <ClInclude Include="..\common\x86\pixel.h" />
+    <ClInclude Include="..\common\x86\predict.h" />
+    <ClInclude Include="..\common\x86\quant.h" />
+    <ClInclude Include="..\common\x86\util.h" />
+    <ClInclude Include="..\encoder\analyse.h" />
+    <ClInclude Include="..\encoder\macroblock.h" />
+    <ClInclude Include="..\encoder\me.h" />
+    <ClInclude Include="..\encoder\ratecontrol.h" />
+    <ClInclude Include="..\encoder\set.h" />
+    <ClInclude Include="..\encoder\slicetype-cl.h" />
+    <ClInclude Include="..\x264.h" />
+    <ClInclude Include="common\oclobj.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="x264_config.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\common\opencl\bidir.cl" />
+    <None Include="..\common\opencl\downscale.cl" />
+    <None Include="..\common\opencl\intra.cl" />
+    <None Include="..\common\opencl\motionsearch.cl" />
+    <None Include="..\common\opencl\subpel.cl" />
+    <None Include="..\common\opencl\weightp.cl" />
+    <None Include="libx264.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <NASM Include="..\common\x86\cpu-a.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+      <UndefinePreprocessorDefinitions>private_prefix</UndefinePreprocessorDefinitions>
+    </NASM>
+    <NASM Include="..\common\x86\bitstream-a.asm" />
+    <NASM Include="..\common\x86\cabac-a.asm" />
+    <NASM Include="..\common\x86\const-a.asm" />
+    <NASM Include="..\common\x86\dct-32.asm">
+      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\dct-64.asm">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\dct-a.asm" />
+    <NASM Include="..\common\x86\deblock-a.asm" />
+    <NASM Include="..\common\x86\mc-a.asm" />
+    <NASM Include="..\common\x86\mc-a2.asm" />
+    <NASM Include="..\common\x86\pixel-32.asm">
+      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\pixel-a.asm" />
+    <NASM Include="..\common\x86\predict-a.asm" />
+    <NASM Include="..\common\x86\quant-a.asm" />
+    <NASM Include="..\common\x86\sad-a.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\sad16-a.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugDLL'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseDLL'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugDLLWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseDLLWinRT'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\trellis-64.asm">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\x86inc.asm">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </NASM>
+    <NASM Include="..\common\x86\x86util.asm">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </NASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\x264res.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10b'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DebugWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='ReleaseWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Debug_10bWinRT'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release_10bWinRT'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions>DLL;_MSC_VER=1800;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <AdditionalIncludeDirectories>$(VC_IncludePath)\;$(WindowsSDK_IncludePath)\;$(VCInstallDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
