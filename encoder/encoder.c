@@ -1,7 +1,7 @@
 /*****************************************************************************
  * encoder.c: top-level encoder functions
  *****************************************************************************
- * Copyright (C) 2003-2020 x264 project
+ * Copyright (C) 2003-2021 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -1450,7 +1450,7 @@ static void set_aspect_ratio( x264_t *h, x264_param_t *param, int initial )
 /****************************************************************************
  * x264_encoder_open:
  ****************************************************************************/
-x264_t *x264_encoder_open( x264_param_t *param )
+x264_t *x264_encoder_open( x264_param_t *param, void *api )
 {
     x264_t *h;
     char buf[1000], *p;
@@ -1481,6 +1481,9 @@ x264_t *x264_encoder_open( x264_param_t *param )
         x264_param_cleanup( param );
         param->param_free( param );
     }
+
+    /* Save pointer to bit depth independent interface */
+    h->api = api;
 
 #if HAVE_INTEL_DISPATCHER
     x264_intel_dispatcher_override();
@@ -1955,7 +1958,7 @@ static int nal_end( x264_t *h )
      * While undefined padding wouldn't actually affect the output, it makes valgrind unhappy. */
     memset( end, 0xff, 64 );
     if( h->param.nalu_process )
-        h->param.nalu_process( h, nal, h->fenc->opaque );
+        h->param.nalu_process( (x264_t *)h->api, nal, h->fenc->opaque );
     h->out.i_nal++;
 
     return nal_check_buffer( h );
@@ -2182,14 +2185,14 @@ static void weighted_pred_init( x264_t *h )
                     assert( h->sh.weight[j][i].i_denom == denom );
                     if( !i )
                     {
-                        h->fenc->weighted[j] = h->mb.p_weight_buf[buffer_next++] + h->fenc->i_stride[0] * i_padv + PADH;
+                        h->fenc->weighted[j] = h->mb.p_weight_buf[buffer_next++] + h->fenc->i_stride[0] * i_padv + PADH_ALIGN;
                         //scale full resolution frame
                         if( h->param.i_threads == 1 )
                         {
-                            pixel *src = h->fref[0][j]->filtered[0][0] - h->fref[0][j]->i_stride[0]*i_padv - PADH;
-                            pixel *dst = h->fenc->weighted[j] - h->fenc->i_stride[0]*i_padv - PADH;
+                            pixel *src = h->fref[0][j]->filtered[0][0] - h->fref[0][j]->i_stride[0]*i_padv - PADH_ALIGN;
+                            pixel *dst = h->fenc->weighted[j] - h->fenc->i_stride[0]*i_padv - PADH_ALIGN;
                             int stride = h->fenc->i_stride[0];
-                            int width = h->fenc->i_width[0] + PADH*2;
+                            int width = h->fenc->i_width[0] + PADH2;
                             int height = h->fenc->i_lines[0] + i_padv*2;
                             x264_weight_scale_plane( h, dst, stride, src, stride, width, height, &h->sh.weight[j][0] );
                             h->fenc->i_lines_weighted = height;

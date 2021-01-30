@@ -1,7 +1,7 @@
 ;*****************************************************************************
 ;* x86inc.asm: x264asm abstraction layer
 ;*****************************************************************************
-;* Copyright (C) 2005-2020 x264 project
+;* Copyright (C) 2005-2021 x264 project
 ;*
 ;* Authors: Loren Merritt <lorenm@u.washington.edu>
 ;*          Henrik Gramner <henrik@gramner.com>
@@ -1139,7 +1139,7 @@ INIT_XMM
     %endif
     %xdefine %%tmp %%f %+ 0
     %ifnum %%tmp
-        RESET_MM_PERMUTATION
+        DEFINE_MMREGS mmtype
         %assign %%i 0
         %rep num_mmregs
             %xdefine %%tmp %%f %+ %%i

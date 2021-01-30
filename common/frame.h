@@ -1,7 +1,7 @@
 /*****************************************************************************
  * frame.h: frame handling
  *****************************************************************************
- * Copyright (C) 2003-2020 x264 project
+ * Copyright (C) 2003-2021 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -31,6 +31,8 @@
 /* number of pixels past the edge of the frame, for motion estimation/compensation */
 #define PADH 32
 #define PADV 32
+#define PADH_ALIGN X264_MAX( PADH, NATIVE_ALIGN / SIZEOF_PIXEL )
+#define PADH2 (PADH_ALIGN + PADH)
 
 typedef struct x264_frame
 {
