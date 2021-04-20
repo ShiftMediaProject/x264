@@ -18,7 +18,7 @@ When using the WinRT/UWP project configurations the projects will automatically 
   the default application target for the Version of Visual Studio being used:
   VS 2013: 8.1
   VS 2015: 8.1
-  VS 2017: 10.0.10240.0
+  VS 2017+: 10.0.10240.0
 
 
 *** Building with NASM ***
