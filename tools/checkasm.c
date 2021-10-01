@@ -262,7 +262,7 @@ intptr_t (*x264_checkasm_call)( intptr_t (*func)(), int *ok, ... ) = x264_checka
  * assembly function through x264_checkasm_call with added dummy arguments which forces all
  * real arguments to be passed on the stack and not in registers. For 32-bit argument the
  * upper half of the 64-bit register location on the stack will now contain junk. Note that
- * this is dependant on compiler behaviour and that interrupts etc. at the wrong time may
+ * this is dependent on compiler behaviour and that interrupts etc. at the wrong time may
  * overwrite the junk written to the stack so there's no guarantee that it will always
  * detect all functions that assumes zero-extension.
  */
@@ -2958,7 +2958,7 @@ REALIGN_STACK int main( int argc, char **argv )
         argv++;
     }
 
-    int seed = ( argc > 1 ) ? atoi(argv[1]) : x264_mdate();
+    unsigned seed = ( argc > 1 ) ? strtoul(argv[1], NULL, 0) : x264_mdate();
     fprintf( stderr, "x264: using random seed %u\n", seed );
     srand( seed );
 
