@@ -144,7 +144,6 @@
     <None Include="..\common\opencl\motionsearch.cl" />
     <None Include="..\common\opencl\subpel.cl" />
     <None Include="..\common\opencl\weightp.cl" />
-    <None Include="libx264.def" />
   </ItemGroup>
   <ItemGroup>
     <NASM Include="..\common\x86\cpu-a.asm">

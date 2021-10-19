@@ -283,9 +283,6 @@
     <None Include="..\common\opencl\downscale.cl">
       <Filter>Source Files\common\opencl</Filter>
     </None>
-    <None Include="libx264.def">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />
