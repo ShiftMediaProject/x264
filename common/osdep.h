@@ -1,7 +1,7 @@
 /*****************************************************************************
  * osdep.h: platform-specific code
  *****************************************************************************
- * Copyright (C) 2007-2021 x264 project
+ * Copyright (C) 2007-2022 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -496,7 +496,7 @@ static ALWAYS_INLINE uintptr_t endian_fix( uintptr_t x )
 }
 static ALWAYS_INLINE uint16_t endian_fix16( uint16_t x )
 {
-    return (x<<8)|(x>>8);
+    return (uint16_t)((x<<8)|(x>>8));
 }
 #endif
 
