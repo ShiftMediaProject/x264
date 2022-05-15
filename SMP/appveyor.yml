@@ -119,7 +119,13 @@ before_build:
     }
 
 # Download and install nasm integration
-- ps: (New-Object Net.WebClient).DownloadFile('https://github.com/ShiftMediaProject/VSNASM/releases/download/0.8/VSNASM.zip', "$pwd\nasm.zip")
+- ps: >-
+    if ($env:MSVC_VER -gt 14) {
+        (New-Object Net.WebClient).DownloadFile('https://github.com/ShiftMediaProject/VSNASM/releases/download/0.8/VSNASM.zip', "$pwd\nasm.zip")
+    } else {
+        (New-Object Net.WebClient).DownloadFile('https://github.com/ShiftMediaProject/VSNASM/releases/download/0.7/VSNASM.zip', "$pwd\nasm.zip")
+    }
+    
 - ps: Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory("$pwd\nasm.zip", "$pwd\TempNASMUnpack")
 - cmd: call ".\TempNASMUnpack\install_script.bat"
 # Additional nasm location in order to fix gitlink error
