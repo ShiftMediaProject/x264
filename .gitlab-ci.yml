@@ -42,6 +42,7 @@ stages:
     _CONTRIB_URL: "https://artifacts.videolan.org/vlc/macos-x86_64/"
     _XCFLAGS: "-arch x86_64"
     _XLDFLAGS: "-arch x86_64"
+    _BIN_PATH: /Users/videolanci/sandbox/bin
 
 .variables-macos-arm64: &variables-macos-arm64
     _TRIPLET: "aarch64-apple-darwin19"
@@ -50,6 +51,7 @@ stages:
     _CONTRIB_URL: "https://artifacts.videolan.org/vlc/macos-arm64/"
     _XCFLAGS: "-arch arm64"
     _XLDFLAGS: "-arch arm64"
+    _BIN_PATH: /Users/videolanci/sandbox/bin
 
 .build:
     stage: build
@@ -106,7 +108,7 @@ build-debian-aarch64:
         curl -f -o vlc-contrib-${_TRIPLET}-latest.tar.bz2 ${_CONTRIB_URL}${CONTRIB_NAME}
         bunzip2 vlc-contrib-${_TRIPLET}-latest.tar.bz2
         tar xvf vlc-contrib-${_TRIPLET}-latest.tar
-        sed -i.bak -e "s#@@CONTRIB_PREFIX@@#${LOCAL_INSTALL_DIR}#g" ${PKG_CONFIG_LIBDIR}/*.pc
+        perl -pi -e "s'@@CONTRIB_PREFIX@@'$(sed -e "s/'/\\\\'/g" <<< "${LOCAL_INSTALL_DIR}")'g" ${PKG_CONFIG_LIBDIR}/*.pc
         git clone --depth 1 --branch master https://github.com/l-smash/l-smash.git lsmash
         cd lsmash
         ./configure --prefix="${LOCAL_INSTALL_DIR}" --target-os="${_TRIPLET}" --cross-prefix="${_TRIPLET}-"
@@ -147,6 +149,7 @@ build-llvm-mingw-aarch64:
     extends: .build
     script: |
         set -x
+        export PATH="${_BIN_PATH}:$PATH"
         LOCAL_INSTALL_DIR=`pwd`/${_TRIPLET}
         export PKG_CONFIG_LIBDIR=${LOCAL_INSTALL_DIR}/lib/pkgconfig
         curl -f -o vlc-contrib.txt ${_CONTRIB_URL}
@@ -154,7 +157,7 @@ build-llvm-mingw-aarch64:
         curl -f -o vlc-contrib-${_TRIPLET}-latest.tar.bz2 ${_CONTRIB_URL}${CONTRIB_NAME}
         bunzip2 vlc-contrib-${_TRIPLET}-latest.tar.bz2
         tar xvf vlc-contrib-${_TRIPLET}-latest.tar
-        sed -i.bak -e "s#@@CONTRIB_PREFIX@@#${LOCAL_INSTALL_DIR}#g" ${PKG_CONFIG_LIBDIR}/*.pc
+        perl -pi -e "s'@@CONTRIB_PREFIX@@'$(sed -e "s/'/\\\\'/g" <<< "${LOCAL_INSTALL_DIR}")'g" ${PKG_CONFIG_LIBDIR}/*.pc
         git clone --depth 1 --branch master https://github.com/l-smash/l-smash.git lsmash
         cd lsmash
         ./configure --prefix="${LOCAL_INSTALL_DIR}" --target-os="${_TRIPLET}" --extra-cflags="${_XCFLAGS}" --extra-ldflags="${_XLDFLAGS}"
@@ -168,14 +171,14 @@ build-macos-x86_64:
     extends: .build-macos
     tags:
         - amd64
-        - catalina
+        - monterey
     variables: *variables-macos-x86_64
 
 build-macos-arm64:
     extends: .build-macos
     tags:
         - amd64
-        - catalina
+        - monterey
     variables: *variables-macos-arm64
 
 .test: &test
