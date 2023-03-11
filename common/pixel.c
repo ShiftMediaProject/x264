@@ -1,7 +1,7 @@
 /*****************************************************************************
  * pixel.c: pixel metrics
  *****************************************************************************
- * Copyright (C) 2003-2022 x264 project
+ * Copyright (C) 2003-2023 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -1054,6 +1054,13 @@ void x264_pixel_init( uint32_t cpu, x264_pixel_function_t *pixf )
         pixf->var2[PIXEL_8x16] = x264_pixel_var2_8x16_avx512;
     }
 #endif // HAVE_MMX
+#if HAVE_AARCH64
+    if( cpu&X264_CPU_NEON )
+    {
+        INIT8( sad, _neon );
+    }
+#endif // HAVE_AARCH64
+
 #else // !HIGH_BIT_DEPTH
 #if HAVE_MMX
     if( cpu&X264_CPU_MMX )

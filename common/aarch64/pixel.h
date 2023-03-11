@@ -1,7 +1,7 @@
 /*****************************************************************************
  * pixel.h: aarch64 pixel metrics
  *****************************************************************************
- * Copyright (C) 2009-2022 x264 project
+ * Copyright (C) 2009-2023 x264 project
  *
  * Authors: David Conrad <lessen42@gmail.com>
  *          Janne Grunau <janne-x264@jannau.net>
@@ -76,11 +76,11 @@
     ret x264_pixel_##name##_4x4_##suffix args;\
 
 #define DECL_X1( name, suffix ) \
-    DECL_PIXELS( int, name, suffix, ( uint8_t *, intptr_t, uint8_t *, intptr_t ) )
+    DECL_PIXELS( int, name, suffix, ( pixel *, intptr_t, pixel *, intptr_t ) )
 
 #define DECL_X4( name, suffix ) \
-    DECL_PIXELS( void, name##_x3, suffix, ( uint8_t *, uint8_t *, uint8_t *, uint8_t *, intptr_t, int * ) )\
-    DECL_PIXELS( void, name##_x4, suffix, ( uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, intptr_t, int * ) )
+    DECL_PIXELS( void, name##_x3, suffix, ( pixel *, pixel *, pixel *, pixel *, intptr_t, int * ) )\
+    DECL_PIXELS( void, name##_x4, suffix, ( pixel *, pixel *, pixel *, pixel *, pixel *, intptr_t, int * ) )
 
 DECL_X1( sad, neon )
 DECL_X4( sad, neon )

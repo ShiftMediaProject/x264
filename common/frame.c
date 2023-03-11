@@ -1,7 +1,7 @@
 /*****************************************************************************
  * frame.c: frame handling
  *****************************************************************************
- * Copyright (C) 2003-2022 x264 project
+ * Copyright (C) 2003-2023 x264 project
  *
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
@@ -413,7 +413,7 @@ int x264_frame_copy_picture( x264_t *h, x264_frame_t *dst, x264_picture_t *src )
     {
         int p = i_csp == X264_CSP_UYVY;
         h->mc.plane_copy_deinterleave_yuyv( dst->plane[p], dst->i_stride[p], dst->plane[p^1], dst->i_stride[p^1],
-                                            (pixel*)src->img.plane[0], src->img.i_stride[0], h->param.i_width, h->param.i_height );
+                                            (pixel*)src->img.plane[0], src->img.i_stride[0]/SIZEOF_PIXEL, h->param.i_width, h->param.i_height );
     }
     else if( i_csp == X264_CSP_V210 )
     {
