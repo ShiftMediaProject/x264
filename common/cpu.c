@@ -1,7 +1,7 @@
 /*****************************************************************************
  * cpu.c: cpu detection
  *****************************************************************************
- * Copyright (C) 2003-2023 x264 project
+ * Copyright (C) 2003-2024 x264 project
  *
  * Authors: Loren Merritt <lorenm@u.washington.edu>
  *          Laurent Aimar <fenrir@via.ecp.fr>
@@ -96,8 +96,13 @@ const x264_cpu_name_t x264_cpu_names[] =
 #elif ARCH_AARCH64
     {"ARMv8",           X264_CPU_ARMV8},
     {"NEON",            X264_CPU_NEON},
+    {"SVE",             X264_CPU_SVE},
+    {"SVE2",            X264_CPU_SVE2},
 #elif ARCH_MIPS
     {"MSA",             X264_CPU_MSA},
+#elif ARCH_LOONGARCH
+    {"LSX",             X264_CPU_LSX},
+    {"LASX",            X264_CPU_LASX},
 #endif
     {"", 0},
 };
@@ -305,7 +310,7 @@ uint32_t x264_cpu_detect( void )
 
 #elif HAVE_ALTIVEC
 
-#if SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD
+#if SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD || SYS_NETBSD
 
 uint32_t x264_cpu_detect( void )
 {
@@ -320,6 +325,8 @@ uint32_t x264_cpu_detect( void )
     size_t   length = sizeof( has_altivec );
 #if SYS_MACOSX || SYS_OPENBSD
     int      error = sysctl( selectors, 2, &has_altivec, &length, NULL, 0 );
+#elif SYS_NETBSD
+    int      error = sysctlbyname( "machdep.altivec", &has_altivec, &length, NULL, 0 );
 #else
     int      error = sysctlbyname( "hw.altivec", &has_altivec, &length, NULL, 0 );
 #endif
@@ -358,6 +365,14 @@ uint32_t x264_cpu_detect( void )
     return X264_CPU_ALTIVEC;
 #endif
 }
+
+#else
+
+uint32_t x264_cpu_detect( void )
+{
+    return 0;
+}
+
 #endif
 
 #elif HAVE_ARMV6
@@ -405,13 +420,49 @@ uint32_t x264_cpu_detect( void )
 
 #elif HAVE_AARCH64
 
+#ifdef __linux__
+#include <sys/auxv.h>
+
+#define HWCAP_AARCH64_SVE   (1 << 22)
+#define HWCAP2_AARCH64_SVE2 (1 << 1)
+
+static uint32_t detect_flags( void )
+{
+    uint32_t flags = 0;
+
+    unsigned long hwcap = getauxval( AT_HWCAP );
+    unsigned long hwcap2 = getauxval( AT_HWCAP2 );
+    if ( hwcap & HWCAP_AARCH64_SVE )
+        flags |= X264_CPU_SVE;
+    if ( hwcap2 & HWCAP2_AARCH64_SVE2 )
+        flags |= X264_CPU_SVE2;
+
+    return flags;
+}
+#endif
+
 uint32_t x264_cpu_detect( void )
 {
+    uint32_t flags = X264_CPU_ARMV8;
 #if HAVE_NEON
-    return X264_CPU_ARMV8 | X264_CPU_NEON;
-#else
-    return X264_CPU_ARMV8;
+    flags |= X264_CPU_NEON;
 #endif
+
+    // If these features are enabled unconditionally in the compiler, we can
+    // assume that they are available.
+#ifdef __ARM_FEATURE_SVE
+    flags |= X264_CPU_SVE;
+#endif
+#ifdef __ARM_FEATURE_SVE2
+    flags |= X264_CPU_SVE2;
+#endif
+
+    // Where possible, try to do runtime detection as well.
+#ifdef __linux__
+    flags |= detect_flags();
+#endif
+
+    return flags;
 }
 
 #elif HAVE_MSA
@@ -419,6 +470,25 @@ uint32_t x264_cpu_detect( void )
 uint32_t x264_cpu_detect( void )
 {
     return X264_CPU_MSA;
+}
+
+#elif HAVE_LSX
+#include <sys/auxv.h>
+
+#define LA_HWCAP_LSX    ( 1U << 4 )
+#define LA_HWCAP_LASX   ( 1U << 5 )
+
+uint32_t x264_cpu_detect( void )
+{
+    uint32_t flags = 0;
+    uint32_t hwcap = (uint32_t)getauxval( AT_HWCAP );
+
+    if( hwcap & LA_HWCAP_LSX )
+        flags |= X264_CPU_LSX;
+    if( hwcap & LA_HWCAP_LASX )
+        flags |= X264_CPU_LASX;
+
+    return flags;
 }
 
 #else

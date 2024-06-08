@@ -160,7 +160,7 @@ endif
 OBJCHK += tools/checkasm-arm.o
 endif
 
-# AArch64 NEON optims
+# AArch64 NEON and SVE/SVE2 optims
 ifeq ($(SYS_ARCH),AARCH64)
 SRCASM_X  = common/aarch64/bitstream-a.S \
             common/aarch64/cabac-a.S \
@@ -170,6 +170,15 @@ SRCASM_X  = common/aarch64/bitstream-a.S \
             common/aarch64/pixel-a.S \
             common/aarch64/predict-a.S \
             common/aarch64/quant-a.S
+ifneq ($(findstring HAVE_SVE 1, $(CONFIG)),)
+SRCASM_X += common/aarch64/dct-a-sve.S \
+            common/aarch64/deblock-a-sve.S \
+            common/aarch64/mc-a-sve.S \
+            common/aarch64/pixel-a-sve.S
+endif
+ifneq ($(findstring HAVE_SVE2 1, $(CONFIG)),)
+SRCASM_X += common/aarch64/dct-a-sve2.S
+endif
 SRCS_X   += common/aarch64/asm-offsets.c \
             common/aarch64/mc-c.c \
             common/aarch64/predict-c.c
@@ -194,6 +203,33 @@ SRCS_X += common/mips/dct-c.c \
           common/mips/pixel-c.c \
           common/mips/predict-c.c \
           common/mips/quant-c.c
+endif
+endif
+
+# LOONGARCH optimization
+ifeq ($(SYS_ARCH),LOONGARCH)
+ifneq ($(findstring HAVE_LSX 1, $(CONFIG)),)
+SRCASM_X += common/loongarch/deblock-a.S \
+            common/loongarch/sad-a.S \
+            common/loongarch/predict-a.S \
+            common/loongarch/quant-a.S \
+            common/loongarch/mc-a.S \
+            common/loongarch/dct-a.S \
+            common/loongarch/pixel-a.S
+
+SRCS_X += common/loongarch/predict-c.c \
+          common/loongarch/mc-c.c \
+          common/loongarch/pixel-c.c
+
+OBJASM +=
+ifneq ($(findstring HAVE_BITDEPTH8 1, $(CONFIG)),)
+OBJASM += $(SRCASM_X:%.S=%-8.o)
+endif
+ifneq ($(findstring HAVE_BITDEPTH10 1, $(CONFIG)),)
+OBJASM += $(SRCASM_X:%.S=%-10.o)
+endif
+
+OBJCHK += tools/checkasm-loongarch.o
 endif
 endif
 

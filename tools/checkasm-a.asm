@@ -1,7 +1,7 @@
 ;*****************************************************************************
 ;* checkasm-a.asm: assembly check tool
 ;*****************************************************************************
-;* Copyright (C) 2008-2023 x264 project
+;* Copyright (C) 2008-2024 x264 project
 ;*
 ;* Authors: Loren Merritt <lorenm@u.washington.edu>
 ;*          Henrik Gramner <henrik@gramner.com>
@@ -152,11 +152,7 @@ cglobal checkasm_call, 2,15,16,-1*(((max_args+1)*8+STACK_ALIGNMENT-1) & ~(STACK_
     mov  r9, rax
     mov r10, rdx
     lea  r0, [error_message]
-%if FORMAT_ELF
-    call puts wrt ..plt
-%else
     call puts
-%endif
     mov  r1, [rsp+max_args*8]
     mov  dword [r1], 0
     mov  rdx, r10
