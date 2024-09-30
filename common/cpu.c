@@ -420,7 +420,7 @@ uint32_t x264_cpu_detect( void )
 
 #elif HAVE_AARCH64
 
-#ifdef __linux__
+#if defined(__linux__) || HAVE_ELF_AUX_INFO
 #include <sys/auxv.h>
 
 #define HWCAP_AARCH64_SVE   (1 << 22)
@@ -430,8 +430,17 @@ static uint32_t detect_flags( void )
 {
     uint32_t flags = 0;
 
+#if HAVE_ELF_AUX_INFO
+    unsigned long hwcap = 0;
+    unsigned long hwcap2 = 0;
+
+    elf_aux_info( AT_HWCAP, &hwcap, sizeof(hwcap) );
+    elf_aux_info( AT_HWCAP2, &hwcap2, sizeof(hwcap2) );
+#else
     unsigned long hwcap = getauxval( AT_HWCAP );
     unsigned long hwcap2 = getauxval( AT_HWCAP2 );
+#endif
+
     if ( hwcap & HWCAP_AARCH64_SVE )
         flags |= X264_CPU_SVE;
     if ( hwcap2 & HWCAP2_AARCH64_SVE2 )
@@ -458,7 +467,7 @@ uint32_t x264_cpu_detect( void )
 #endif
 
     // Where possible, try to do runtime detection as well.
-#ifdef __linux__
+#if defined(__linux__) || HAVE_ELF_AUX_INFO
     flags |= detect_flags();
 #endif
 
