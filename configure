@@ -411,7 +411,7 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO"
+             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO GETAUXVAL"
 
 # parse options
 
@@ -1141,6 +1141,10 @@ if cc_check 'time.h' '' 'clock_gettime(CLOCK_MONOTONIC, 0);' ; then
 elif cc_check 'time.h' '-lrt' 'clock_gettime(CLOCK_MONOTONIC, 0);' ; then
     define HAVE_CLOCK_GETTIME
     LDFLAGS="$LDFLAGS -lrt"
+fi
+
+if cc_check 'sys/auxv.h' '' 'getauxval(AT_HWCAP);' ; then
+    define HAVE_GETAUXVAL
 fi
 
 if cc_check 'sys/auxv.h' '' 'unsigned long auxv = 0; elf_aux_info(AT_HWCAP, &auxv, sizeof(auxv));' ; then

@@ -27,6 +27,9 @@
 
 #include "base.h"
 
+#if HAVE_GETAUXVAL || HAVE_ELF_AUX_INFO
+#include <sys/auxv.h>
+#endif
 #if SYS_CYGWIN || SYS_SunOS || SYS_OPENBSD
 #include <unistd.h>
 #endif
@@ -106,6 +109,19 @@ const x264_cpu_name_t x264_cpu_names[] =
 #endif
     {"", 0},
 };
+
+static unsigned long x264_getauxval( unsigned long type )
+{
+#if HAVE_GETAUXVAL
+    return getauxval( type );
+#elif HAVE_ELF_AUX_INFO
+    unsigned long aux = 0;
+    elf_aux_info( type, &aux, sizeof(aux) );
+    return aux;
+#else
+    return 0;
+#endif
+}
 
 #if (HAVE_ALTIVEC && SYS_LINUX) || (HAVE_ARMV6 && !HAVE_NEON)
 #include <signal.h>
@@ -421,7 +437,6 @@ uint32_t x264_cpu_detect( void )
 #elif HAVE_AARCH64
 
 #if defined(__linux__) || HAVE_ELF_AUX_INFO
-#include <sys/auxv.h>
 
 #define HWCAP_AARCH64_SVE   (1 << 22)
 #define HWCAP2_AARCH64_SVE2 (1 << 1)
@@ -430,16 +445,8 @@ static uint32_t detect_flags( void )
 {
     uint32_t flags = 0;
 
-#if HAVE_ELF_AUX_INFO
-    unsigned long hwcap = 0;
-    unsigned long hwcap2 = 0;
-
-    elf_aux_info( AT_HWCAP, &hwcap, sizeof(hwcap) );
-    elf_aux_info( AT_HWCAP2, &hwcap2, sizeof(hwcap2) );
-#else
-    unsigned long hwcap = getauxval( AT_HWCAP );
-    unsigned long hwcap2 = getauxval( AT_HWCAP2 );
-#endif
+    unsigned long hwcap = x264_getauxval( AT_HWCAP );
+    unsigned long hwcap2 = x264_getauxval( AT_HWCAP2 );
 
     if ( hwcap & HWCAP_AARCH64_SVE )
         flags |= X264_CPU_SVE;
@@ -482,7 +489,6 @@ uint32_t x264_cpu_detect( void )
 }
 
 #elif HAVE_LSX
-#include <sys/auxv.h>
 
 #define LA_HWCAP_LSX    ( 1U << 4 )
 #define LA_HWCAP_LASX   ( 1U << 5 )
@@ -490,7 +496,7 @@ uint32_t x264_cpu_detect( void )
 uint32_t x264_cpu_detect( void )
 {
     uint32_t flags = 0;
-    uint32_t hwcap = (uint32_t)getauxval( AT_HWCAP );
+    uint32_t hwcap = (uint32_t)x264_getauxval( AT_HWCAP );
 
     if( hwcap & LA_HWCAP_LSX )
         flags |= X264_CPU_LSX;
