@@ -123,7 +123,7 @@ static unsigned long x264_getauxval( unsigned long type )
 #endif
 }
 
-#if (HAVE_ALTIVEC && SYS_LINUX) || (HAVE_ARMV6 && !HAVE_NEON)
+#if ((HAVE_ALTIVEC && SYS_LINUX) || (HAVE_ARMV6 && !HAVE_NEON)) && !(HAVE_GETAUXVAL || HAVE_ELF_AUX_INFO)
 #include <signal.h>
 #include <setjmp.h>
 static sigjmp_buf jmpbuf;
@@ -326,7 +326,23 @@ uint32_t x264_cpu_detect( void )
 
 #elif HAVE_ALTIVEC
 
-#if SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD || SYS_NETBSD
+#if HAVE_GETAUXVAL || HAVE_ELF_AUX_INFO
+
+#define HWCAP_PPC_ALTIVEC   (1U << 28)
+
+uint32_t x264_cpu_detect( void )
+{
+    uint32_t flags = 0;
+
+    unsigned long hwcap = x264_getauxval( AT_HWCAP );
+
+    if ( hwcap & HWCAP_PPC_ALTIVEC )
+        flags |= X264_CPU_ALTIVEC;
+
+    return flags;
+}
+
+#elif SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD || SYS_NETBSD
 
 uint32_t x264_cpu_detect( void )
 {
@@ -396,11 +412,19 @@ uint32_t x264_cpu_detect( void )
 void x264_cpu_neon_test( void );
 int x264_cpu_fast_neon_mrc_test( void );
 
+#define HWCAP_ARM_NEON   (1U << 12)
+
 uint32_t x264_cpu_detect( void )
 {
     uint32_t flags = 0;
     flags |= X264_CPU_ARMV6;
 
+#if HAVE_GETAUXVAL || HAVE_ELF_AUX_INFO
+    unsigned long hwcap = x264_getauxval( AT_HWCAP );
+
+    if ( hwcap & HWCAP_ARM_NEON )
+        flags |= X264_CPU_NEON;
+#else
     // don't do this hack if compiled with -mfpu=neon
 #if !HAVE_NEON
     static void (* oldsig)( int );
@@ -418,6 +442,7 @@ uint32_t x264_cpu_detect( void )
 #endif
 
     flags |= X264_CPU_NEON;
+#endif
 
     // fast neon -> arm (Cortex-A9) detection relies on user access to the
     // cycle counter; this assumes ARMv7 performance counters.
