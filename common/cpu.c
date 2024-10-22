@@ -30,20 +30,16 @@
 #if HAVE_GETAUXVAL || HAVE_ELF_AUX_INFO
 #include <sys/auxv.h>
 #endif
-#if SYS_CYGWIN || SYS_SunOS || SYS_OPENBSD
+#if HAVE_SYSCONF
 #include <unistd.h>
 #endif
-#if SYS_LINUX
-#ifdef __ANDROID__
-#include <unistd.h>
-#else
+#if SYS_LINUX && !defined(__ANDROID__)
 #include <sched.h>
-#endif
 #endif
 #if SYS_BEOS
 #include <kernel/OS.h>
 #endif
-#if SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD
+#if SYS_MACOSX || SYS_FREEBSD || SYS_NETBSD || SYS_OPENBSD
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
@@ -342,7 +338,7 @@ uint32_t x264_cpu_detect( void )
     return flags;
 }
 
-#elif SYS_MACOSX || SYS_OPENBSD || SYS_FREEBSD || SYS_NETBSD
+#elif SYS_MACOSX || SYS_FREEBSD || SYS_NETBSD || SYS_OPENBSD
 
 uint32_t x264_cpu_detect( void )
 {
@@ -548,9 +544,6 @@ int x264_cpu_num_processors( void )
 #elif SYS_WINDOWS
     return x264_pthread_num_processors_np();
 
-#elif SYS_CYGWIN || SYS_SunOS || SYS_OPENBSD
-    return sysconf( _SC_NPROCESSORS_ONLN );
-
 #elif SYS_LINUX
 #ifdef __ANDROID__
     // Android NDK does not expose sched_getaffinity
@@ -575,7 +568,7 @@ int x264_cpu_num_processors( void )
     get_system_info( &info );
     return info.cpu_count;
 
-#elif SYS_MACOSX || SYS_FREEBSD
+#elif SYS_MACOSX
     int ncpu;
     size_t length = sizeof( ncpu );
     if( sysctlbyname("hw.ncpu", &ncpu, &length, NULL, 0) )
@@ -583,6 +576,12 @@ int x264_cpu_num_processors( void )
         ncpu = 1;
     }
     return ncpu;
+
+#elif defined(_SC_NPROCESSORS_ONLN)
+    return sysconf( _SC_NPROCESSORS_ONLN );
+
+#elif defined(_SC_NPROCESSORS_CONF)
+    return sysconf( _SC_NPROCESSORS_CONF );
 
 #else
     return 1;
