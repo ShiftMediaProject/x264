@@ -571,7 +571,7 @@ int x264_cpu_num_processors( void )
 #elif SYS_MACOSX
     int ncpu;
     size_t length = sizeof( ncpu );
-    if( sysctlbyname("hw.ncpu", &ncpu, &length, NULL, 0) )
+    if( sysctlbyname("hw.logicalcpu", &ncpu, &length, NULL, 0) )
     {
         ncpu = 1;
     }
