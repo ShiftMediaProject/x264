@@ -459,8 +459,8 @@ uint32_t x264_cpu_detect( void )
 
 #if defined(__linux__) || HAVE_ELF_AUX_INFO
 
-#define HWCAP_AARCH64_SVE   (1 << 22)
-#define HWCAP2_AARCH64_SVE2 (1 << 1)
+#define HWCAP_AARCH64_SVE   (1U << 22)
+#define HWCAP2_AARCH64_SVE2 (1U << 1)
 
 static uint32_t detect_flags( void )
 {
