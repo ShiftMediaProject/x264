@@ -412,7 +412,7 @@ NL="
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
              MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO GETAUXVAL \
-             SYSCONF"
+             SYSCONF SYNC_FETCH_AND_ADD"
 
 # parse options
 
@@ -1135,6 +1135,10 @@ if [ "$thread" = "posix" ]; then
     fi
 fi
 [ "$thread" != "no" ] && define HAVE_THREAD
+
+if cc_check '' '' 'int *val; __sync_fetch_and_add(&val, 1);' ; then
+    define HAVE_SYNC_FETCH_AND_ADD
+fi
 
 if cc_check 'math.h' '' 'volatile float x = 2; return log2f(x);' ; then
     define HAVE_LOG2F
