@@ -53,6 +53,20 @@ stages:
     _XLDFLAGS: "-arch arm64"
     _BIN_PATH: /Users/videolanci/sandbox/bin
 
+.variables-android-arm: &variables-android-arm
+    _TRIPLET: "arm-linux-androideabi"
+    _CLANG_TRIPLET: "armv7a-linux-androideabi"
+    _ANDROID_VERSION: "21"
+    _PLATFORMSUFFIX: ""
+    _WRAPPER: ""
+
+.variables-android-aarch64: &variables-android-aarch64
+    _TRIPLET: "aarch64-linux-android"
+    _CLANG_TRIPLET: "aarch64-linux-android"
+    _ANDROID_VERSION: "21"
+    _PLATFORMSUFFIX: ""
+    _WRAPPER: ""
+
 .build:
     stage: build
     script: |
@@ -183,6 +197,25 @@ build-macos-arm64:
         - amd64
         - monterey
     variables: *variables-macos-arm64
+
+.build-android:
+    extends: .build
+    image: registry.videolan.org/vlc-debian-android:20241118101328
+    tags:
+        - docker
+        - amd64
+    script: |
+        set -x
+        CC=${_CLANG_TRIPLET}${_ANDROID_VERSION}-clang AR=llvm-ar RANLIB=llvm-ranlib STRIP=llvm-strip PKGCONFIG=pkg-config ./configure --host="${_TRIPLET}" --enable-pic --enable-strip
+        make -j$(getconf _NPROCESSORS_ONLN) x264 checkasm
+
+build-android-arm:
+    extends: .build-android
+    variables: *variables-android-arm
+
+build-android-aarch64:
+    extends: .build-android
+    variables: *variables-android-aarch64
 
 .test: &test
     stage: test
