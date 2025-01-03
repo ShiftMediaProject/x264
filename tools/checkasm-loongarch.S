@@ -1,7 +1,7 @@
 /****************************************************************************
  * checkasm-loongarch.S: assembly check tool
  *****************************************************************************
- * Copyright (C) 2024 x264 project
+ * Copyright (C) 2024-2025 x264 project
  *
  * Authors: Xiwei Gu <guxiwei-hf@loongson.cn>
  *
