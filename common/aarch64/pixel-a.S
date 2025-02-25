@@ -77,26 +77,42 @@ endconst
     uabal       v17.8h,  v2.8b,  v3.8b
 .endm
 
-.macro SAD_START_16
+.macro SAD_START_16, dotprod=0
     ld1         {v1.16b}, [x2], x3
     ld1         {v0.16b}, [x0], x1
     ld1         {v3.16b}, [x2], x3
     ld1         {v2.16b}, [x0], x1
+.if \dotprod == 0
     uabdl       v16.8h,  v0.8b,  v1.8b
     uabdl2      v17.8h,  v0.16b, v1.16b
     uabal       v16.8h,  v2.8b,  v3.8b
     uabal2      v17.8h,  v2.16b, v3.16b
+.else
+    movi        v18.4s, #0x0
+    movi        v19.16b, #0x1
+    uabd        v16.16b, v0.16b,  v1.16b
+    uabd        v17.16b, v2.16b,  v3.16b
+    udot        v18.4s, v16.16b, v19.16b
+    udot        v18.4s, v17.16b, v19.16b
+.endif
 .endm
 
-.macro SAD_16
+.macro SAD_16, dotprod=0
     ld1         {v1.16b}, [x2], x3
     ld1         {v0.16b}, [x0], x1
     ld1         {v3.16b}, [x2], x3
     ld1         {v2.16b}, [x0], x1
+.if \dotprod == 0
     uabal       v16.8h,  v0.8b,  v1.8b
     uabal2      v17.8h,  v0.16b, v1.16b
     uabal       v16.8h,  v2.8b,  v3.8b
     uabal2      v17.8h,  v2.16b, v3.16b
+.else
+    uabd        v16.16b, v0.16b,  v1.16b
+    uabd        v17.16b, v2.16b,  v3.16b
+    udot        v18.4s, v16.16b, v19.16b
+    udot        v18.4s, v17.16b, v19.16b
+.endif
 .endm
 
 .macro SAD_FUNC w, h, name
@@ -110,6 +126,19 @@ function pixel_sad\name\()_\w\()x\h\()_neon, export=1
     add         v16.8h,  v16.8h,  v17.8h
 .endif
     uaddlv      s0,  v16.8h
+    fmov        w0,  s0
+    ret
+endfunc
+.endm
+
+.macro SAD_FUNC_DOTPROD w, h, name
+function pixel_sad\name\()_\w\()x\h\()_neon_dotprod, export=1
+    SAD_START_\w 1
+
+.rept \h / 2 - 1
+    SAD_\w 1
+.endr
+    addv        s0,  v18.4s
     fmov        w0,  s0
     ret
 endfunc
@@ -232,6 +261,75 @@ function pixel_sad_x\x\()_\w\()x\h\()_neon, export=1
 endfunc
 .endm
 
+.macro SAD_X_DOTPROD_16 x
+    ld1         {v0.16b}, [x0], x7
+    ld1         {v1.16b}, [x1], x5
+    ld1         {v2.16b}, [x2], x5
+    uabd        v20.16b, v1.16b,  v0.16b
+    uabd        v22.16b, v2.16b,  v0.16b
+    ld1         {v5.16b}, [x0], x7
+    udot        v16.4s, v20.16b, v28.16b
+    udot        v17.4s, v22.16b, v28.16b
+    ld1         {v3.16b}, [x3], x5
+    ld1         {v1.16b}, [x1], x5
+    uabd        v24.16b, v3.16b,  v0.16b
+    uabd        v21.16b, v1.16b,  v5.16b
+    ld1         {v2.16b}, [x2], x5
+    ld1         {v3.16b}, [x3], x5
+    udot        v18.4s, v24.16b, v28.16b
+    udot        v16.4s, v21.16b, v28.16b
+    uabd        v23.16b, v2.16b,  v5.16b
+    uabd        v25.16b, v3.16b,  v5.16b
+    udot        v17.4s, v23.16b, v28.16b
+    udot        v18.4s, v25.16b, v28.16b
+.if \x == 4
+    ld1         {v4.16b}, [x4], x5
+    ld1         {v1.16b}, [x4], x5
+    uabd        v26.16b, v4.16b,  v0.16b
+    uabd        v27.16b, v1.16b,  v5.16b
+    udot        v19.4s, v26.16b, v28.16b
+    udot        v19.4s, v27.16b, v28.16b
+.endif
+.endm
+
+.macro SAD_X_DOTPROD_FUNC x, w, h
+function pixel_sad_x\x\()_\w\()x\h\()_neon_dotprod, export=1
+    movi        v16.4s, #0x0
+    movi        v17.4s, #0x0
+    movi        v18.4s, #0x0
+.if \x == 4
+    movi        v19.4s, #0x0
+.endif
+    movi        v28.16b, #0x1
+
+.if \x == 3
+    mov         x6,  x5
+    mov         x5,  x4
+.endif
+    mov         x7,  #FENC_STRIDE
+
+    SAD_X_DOTPROD_\w    \x
+
+.rept \h / 2 - 1
+    SAD_X_DOTPROD_\w    \x
+.endr
+
+    addv        s0,  v16.4s
+    addv        s1,  v17.4s
+    addv        s2,  v18.4s
+.if \x == 4
+    addv        s3,  v19.4s
+.endif
+    stp         s0,  s1,  [x6], #8
+.if \x == 3
+    str         s2,  [x6]
+.else
+    stp         s2,  s3,  [x6]
+.endif
+    ret
+endfunc
+.endm
+
 function pixel_vsad_neon, export=1
     subs        w2,  w2,  #2
     ld1         {v0.16b},  [x0],  x1
@@ -255,6 +353,35 @@ function pixel_vsad_neon, export=1
     fmov        w0,  s0
     ret
 endfunc
+
+#if HAVE_DOTPROD
+ENABLE_DOTPROD
+function pixel_vsad_neon_dotprod, export=1
+    ld1         {v0.16b},  [x0],  x1
+    ld1         {v1.16b},  [x0],  x1
+    subs        w2,  w2,  #2
+    movi        v3.16b, #0x1
+    movi        v6.4s, #0x0
+    uabd        v5.16b, v0.16b,  v1.16b
+    udot        v6.4s,  v5.16b,  v3.16b
+    b.le        2f
+1:
+    ld1         {v0.16b},  [x0],  x1
+    subs        w2,  w2,  #2
+    uabd        v5.16b, v0.16b,  v1.16b
+    ld1         {v1.16b},  [x0],  x1
+    udot        v6.4s,  v5.16b,  v3.16b
+    b.lt        2f
+    uabd        v5.16b, v0.16b,  v1.16b
+    udot        v6.4s,  v5.16b,  v3.16b
+    b.gt        1b
+2:
+    addv        s0,  v6.4s
+    fmov        w0,  s0
+    ret
+endfunc
+DISABLE_DOTPROD
+#endif // HAVE_DOTPROD
 
 function pixel_asd8_neon, export=1
     sub         w4,  w4,  #2
@@ -370,6 +497,45 @@ function pixel_ssd_\w\()x\h\()_neon, export=1
     SSD_END_\w
 
     addv        s0,  v0.4s
+    mov         w0,  v0.s[0]
+    ret
+endfunc
+.endm
+
+.macro SSD_DOTPROD_8
+    ld1         {v16.8b}, [x0], x1
+    ld1         {v17.8b}, [x2], x3
+    ld1         {v18.8b}, [x0], x1
+    uabd        v20.8b,  v16.8b,  v17.8b
+    ld1         {v19.8b}, [x2], x3
+    uabd        v21.8b,  v18.8b,  v19.8b
+    udot        v22.2s,  v20.8b,  v20.8b
+    udot        v22.2s,  v21.8b,  v21.8b
+.endm
+
+.macro SSD_DOTPROD_16
+    ld1         {v16.16b}, [x0], x1
+    ld1         {v17.16b}, [x2], x3
+    ld1         {v18.16b}, [x0], x1
+    uabd        v20.16b, v16.16b, v17.16b
+    ld1         {v19.16b}, [x2], x3
+    uabd        v21.16b, v18.16b, v19.16b
+    udot        v22.4s,  v20.16b, v20.16b
+    udot        v22.4s,  v21.16b, v21.16b
+.endm
+
+.macro SSD_DOTPROD_FUNC w h
+function pixel_ssd_\w\()x\h\()_neon_dotprod, export=1
+    movi        v22.4s, #0x0
+
+.rept \h/2
+    SSD_DOTPROD_\w
+.endr
+.if \w > 8
+    addv        s0,  v22.4s
+.else
+    addp        v0.2s, v22.2s, v22.2s
+.endif
     mov         w0,  v0.s[0]
     ret
 endfunc
@@ -2855,3 +3021,20 @@ HADAMARD_AC  8, 8
 HADAMARD_AC  8, 16
 HADAMARD_AC 16, 8
 HADAMARD_AC 16, 16
+
+#if BIT_DEPTH == 8 && HAVE_DOTPROD
+ENABLE_DOTPROD
+SAD_FUNC_DOTPROD  16, 8
+SAD_FUNC_DOTPROD  16, 16
+SAD_X_DOTPROD_FUNC  3, 16, 8
+SAD_X_DOTPROD_FUNC  3, 16, 16
+SAD_X_DOTPROD_FUNC  4, 16, 8
+SAD_X_DOTPROD_FUNC  4, 16, 16
+
+SSD_DOTPROD_FUNC   8, 4
+SSD_DOTPROD_FUNC   8, 8
+SSD_DOTPROD_FUNC   8, 16
+SSD_DOTPROD_FUNC  16, 8
+SSD_DOTPROD_FUNC  16, 16
+DISABLE_DOTPROD
+#endif // BIT_DEPTH == 8 && HAVE_DOTPROD

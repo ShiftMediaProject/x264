@@ -1525,6 +1525,23 @@ void x264_pixel_init( uint32_t cpu, x264_pixel_function_t *pixf )
         pixf->ssim_4x4x2_core   = x264_pixel_ssim_4x4x2_core_neon;
         pixf->ssim_end4         = x264_pixel_ssim_end4_neon;
     }
+#if HAVE_DOTPROD
+    if( cpu&X264_CPU_DOTPROD ) {
+        pixf->sad[PIXEL_16x8]  = x264_pixel_sad_16x8_neon_dotprod;
+        pixf->sad[PIXEL_16x16] = x264_pixel_sad_16x16_neon_dotprod;
+        pixf->sad_x3[PIXEL_16x8]  = x264_pixel_sad_x3_16x8_neon_dotprod;
+        pixf->sad_x3[PIXEL_16x16] = x264_pixel_sad_x3_16x16_neon_dotprod;
+        pixf->sad_x4[PIXEL_16x8]  = x264_pixel_sad_x4_16x8_neon_dotprod;
+        pixf->sad_x4[PIXEL_16x16] = x264_pixel_sad_x4_16x16_neon_dotprod;
+        pixf->ssd[PIXEL_8x4]  = x264_pixel_ssd_8x4_neon_dotprod;
+        pixf->ssd[PIXEL_8x8] = x264_pixel_ssd_8x8_neon_dotprod;
+        pixf->ssd[PIXEL_8x16]  = x264_pixel_ssd_8x16_neon_dotprod;
+        pixf->ssd[PIXEL_16x16] = x264_pixel_ssd_16x16_neon_dotprod;
+        pixf->ssd[PIXEL_16x8]  = x264_pixel_ssd_16x8_neon_dotprod;
+        pixf->vsad = x264_pixel_vsad_neon_dotprod;
+    }
+#endif // HAVE_DOTPROD
+
 #if HAVE_SVE
     if( cpu&X264_CPU_SVE )
     {

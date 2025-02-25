@@ -35,6 +35,7 @@
 #define x264_pixel_sad_8x16_neon x264_template(pixel_sad_8x16_neon)
 #define x264_pixel_sad_8x4_neon x264_template(pixel_sad_8x4_neon)
 #define x264_pixel_sad_8x8_neon x264_template(pixel_sad_8x8_neon)
+
 #define x264_pixel_sad_x3_16x16_neon x264_template(pixel_sad_x3_16x16_neon)
 #define x264_pixel_sad_x3_16x8_neon x264_template(pixel_sad_x3_16x8_neon)
 #define x264_pixel_sad_x3_4x4_neon x264_template(pixel_sad_x3_4x4_neon)
@@ -65,6 +66,22 @@
 #define x264_pixel_ssd_8x16_neon x264_template(pixel_ssd_8x16_neon)
 #define x264_pixel_ssd_8x4_neon x264_template(pixel_ssd_8x4_neon)
 #define x264_pixel_ssd_8x8_neon x264_template(pixel_ssd_8x8_neon)
+
+#if HAVE_DOTPROD
+#define x264_pixel_sad_16x8_neon_dotprod x264_template(pixel_sad_16x8_neon_dotprod)
+#define x264_pixel_sad_16x16_neon_dotprod x264_template(pixel_sad_16x16_neon_dotprod)
+#define x264_pixel_sad_x3_16x16_neon_dotprod x264_template(pixel_sad_x3_16x16_neon_dotprod)
+#define x264_pixel_sad_x3_16x8_neon_dotprod x264_template(pixel_sad_x3_16x8_neon_dotprod)
+#define x264_pixel_sad_x4_16x16_neon_dotprod x264_template(pixel_sad_x4_16x16_neon_dotprod)
+#define x264_pixel_sad_x4_16x8_neon_dotprod x264_template(pixel_sad_x4_16x8_neon_dotprod)
+
+#define x264_pixel_ssd_16x16_neon_dotprod x264_template(pixel_ssd_16x16_neon_dotprod)
+#define x264_pixel_ssd_16x8_neon_dotprod x264_template(pixel_ssd_16x8_neon_dotprod)
+#define x264_pixel_ssd_8x16_neon_dotprod x264_template(pixel_ssd_8x16_neon_dotprod)
+#define x264_pixel_ssd_8x4_neon_dotprod x264_template(pixel_ssd_8x4_neon_dotprod)
+#define x264_pixel_ssd_8x8_neon_dotprod x264_template(pixel_ssd_8x8_neon_dotprod)
+#endif // HAVE_DOTPROD
+
 #define x264_pixel_ssd_4x16_sve x264_template(pixel_ssd_4x16_sve)
 #define x264_pixel_ssd_4x4_sve x264_template(pixel_ssd_4x4_sve)
 #define x264_pixel_ssd_4x8_sve x264_template(pixel_ssd_4x8_sve)
@@ -101,12 +118,22 @@ DECL_X1( satd, neon )
 DECL_X1( ssd, neon )
 DECL_X1_SSD_SVE( )
 
+#if HAVE_DOTPROD
+DECL_X1( sad, neon_dotprod )
+DECL_X4( sad, neon_dotprod )
+DECL_X1( ssd, neon_dotprod )
+#endif // HAVE_DOTPROD
 
 #define x264_pixel_ssd_nv12_core_neon x264_template(pixel_ssd_nv12_core_neon)
 void x264_pixel_ssd_nv12_core_neon( pixel *, intptr_t, pixel *, intptr_t, int, int, uint64_t *, uint64_t * );
 
 #define x264_pixel_vsad_neon x264_template(pixel_vsad_neon)
 int x264_pixel_vsad_neon( pixel *, intptr_t, int );
+
+#if HAVE_DOTPROD
+#define x264_pixel_vsad_neon_dotprod x264_template(pixel_vsad_neon_dotprod)
+int x264_pixel_vsad_neon_dotprod( pixel *, intptr_t, int );
+#endif // HAVE_DOTPROD
 
 #define x264_pixel_sa8d_8x8_neon x264_template(pixel_sa8d_8x8_neon)
 int x264_pixel_sa8d_8x8_neon  ( pixel *, intptr_t, pixel *, intptr_t );
