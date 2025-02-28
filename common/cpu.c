@@ -484,6 +484,60 @@ static uint32_t detect_flags( void )
 
     return flags;
 }
+
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
+
+static int have_feature( const char *feature )
+{
+    int supported = 0;
+    size_t size = sizeof(supported);
+    if ( sysctlbyname( feature, &supported, &size, NULL, 0 ) )
+        return 0;
+    return supported;
+}
+
+static uint32_t detect_flags( void )
+{
+    uint32_t flags = 0;
+
+    if ( have_feature( "hw.optional.arm.FEAT_DotProd" ) )
+        flags |= X264_CPU_DOTPROD;
+    if ( have_feature( "hw.optional.arm.FEAT_I8MM" ) )
+        flags |= X264_CPU_I8MM;
+    /* No SVE and SVE2 feature detection available on Apple platforms. */
+    return flags;
+}
+
+#elif defined(_WIN32)
+#include <windows.h>
+
+static uint32_t detect_flags( void )
+{
+    uint32_t flags = 0;
+
+#ifdef PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE
+    if ( IsProcessorFeaturePresent( PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE ) )
+        flags |= X264_CPU_DOTPROD;
+#endif
+#ifdef PF_ARM_SVE_INSTRUCTIONS_AVAILABLE
+    if ( IsProcessorFeaturePresent( PF_ARM_SVE_INSTRUCTIONS_AVAILABLE ) )
+        flags |= X264_CPU_SVE;
+#endif
+#ifdef PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE
+    if ( IsProcessorFeaturePresent( PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE ) )
+        flags |= X264_CPU_SVE2;
+#endif
+#ifdef PF_ARM_SVE_I8MM_INSTRUCTIONS_AVAILABLE
+    /* There's no PF_* flag that indicates whether plain I8MM is available
+     * or not. But if SVE_I8MM is available, that also implies that
+     * regular I8MM is available. */
+    if ( IsProcessorFeaturePresent( PF_ARM_SVE_I8MM_INSTRUCTIONS_AVAILABLE ) )
+        flags |= X264_CPU_I8MM;
+#endif
+    return flags;
+}
+
 #endif
 
 uint32_t x264_cpu_detect( void )
@@ -509,7 +563,8 @@ uint32_t x264_cpu_detect( void )
 #endif
 
     // Where possible, try to do runtime detection as well.
-#if defined(__linux__) || HAVE_ELF_AUX_INFO
+#if defined(__linux__) || HAVE_ELF_AUX_INFO || \
+    defined(__APPLE__) || defined(_WIN32)
     flags |= detect_flags();
 #endif
 
