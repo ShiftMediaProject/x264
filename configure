@@ -237,6 +237,18 @@ as_check() {
     return $res
 }
 
+as_archext_check() {
+    feature="$1"
+    instr="$2"
+    feature_upper="$(echo $feature | tr a-z A-Z)"
+    header=".arch $as_arch_level ${NL}"
+    if as_check "$header .arch_extension $feature" ; then
+        define HAVE_AS_ARCHEXT_${feature_upper}_DIRECTIVE
+        header="$header .arch_extension $feature ${NL}"
+    fi
+    as_check "$header $instr" && define HAVE_${feature_upper}
+}
+
 rc_check() {
     log_check "whether $RC works"
     echo "$1" > conftest.rc
@@ -412,7 +424,8 @@ NL="
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
              MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO GETAUXVAL \
-             SYSCONF SYNC_FETCH_AND_ADD"
+             SYSCONF SYNC_FETCH_AND_ADD \
+             AS_ARCHEXT_SVE_DIRECTIVE AS_ARCHEXT_SVE2_DIRECTIVE"
 
 # parse options
 
@@ -1016,8 +1029,29 @@ if [ $asm = auto -a $ARCH = AARCH64 ] ; then
         echo "If you really want to run on such a CPU, configure with --disable-asm."
         exit 1
     fi
-    as_check ".arch armv8.2-a+sve  ${NL} ptrue p0.b, vl16"         && define HAVE_SVE
-    as_check ".arch armv8.2-a+sve2 ${NL} smlalb z10.s, z2.h, z1.h" && define HAVE_SVE2
+    # Check for higher .arch levels. We only need armv8.2-a in order to
+    # enable the extensions we want below - we primarily want to control
+    # them via .arch_extension. However:
+    #
+    # Clang before version 17 (Xcode versions before 16) didn't support
+    # controlling the dotprod/i8mm extensions via .arch_extension; thus
+    # try to enable them via the .arch level as well.
+    as_arch_level="armv8-a"
+    for level in armv8.2-a armv8.4-a armv8.6-a; do
+        as_check ".arch ${level}" && as_arch_level="$level"
+    done
+    # Clang before version 17 (Xcode versions before 16) also had a bug
+    # (https://github.com/llvm/llvm-project/issues/32220) causing a plain
+    # ".arch <level>" to not have any effect unless it had an extra
+    # "+<feature>" included - but it was activated on the next
+    # ".arch_extension" directive. Check if we can include "+crc" as dummy
+    # feature to make the .arch directive behave as expected and take
+    # effect right away.
+    as_check ".arch ${as_arch_level}+crc" && as_arch_level="${as_arch_level}+crc"
+    define AS_ARCH_LEVEL "$as_arch_level"
+
+    as_archext_check sve  "ptrue p0.b, vl16"
+    as_archext_check sve2 "smlalb z10.s, z2.h, z1.h"
 fi
 
 if [ $asm = auto -a \( $ARCH = ARM -o $ARCH = AARCH64 \) ] ; then
