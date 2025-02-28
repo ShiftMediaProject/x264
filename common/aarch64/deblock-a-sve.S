@@ -26,7 +26,7 @@
 #include "asm.S"
 #include "deblock-a-common.S"
 
-.arch armv8-a+sve
+ENABLE_SVE
 
 .macro h264_loop_filter_chroma_sve
     ptrue           p0.b, vl16

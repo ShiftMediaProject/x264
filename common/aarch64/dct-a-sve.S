@@ -26,7 +26,7 @@
 #include "asm.S"
 #include "dct-a-common.S"
 
-.arch armv8-a+sve
+ENABLE_SVE
 
 function sub4x4_dct_sve, export=1
     mov         x3, #FENC_STRIDE

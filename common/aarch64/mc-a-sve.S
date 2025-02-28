@@ -26,7 +26,7 @@
 #include "asm.S"
 #include "mc-a-common.S"
 
-.arch armv8-a+sve
+ENABLE_SVE
 
 #if BIT_DEPTH == 8
 

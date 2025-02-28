@@ -26,7 +26,8 @@
 #include "asm.S"
 #include "dct-a-common.S"
 
-.arch armv8-a+sve+sve2
+ENABLE_SVE
+ENABLE_SVE2
 
 function add4x4_idct_sve2, export=1
     mov         x2, #FDEC_STRIDE
