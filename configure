@@ -1008,19 +1008,17 @@ if [ $asm = auto -a $ARCH = AARCH64 ] ; then
     if [ $compiler = CL ] && cpp_check '' '' 'defined(_M_ARM64)' ; then
         define HAVE_AARCH64
         define HAVE_NEON
-        as_check "ptrue p0.b, vl16" && define HAVE_SVE
-        as_check "smlalb z10.s, z2.h, z1.h" && define HAVE_SVE2
     elif cc_check '' '' '__asm__("cmeq v0.8h, v0.8h, #0");' ; then
         define HAVE_AARCH64
         define HAVE_NEON
-        cc_check '' '' '__asm__(".arch armv8.2-a+sve  \n ptrue p0.b, vl16");'         && define HAVE_SVE
-        cc_check '' '' '__asm__(".arch armv8.2-a+sve2 \n smlalb z10.s, z2.h, z1.h");' && define HAVE_SVE2
         ASFLAGS="$ASFLAGS -c"
     else
         echo "no NEON support, try adding -mfpu=neon to CFLAGS"
         echo "If you really want to run on such a CPU, configure with --disable-asm."
         exit 1
     fi
+    as_check ".arch armv8.2-a+sve  ${NL} ptrue p0.b, vl16"         && define HAVE_SVE
+    as_check ".arch armv8.2-a+sve2 ${NL} smlalb z10.s, z2.h, z1.h" && define HAVE_SVE2
 fi
 
 if [ $asm = auto -a \( $ARCH = ARM -o $ARCH = AARCH64 \) ] ; then
