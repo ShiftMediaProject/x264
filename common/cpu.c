@@ -95,6 +95,8 @@ const x264_cpu_name_t x264_cpu_names[] =
 #elif ARCH_AARCH64
     {"ARMv8",           X264_CPU_ARMV8},
     {"NEON",            X264_CPU_NEON},
+    {"DotProd",         X264_CPU_DOTPROD},
+    {"I8MM",            X264_CPU_I8MM},
     {"SVE",             X264_CPU_SVE},
     {"SVE2",            X264_CPU_SVE2},
 #elif ARCH_MIPS
@@ -459,8 +461,10 @@ uint32_t x264_cpu_detect( void )
 
 #if defined(__linux__) || HAVE_ELF_AUX_INFO
 
-#define HWCAP_AARCH64_SVE   (1U << 22)
-#define HWCAP2_AARCH64_SVE2 (1U << 1)
+#define HWCAP_AARCH64_ASIMDDP (1U << 20)
+#define HWCAP_AARCH64_SVE     (1U << 22)
+#define HWCAP2_AARCH64_SVE2   (1U << 1)
+#define HWCAP2_AARCH64_I8MM   (1U << 13)
 
 static uint32_t detect_flags( void )
 {
@@ -469,6 +473,10 @@ static uint32_t detect_flags( void )
     unsigned long hwcap = x264_getauxval( AT_HWCAP );
     unsigned long hwcap2 = x264_getauxval( AT_HWCAP2 );
 
+    if ( hwcap & HWCAP_AARCH64_ASIMDDP )
+        flags |= X264_CPU_DOTPROD;
+    if ( hwcap2 & HWCAP2_AARCH64_I8MM )
+        flags |= X264_CPU_I8MM;
     if ( hwcap & HWCAP_AARCH64_SVE )
         flags |= X264_CPU_SVE;
     if ( hwcap2 & HWCAP2_AARCH64_SVE2 )
@@ -487,6 +495,12 @@ uint32_t x264_cpu_detect( void )
 
     // If these features are enabled unconditionally in the compiler, we can
     // assume that they are available.
+#ifdef __ARM_FEATURE_DOTPROD
+    flags |= X264_CPU_DOTPROD;
+#endif
+#ifdef __ARM_FEATURE_MATMUL_INT8
+    flags |= X264_CPU_I8MM;
+#endif
 #ifdef __ARM_FEATURE_SVE
     flags |= X264_CPU_SVE;
 #endif

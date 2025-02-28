@@ -216,6 +216,8 @@ static void print_bench(void)
 #elif ARCH_AARCH64
                     b->cpu&X264_CPU_SVE2 ? "sve2" :
                     b->cpu&X264_CPU_SVE ? "sve" :
+                    b->cpu&X264_CPU_I8MM ? "i8mm" :
+                    b->cpu&X264_CPU_DOTPROD ? "dotprod" :
                     b->cpu&X264_CPU_NEON ? "neon" :
                     b->cpu&X264_CPU_ARMV8 ? "armv8" :
 #elif ARCH_MIPS
@@ -2998,6 +3000,10 @@ static int check_all_flags( void )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_ARMV8, "ARMv8" );
     if( cpu_detect & X264_CPU_NEON )
         ret |= add_flags( &cpu0, &cpu1, X264_CPU_NEON, "NEON" );
+    if( cpu_detect & X264_CPU_DOTPROD )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_DOTPROD, "DOTPROD" );
+    if( cpu_detect & X264_CPU_I8MM )
+        ret |= add_flags( &cpu0, &cpu1, X264_CPU_I8MM, "I8MM" );
 #if HAVE_SVE
     if( cpu_detect & X264_CPU_SVE ) {
         snprintf( buf, sizeof( buf ), "SVE (%d bits)", x264_checkasm_sve_length() );
