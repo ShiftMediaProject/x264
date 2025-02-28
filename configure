@@ -1005,13 +1005,12 @@ if [ $asm = auto -a $ARCH = ARM ] ; then
 fi
 
 if [ $asm = auto -a $ARCH = AARCH64 ] ; then
-    if [ $compiler = CL ] && cpp_check '' '' 'defined(_M_ARM64)' ; then
-        define HAVE_AARCH64
-        define HAVE_NEON
-    elif cc_check '' '' '__asm__("cmeq v0.8h, v0.8h, #0");' ; then
-        define HAVE_AARCH64
-        define HAVE_NEON
+    if [ $compiler != CL ] ; then
         ASFLAGS="$ASFLAGS -c"
+    fi
+    if as_check "cmeq v0.8h, v0.8h, #0" ; then
+        define HAVE_AARCH64
+        define HAVE_NEON
     else
         echo "no NEON support, try adding -mfpu=neon to CFLAGS"
         echo "If you really want to run on such a CPU, configure with --disable-asm."
