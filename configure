@@ -423,9 +423,10 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO GETAUXVAL \
+             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 ELF_AUX_INFO GETAUXVAL \
              SYSCONF SYNC_FETCH_AND_ADD \
-             AS_ARCHEXT_SVE_DIRECTIVE AS_ARCHEXT_SVE2_DIRECTIVE"
+             DOTPROD I8MM SVE SVE2 \
+             AS_ARCHEXT_DOTPROD_DIRECTIVE AS_ARCHEXT_I8MM_DIRECTIVE AS_ARCHEXT_SVE_DIRECTIVE AS_ARCHEXT_SVE2_DIRECTIVE"
 
 # parse options
 
@@ -1050,8 +1051,10 @@ if [ $asm = auto -a $ARCH = AARCH64 ] ; then
     as_check ".arch ${as_arch_level}+crc" && as_arch_level="${as_arch_level}+crc"
     define AS_ARCH_LEVEL "$as_arch_level"
 
-    as_archext_check sve  "ptrue p0.b, vl16"
-    as_archext_check sve2 "smlalb z10.s, z2.h, z1.h"
+    as_archext_check dotprod "udot v0.4s, v0.16b, v0.16b"
+    as_archext_check i8mm    "usdot v0.4s, v0.16b, v0.16b"
+    as_archext_check sve     "ptrue p0.b, vl16"
+    as_archext_check sve2    "smlalb z10.s, z2.h, z1.h"
 fi
 
 if [ $asm = auto -a \( $ARCH = ARM -o $ARCH = AARCH64 \) ] ; then

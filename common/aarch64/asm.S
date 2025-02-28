@@ -67,6 +67,20 @@
 #endif
 
         .arch AS_ARCH_LEVEL
+#if HAVE_AS_ARCHEXT_DOTPROD_DIRECTIVE
+#define ENABLE_DOTPROD  .arch_extension dotprod
+#define DISABLE_DOTPROD .arch_extension nodotprod
+#else
+#define ENABLE_DOTPROD
+#define DISABLE_DOTPROD
+#endif
+#if HAVE_AS_ARCHEXT_I8MM_DIRECTIVE
+#define ENABLE_I8MM  .arch_extension i8mm
+#define DISABLE_I8MM .arch_extension noi8mm
+#else
+#define ENABLE_I8MM
+#define DISABLE_I8MM
+#endif
 #if HAVE_AS_ARCHEXT_SVE_DIRECTIVE
 #define ENABLE_SVE  .arch_extension sve
 #define DISABLE_SVE .arch_extension nosve
@@ -87,6 +101,8 @@
  * the .arch level. This makes it clear if we try to assemble an instruction
  * from an unintended extension set; we only allow assmbling such instructions
  * within regions where we explicitly enable those extensions. */
+DISABLE_DOTPROD
+DISABLE_I8MM
 DISABLE_SVE
 DISABLE_SVE2
 
