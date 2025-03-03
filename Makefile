@@ -311,39 +311,46 @@ example$(EXE): $(OBJEXAMPLE) $(LIBX264)
 $(OBJS) $(OBJSO): CFLAGS += $(CFLAGSSO)
 $(OBJCLI): CFLAGS += $(CFLAGSCLI)
 
-$(OBJS) $(OBJASM) $(OBJSO) $(OBJCLI) $(OBJCHK) $(OBJCHK_8) $(OBJCHK_10) $(OBJEXAMPLE): .depend
+ALLOBJS = $(OBJS) $(OBJASM) $(OBJSO) $(OBJCLI) $(OBJCHK) $(OBJCHK_8) $(OBJCHK_10) $(OBJEXAMPLE)
+$(ALLOBJS): $(GENERATED)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< $(CC_O)
+	$(DEPCMD)
+	$(CC) $(CFLAGS) -c $< $(CC_O) $(DEPFLAGS)
 
 %-8.o: %.c
-	$(CC) $(CFLAGS) -c $< $(CC_O) -DHIGH_BIT_DEPTH=0 -DBIT_DEPTH=8
+	$(DEPCMD)
+	$(CC) $(CFLAGS) -c $< $(CC_O) $(DEPFLAGS) -DHIGH_BIT_DEPTH=0 -DBIT_DEPTH=8
 
 %-10.o: %.c
-	$(CC) $(CFLAGS) -c $< $(CC_O) -DHIGH_BIT_DEPTH=1 -DBIT_DEPTH=10
+	$(DEPCMD)
+	$(CC) $(CFLAGS) -c $< $(CC_O) $(DEPFLAGS) -DHIGH_BIT_DEPTH=1 -DBIT_DEPTH=10
 
 %.o: %.asm common/x86/x86inc.asm common/x86/x86util.asm
-	$(AS) $(ASFLAGS) -o $@ $<
+	$(AS) $(ASFLAGS) -o $@ $< -MD $(@:.o=.d)
 	-@ $(if $(STRIP), $(STRIP) -x $@) # delete local/anonymous symbols, so they don't show up in oprofile
 
 %-8.o: %.asm common/x86/x86inc.asm common/x86/x86util.asm
-	$(AS) $(ASFLAGS) -o $@ $< -DBIT_DEPTH=8 -Dprivate_prefix=x264_8
+	$(AS) $(ASFLAGS) -o $@ $< -MD $(@:.o=.d) -DBIT_DEPTH=8 -Dprivate_prefix=x264_8
 	-@ $(if $(STRIP), $(STRIP) -x $@)
 
 %-10.o: %.asm common/x86/x86inc.asm common/x86/x86util.asm
-	$(AS) $(ASFLAGS) -o $@ $< -DBIT_DEPTH=10 -Dprivate_prefix=x264_10
+	$(AS) $(ASFLAGS) -o $@ $< -MD $(@:.o=.d) -DBIT_DEPTH=10 -Dprivate_prefix=x264_10
 	-@ $(if $(STRIP), $(STRIP) -x $@)
 
 %.o: %.S
-	$(AS) $(ASFLAGS) -o $@ $<
+	$(DEPCMD)
+	$(AS) $(ASFLAGS) -o $@ $< $(DEPFLAGS)
 	-@ $(if $(STRIP), $(STRIP) -x $@) # delete local/anonymous symbols, so they don't show up in oprofile
 
 %-8.o: %.S
-	$(AS) $(ASFLAGS) -o $@ $< -DHIGH_BIT_DEPTH=0 -DBIT_DEPTH=8
+	$(DEPCMD)
+	$(AS) $(ASFLAGS) -o $@ $< $(DEPFLAGS) -DHIGH_BIT_DEPTH=0 -DBIT_DEPTH=8
 	-@ $(if $(STRIP), $(STRIP) -x $@)
 
 %-10.o: %.S
-	$(AS) $(ASFLAGS) -o $@ $< -DHIGH_BIT_DEPTH=1 -DBIT_DEPTH=10
+	$(DEPCMD)
+	$(AS) $(ASFLAGS) -o $@ $< $(DEPFLAGS) -DHIGH_BIT_DEPTH=1 -DBIT_DEPTH=10
 	-@ $(if $(STRIP), $(STRIP) -x $@)
 
 %.dll.o: %.rc x264.h
@@ -352,34 +359,19 @@ $(OBJS) $(OBJASM) $(OBJSO) $(OBJCLI) $(OBJCHK) $(OBJCHK_8) $(OBJCHK_10) $(OBJEXA
 %.o: %.rc x264.h x264res.manifest
 	$(RC) $(RCFLAGS)$@ $<
 
-.depend: config.mak $(GENERATED)
-	@rm -f .depend
-	@echo 'dependency file generation...'
-ifeq ($(COMPILER),CL)
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS) $(SRCCLI) $(SRCSO) $(SRCEXAMPLE)), $(SRCPATH)/tools/msvsdepend.sh "$(CC)" "$(CFLAGS)" "$(SRC)" "$(SRC:$(SRCPATH)/%.c=%.o)" 1>> .depend;)
-ifneq ($(findstring HAVE_BITDEPTH8 1, $(CONFIG)),)
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS_X) $(SRCS_8) $(SRCCLI_X) $(SRCCHK_X)), $(SRCPATH)/tools/msvsdepend.sh "$(CC)" "$(CFLAGS)" "$(SRC)" "$(SRC:$(SRCPATH)/%.c=%-8.o)" 1>> .depend;)
-endif
-ifneq ($(findstring HAVE_BITDEPTH10 1, $(CONFIG)),)
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS_X) $(SRCCLI_X) $(SRCCHK_X)), $(SRCPATH)/tools/msvsdepend.sh "$(CC)" "$(CFLAGS)" "$(SRC)" "$(SRC:$(SRCPATH)/%.c=%-10.o)" 1>> .depend;)
-endif
-else
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS) $(SRCCLI) $(SRCSO) $(SRCEXAMPLE)), $(CC) $(CFLAGS) $(SRC) $(DEPMT) $(SRC:$(SRCPATH)/%.c=%.o) $(DEPMM) 1>> .depend;)
-ifneq ($(findstring HAVE_BITDEPTH8 1, $(CONFIG)),)
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS_X) $(SRCS_8) $(SRCCLI_X) $(SRCCHK_X)), $(CC) $(CFLAGS) $(SRC) $(DEPMT) $(SRC:$(SRCPATH)/%.c=%-8.o) $(DEPMM) 1>> .depend;)
-endif
-ifneq ($(findstring HAVE_BITDEPTH10 1, $(CONFIG)),)
-	@$(foreach SRC, $(addprefix $(SRCPATH)/, $(SRCS_X) $(SRCCLI_X) $(SRCCHK_X)), $(CC) $(CFLAGS) $(SRC) $(DEPMT) $(SRC:$(SRCPATH)/%.c=%-10.o) $(DEPMM) 1>> .depend;)
-endif
-endif
-
 config.mak:
 	./configure
 
-depend: .depend
-ifneq ($(wildcard .depend),)
-include .depend
-endif
+# This is kept as a no-op
+depend:
+	@echo "make depend" is handled implicitly now
+
+-include $(wildcard $(ALLOBJS:.o=.d))
+
+# Dummy rule to avoid failing, if the dependency files specify dependencies on
+# a removed .h file.
+%.h:
+	@:
 
 OBJPROF = $(OBJS) $(OBJSO) $(OBJCLI)
 # These should cover most of the important codepaths
@@ -412,11 +404,12 @@ endif
 endif
 
 clean:
-	rm -f $(OBJS) $(OBJASM) $(OBJCLI) $(OBJSO) $(GENERATED) .depend TAGS
+	rm -f $(OBJS) $(OBJASM) $(OBJCLI) $(OBJSO) $(GENERATED) TAGS
 	rm -f $(SONAME) *.a *.lib *.exp *.pdb x264$(EXE) x264_lookahead.clbin
 	rm -f checkasm8$(EXE) checkasm10$(EXE) $(OBJCHK) $(OBJCHK_8) $(OBJCHK_10)
 	rm -f example$(EXE) $(OBJEXAMPLE)
 	rm -f $(OBJPROF:%.o=%.gcda) $(OBJPROF:%.o=%.gcno) *.dyn pgopti.dpi pgopti.dpi.lock *.pgd *.pgc
+	rm -f $(ALLOBJS:%.o=%.d)
 
 distclean: clean
 	rm -f config.mak x264_config.h config.h config.log x264.pc x264.def

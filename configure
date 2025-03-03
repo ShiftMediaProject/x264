@@ -1496,9 +1496,9 @@ else
     CLI_LIBX264='$(LIBX264)'
 fi
 
-DEPMM="${QPRE}MM"
-DEPMT="${QPRE}MT"
 if [ $compiler_style = MS ]; then
+    DEPFLAGS=""
+    DEPCMD='@$(SRCPATH)/tools/msvsdepend.sh "$(CC)" "$(CFLAGS)" "$<" "$@" > $(@:.o=.d)'
     AR="lib.exe -nologo -out:"
     LD="link.exe -out:"
     if [ $compiler = ICL ]; then
@@ -1522,7 +1522,8 @@ if [ $compiler_style = MS ]; then
         CFLAGS="-DNDEBUG $CFLAGS"
     fi
 else # gcc/icc
-    DEPMM="$DEPMM -g0"
+    DEPFLAGS="${QPRE}MMD ${QPRE}MF"' $(@:.o=.d)'
+    DEPCMD=""
     AR="$AR rc "
     LD="$CC -o "
     LIBX264=libx264.a
@@ -1575,8 +1576,8 @@ CFLAGSSO=$CFLAGSSO
 CFLAGSCLI=$CFLAGSCLI
 COMPILER=$compiler
 COMPILER_STYLE=$compiler_style
-DEPMM=$DEPMM
-DEPMT=$DEPMT
+DEPCMD=$DEPCMD
+DEPFLAGS=$DEPFLAGS
 LD=$LD
 LDFLAGS=$LDFLAGS
 LDFLAGSCLI=$LDFLAGSCLI
