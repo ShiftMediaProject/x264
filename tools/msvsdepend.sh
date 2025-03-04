@@ -8,11 +8,22 @@ set -f
 [ -n "$1" ] && [ -n "$3" ] && [ -n "$4" ] || exit 1
 
 # Add flags to only perform syntax checking and output a list of included files
+# For sources that aren't C, run preprocessing to NUL instead.
+
+case "$3" in
+*.c)
+    opts="-W0 -Zs"
+    ;;
+*)
+    opts="-P -FiNUL"
+    ;;
+esac
+
 # Discard all output other than included files
 # Convert '\' directory separators to '/'
 # Remove system includes (hack: check for "/Program Files" string in path)
 # Add the source file itself as a dependency
-deps="$($1 $2 -nologo -showIncludes -W0 -Zs "$3" 2>&1 |
+deps="$($1 $2 -nologo -showIncludes $opts "$3" 2>&1 |
         grep '^Note: including file:' |
         sed 's/^Note: including file:[[:space:]]*\(.*\)$/\1/; s/\\/\//g' |
         sed '/\/[Pp]rogram [Ff]iles/d')
