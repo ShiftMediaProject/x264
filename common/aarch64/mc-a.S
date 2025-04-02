@@ -1309,32 +1309,29 @@ function hpel_filter_neon, export=1
     add         v24.8h, v24.8h, v2.8h
 
     sub         v4.8h,  v4.8h,  v5.8h   // a-b
-    sub         v5.8h,  v5.8h,  v6.8h   // b-c
+    sub         v5.8h,  v6.8h,  v5.8h   // c-b
 
     sub         v22.8h, v22.8h, v23.8h  // a-b
-    sub         v23.8h, v23.8h, v24.8h  // b-c
+    sub         v23.8h, v24.8h, v23.8h  // c-b
 
-    sshr        v4.8h,  v4.8h,  #2      // (a-b)/4
-    sshr        v22.8h, v22.8h, #2      // (a-b)/4
-    sub         v4.8h,  v4.8h,  v5.8h   // (a-b)/4-b+c
-    sub         v22.8h, v22.8h, v23.8h  // (a-b)/4-b+c
-    sshr        v4.8h,  v4.8h,  #2      // ((a-b)/4-b+c)/4
-    sshr        v22.8h, v22.8h, #2      // ((a-b)/4-b+c)/4
-    add         v4.8h,  v4.8h,  v6.8h   // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
-    add         v22.8h, v22.8h, v24.8h  // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
+    ssra        v5.8h,  v4.8h,  #2      // (a-b)/4-b+c
+    ssra        v23.8h, v22.8h, #2      // (a-b)/4-b+c
 
-    sqrshrun    v4.8b,   v4.8h,   #6
-    ld1         {v28.16b}, [x7],   #16  // src[16:31]
+    ssra        v6.8h,  v5.8h,  #2      // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
+    ssra        v24.8h, v23.8h, #2      // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
+
+    sqrshrun    v6.8b,   v6.8h,   #6
+    ld1         {v28.16b}, [x7],  #16   // src[16:31]
     mov         v0.16b,  v2.16b
     ext         v23.16b, v7.16b,  v18.16b, #15
-    sqrshrun2   v4.16b,  v22.8h,  #6
+    sqrshrun2   v6.16b,  v24.8h,  #6
     mov         v1.16b,  v3.16b
     ext         v22.16b, v7.16b,  v18.16b, #14
     ext         v24.16b, v18.16b, v28.16b, #1
     ext         v25.16b, v18.16b, v28.16b, #2
     ext         v26.16b, v18.16b, v28.16b, #3
 
-    st1         {v4.16b}, [x2], #16
+    st1         {v6.16b}, [x2], #16
     b.gt        2b
 
     subs        w6,  w6,  #1
@@ -1424,6 +1421,164 @@ function frame_init_lowres_core_neon, export=1
 
     ret
 endfunc
+
+#if HAVE_I8MM
+ENABLE_I8MM
+
+const hpel_filter
+.byte 1, -5, 20, 20, -5, 1, 0, 0
+endconst
+
+const hpel_permute_tbl
+.byte 0,  1,  2,  3,  1,  2,  3,  4,  2,  3,  4,  5,  3,  4,  5,  6
+.byte 4,  5,  6,  7,  5,  6,  7,  8,  6,  7,  8,  9,  7,  8,  9, 10
+.byte 8,  9, 10, 11,  9, 10, 11, 12, 10, 11, 12, 13, 11, 12, 13, 14
+endconst
+
+// void hpel_filter( pixel *dsth, pixel *dstv, pixel *dstc, pixel *src,
+//                   intptr_t stride, int width, int height, int16_t *buf )
+function hpel_filter_neon_i8mm, export=1
+    movrel      x14, hpel_permute_tbl
+    ld1         {v22.16b - v24.16b}, [x14]
+    movrel      x8, hpel_filter
+    ld1         {v28.8b}, [x8]
+    sxtl        v0.8h, v28.8b
+
+    add         w15, w5, #3
+    mov         x10, x0
+    sub         x11, x1, #2
+    mov         x12, x2
+    sub         x13, x3, #2             // armv8 handles unaligned loads
+
+    movi        v30.16b,  #5
+    movi        v31.16b,  #20
+1:
+    mov         x3,  x13
+    mov         x2,  x12
+    mov         x1,  x11
+    mov         x0,  x10
+    mov         x5,  x15                // restore width
+
+    add         x7,  x3,  #8            // src pointer next 16b for horiz filter
+    sub         x3,  x3,  x4,  lsl #1   // src - 2*stride
+
+    add         x9,  x3,  x15           // holds src - 2*stride + width
+
+    ld1         {v16.16b}, [x3], x4     // src-2*stride[0:15]
+    ld1         {v17.16b}, [x3], x4     // src-1*stride[0:15]
+    ld1         {v18.16b}, [x3], x4     // src+0*stride[0:15]
+    ld1         {v19.16b}, [x3], x4     // src+1*stride[0:15]
+    ld1         {v20.16b}, [x3], x4     // src+2*stride[0:15]
+    ld1         {v21.16b}, [x3], x4     // src+3*stride[0:15]
+
+    ld1         {v29.16b}, [x7], #16    // src[16:31]
+
+    uaddl       v1.8h,   v16.8b,  v21.8b
+    umlsl       v1.8h,   v17.8b,  v30.8b
+    umlal       v1.8h,   v18.8b,  v31.8b
+    umlal       v1.8h,   v19.8b,  v31.8b
+    umlsl       v1.8h,   v20.8b,  v30.8b
+2:
+
+    subs        x5,  x5,  #16
+    sub         x3,  x9,  x5            // src - 2*stride += 16
+
+    movi        v3.16b, #0
+    movi        v4.16b, #0
+    movi        v5.16b, #0
+    movi        v6.16b, #0
+    tbl         v25.16b, {v18.16b}, v22.16b
+    tbl         v26.16b, {v18.16b}, v23.16b
+    tbl         v27.16b, {v18.16b}, v24.16b
+    usdot       v3.4s, v25.16b, v28.4b[0]
+    usdot       v3.4s, v26.16b, v28.4b[1]
+    usdot       v4.4s, v26.16b, v28.4b[0]
+    usdot       v4.4s, v27.16b, v28.4b[1]
+    tbl         v25.16b, {v29.16b}, v22.16b
+    tbl         v26.16b, {v29.16b}, v23.16b
+    tbl         v27.16b, {v29.16b}, v24.16b
+    uzp1        v7.8h, v3.8h, v4.8h
+    usdot       v5.4s, v25.16b, v28.4b[0]
+    usdot       v5.4s, v26.16b, v28.4b[1]
+    usdot       v6.4s, v26.16b, v28.4b[0]
+    usdot       v6.4s, v27.16b, v28.4b[1]
+    uzp1        v6.8h, v5.8h, v6.8h
+
+    sqrshrun    v7.8b, v7.8h, #5
+    sqrshrun2   v7.16b, v6.8h, #5
+    st1         {v7.16b}, [x0], #16
+
+    sqrshrun    v6.8b,  v1.8h,   #5
+    uaddl2      v2.8h,  v16.16b, v21.16b
+    umlsl2      v2.8h,  v17.16b, v30.16b
+    umlal2      v2.8h,  v18.16b, v31.16b
+    umlal2      v2.8h,  v19.16b, v31.16b
+    umlsl2      v2.8h,  v20.16b, v30.16b
+    sqrshrun2   v6.16b, v2.8h,   #5
+    st1         {v6.16b},  [x1],  #16
+
+    ld1         {v16.16b}, [x3],  x4    // src-2*stride[0:15]
+    ld1         {v17.16b}, [x3],  x4    // src-1*stride[0:15]
+    ld1         {v18.16b}, [x3],  x4    // src+0*stride[0:15]
+    ld1         {v19.16b}, [x3],  x4    // src+1*stride[0:15]
+    ld1         {v20.16b}, [x3],  x4    // src+2*stride[0:15]
+    ld1         {v21.16b}, [x3],  x4    // src+3*stride[0:15]
+    ld1         {v29.16b}, [x7], #16    // src[16:31]
+
+    ext         v3.16b, v1.16b, v2.16b, #2
+    ext         v4.16b, v1.16b, v2.16b, #4
+    ext         v5.16b, v1.16b, v2.16b, #6
+    ext         v6.16b, v1.16b, v2.16b, #8
+    ext         v7.16b, v1.16b, v2.16b, #10
+
+    add         v7.8h, v1.8h, v7.8h     // filter = 1
+    add         v6.8h, v3.8h, v6.8h     // filter = -5
+    add         v5.8h, v4.8h, v5.8h     // filter = 20
+
+    sub         v3.8h, v7.8h, v6.8h     // a-b
+    sub         v4.8h, v5.8h, v6.8h     // c-b
+    ssra        v4.8h, v3.8h, #2        // (a-b)/4-b+c
+    ssra        v5.8h, v4.8h, #2        // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
+    mov         v25.16b, v5.16b
+
+    uaddl       v1.8h,  v16.8b, v21.8b
+    umlsl       v1.8h,  v17.8b, v30.8b
+    umlal       v1.8h,  v18.8b, v31.8b
+    umlal       v1.8h,  v19.8b, v31.8b
+    umlsl       v1.8h,  v20.8b, v30.8b
+
+    ext         v3.16b, v2.16b, v1.16b, #2
+    ext         v4.16b, v2.16b, v1.16b, #4
+    ext         v5.16b, v2.16b, v1.16b, #6
+    ext         v6.16b, v2.16b, v1.16b, #8
+    ext         v7.16b, v2.16b, v1.16b, #10
+
+    add         v7.8h, v2.8h, v7.8h     // filter = 1
+    add         v6.8h, v3.8h, v6.8h     // filter = -5
+    add         v5.8h, v4.8h, v5.8h     // filter = 20
+
+    sub         v3.8h, v7.8h, v6.8h     // a-b
+    sub         v4.8h, v5.8h, v6.8h     // c-b
+    ssra        v4.8h, v3.8h, #2        // (a-b)/4-b+c
+    ssra        v5.8h, v4.8h, #2        // ((a-b)/4-b+c)/4+c = (a-5*b+20*c)/16
+
+    sqrshrun    v27.8b, v25.8h, #6
+    sqrshrun2   v27.16b, v5.8h, #6
+    st1         {v27.16b}, [x2],  #16
+
+    b.gt        2b
+
+    subs        w6,  w6,  #1
+    add         x10,  x10,  x4
+    add         x11,  x11,  x4
+    add         x12,  x12,  x4
+    add         x13,  x13,  x4
+    b.gt        1b
+
+    ret
+endfunc
+DISABLE_I8MM
+#endif // HAVE_I8MM
 
 function load_deinterleave_chroma_fenc_neon, export=1
     mov         x4,  #FENC_STRIDE/2

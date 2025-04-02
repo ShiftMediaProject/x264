@@ -272,6 +272,14 @@ void x264_hpel_filter_neon( pixel *dsth, pixel *dstv, pixel *dstc,
                             pixel *src, intptr_t stride, int width,
                             int height, int16_t *buf );
 
+
+#if !HIGH_BIT_DEPTH && HAVE_I8MM
+#define x264_hpel_filter_neon_i8mm x264_template(hpel_filter_neon_i8mm)
+void x264_hpel_filter_neon_i8mm( pixel *dsth, pixel *dstv, pixel *dstc,
+                                 pixel *src, intptr_t stride, int width,
+                                 int height, int16_t *buf );
+#endif // !HIGH_BIT_DEPTH && HAVE_I8MM
+
 PLANE_COPY(16, neon)
 PLANE_COPY_SWAP(16, neon)
 PLANE_INTERLEAVE(neon)
@@ -352,5 +360,12 @@ void x264_mc_init_aarch64( uint32_t cpu, x264_mc_functions_t *pf )
         pf->avg[PIXEL_4x2]   = x264_pixel_avg_4x2_sve;
     }
 #endif
+
+#if HAVE_I8MM
+    if( cpu&X264_CPU_I8MM )
+    {
+        pf->hpel_filter = x264_hpel_filter_neon_i8mm;
+    }
+#endif // HAVE_I8MM
 #endif // !HIGH_BIT_DEPTH
 }
