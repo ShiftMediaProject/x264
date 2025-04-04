@@ -33,6 +33,7 @@
 #include <libavutil/error.h>
 #include <libavutil/mem.h>
 #include <libavutil/pixdesc.h>
+#include <libavutil/version.h>
 
 #define FAIL_IF_ERROR( cond, ... ) FAIL_IF_ERR( cond, "lavf", __VA_ARGS__ )
 
@@ -141,8 +142,13 @@ static int read_frame_internal( cli_pic_t *p_pic, lavf_hnd_t *h, int i_frame, vi
     if( info )
     {
         info->fullrange  = is_fullrange;
+#if LIBAVUTIL_VERSION_MAJOR < 60
         info->interlaced = h->frame->interlaced_frame;
         info->tff        = h->frame->top_field_first;
+#else
+        info->interlaced = !!(h->frame->flags & AV_FRAME_FLAG_INTERLACED);
+        info->tff        = !!(h->frame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST);
+#endif
     }
 
     if( h->vfr_input )
