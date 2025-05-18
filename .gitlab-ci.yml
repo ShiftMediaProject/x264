@@ -75,7 +75,7 @@ stages:
         export PKG_CONFIG_LIBDIR=${LOCAL_INSTALL_DIR}/lib/pkgconfig
         git clone --depth 1 --branch master https://git.ffmpeg.org/ffmpeg.git ffmpeg
         cd ffmpeg
-        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-pic --disable-debug --extra-ldflags="-static" --disable-programs --disable-doc --disable-avdevice --disable-postproc --disable-avfilter --disable-network --disable-encoders --disable-muxers
+        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-pic --disable-debug --extra-ldflags="-static" --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-network --disable-encoders --disable-muxers
         make -j$(getconf _NPROCESSORS_ONLN)
         make -j$(getconf _NPROCESSORS_ONLN) install
         cd ..
