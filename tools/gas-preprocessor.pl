@@ -16,6 +16,7 @@ my %canonical_arch = ("aarch64" => "aarch64", "arm64" => "aarch64",
 
 my %comments = ("aarch64" => '//',
                 "arm"     => '@',
+                "ppc"     => '#',
                 "powerpc" => '#');
 
 my @gcc_cmd;
@@ -27,6 +28,7 @@ my $as_type = "apple-gas";
 
 my $fix_unreq = $^O eq "darwin";
 my $force_thumb = 0;
+my $verbose = 0;
 
 my $arm_cond_codes = "eq|ne|cs|cc|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al|hs|lo";
 
@@ -34,7 +36,7 @@ my $usage_str = "
 $0\n
 Gas-preprocessor.pl converts assembler files using modern GNU as syntax for
 Apple's ancient gas version or clang's incompatible integrated assembler. The
-conversion is regularly tested for Libav, x264 and vlc. Other projects might
+conversion is regularly tested for FFmpeg, Libav, x264 and vlc. Other projects might
 use different features which are not correctly handled.
 
 Options for this program needs to be separated with ' -- ' from the assembler
@@ -48,6 +50,7 @@ command. Following options are currently supported:
     -force-thumb  - assemble as thumb regardless of the input source
                     (note, this is incomplete and only works for sources
                     it explicitly was tested with)
+    -verbose      - print executed commands
 ";
 
 sub usage() {
@@ -61,12 +64,14 @@ while (@ARGV) {
         $fix_unreq = $1 ne "no-";
     } elsif ($opt eq "-force-thumb") {
         $force_thumb = 1;
+    } elsif ($opt eq "-verbose") {
+        $verbose = 1;
     } elsif ($opt eq "-arch") {
         $arch = shift;
         die "unknown arch: '$arch'\n" if not exists $canonical_arch{$arch};
     } elsif ($opt eq "-as-type") {
         $as_type = shift;
-        die "unknown as type: '$as_type'\n" if $as_type !~ /^((apple-)?(gas|clang)|armasm)$/;
+        die "unknown as type: '$as_type'\n" if $as_type !~ /^((apple-)?(gas|clang|llvm_gcc)|armasm)$/;
     } elsif ($opt eq "-help") {
         usage();
         exit 0;
@@ -90,6 +95,7 @@ if (grep /\.c$/, @gcc_cmd) {
     # pass -v/--version along, used during probing. Matching '-v' might have
     # uninteded results but it doesn't matter much if gas-preprocessor or
     # the compiler fails.
+    print STDERR join(" ", @gcc_cmd)."\n" if $verbose;
     exec(@gcc_cmd);
 } else {
     die "Unrecognized input filetype";
@@ -97,14 +103,7 @@ if (grep /\.c$/, @gcc_cmd) {
 if ($as_type eq "armasm") {
 
     $preprocess_c_cmd[0] = "cpp";
-    push(@preprocess_c_cmd, "-undef");
-    # Normally a preprocessor for windows would predefine _WIN32,
-    # but we're using any generic system-agnostic preprocessor "cpp"
-    # with -undef (to avoid getting predefined variables from the host
-    # system in cross compilation cases), so manually define it here.
-    push(@preprocess_c_cmd, "-D_WIN32");
 
-    @preprocess_c_cmd = grep ! /^-nologo$/, @preprocess_c_cmd;
     # Remove -ignore XX parameter pairs from preprocess_c_cmd
     my $index = 1;
     while ($index < $#preprocess_c_cmd) {
@@ -115,9 +114,23 @@ if ($as_type eq "armasm") {
         $index++;
     }
     if (grep /^-MM$/, @preprocess_c_cmd) {
+        push(@preprocess_c_cmd, "-D_WIN32");
+        # Normally a preprocessor for windows would predefine _WIN32,
+        # but we're using any generic system-agnostic preprocessor "cpp"
+        # with -undef (to avoid getting predefined variables from the host
+        # system in cross compilation cases), so manually define it here.
+        # We only use this generic preprocessor for generating dependencies,
+        # if the build system runs preprocessing with -M/-MM without -MF.
+        push(@preprocess_c_cmd, "-undef");
+        @preprocess_c_cmd = grep ! /^-nologo$/, @preprocess_c_cmd;
+        print STDERR join(" ", @preprocess_c_cmd)."\n" if $verbose;
         system(@preprocess_c_cmd) == 0 or die "Error running preprocessor";
         exit 0;
     }
+
+    # If not preprocessing for getting a dependency list, use cl.exe
+    # instead.
+    $preprocess_c_cmd[0] = "cl.exe";
 }
 
 # if compiling, avoid creating an output file named '-.o'
@@ -132,22 +145,26 @@ if ((grep /^-c$/, @gcc_cmd) && !(grep /^-o/, @gcc_cmd)) {
         }
     }
 }
-# replace only the '-o' argument with '-', avoids rewriting the make dependency
-# target specified with -MT to '-'
+# Remove the -o argument; if omitted, we by default preprocess to stdout.
 my $index = 1;
 while ($index < $#preprocess_c_cmd) {
     if ($preprocess_c_cmd[$index] eq "-o") {
-        $index++;
-        $preprocess_c_cmd[$index] = "-";
+        splice(@preprocess_c_cmd, $index, 2);
+        last;
     }
     $index++;
 }
 
+@preprocess_c_cmd = grep ! /^-c$/, @preprocess_c_cmd;
+
 my $tempfile;
 if ($as_type ne "armasm") {
     @gcc_cmd = map { /\.[csS]$/ ? qw(-x assembler -) : $_ } @gcc_cmd;
+
+    # Filter out options that can cause warnings due to unused arguments,
+    # Clang warns about unused -D parameters when invoked with "-x assembler".
+    @gcc_cmd = grep ! /^-D/, @gcc_cmd;
 } else {
-    @preprocess_c_cmd = grep ! /^-c$/, @preprocess_c_cmd;
     @preprocess_c_cmd = grep ! /^-m/, @preprocess_c_cmd;
 
     @preprocess_c_cmd = grep ! /^-G/, @preprocess_c_cmd;
@@ -156,6 +173,10 @@ if ($as_type ne "armasm") {
     @preprocess_c_cmd = grep ! /^-fp/, @preprocess_c_cmd;
     @preprocess_c_cmd = grep ! /^-EHsc$/, @preprocess_c_cmd;
     @preprocess_c_cmd = grep ! /^-O/, @preprocess_c_cmd;
+    @preprocess_c_cmd = grep ! /^-oldit/, @preprocess_c_cmd;
+    @preprocess_c_cmd = grep ! /^-FS/, @preprocess_c_cmd;
+    @preprocess_c_cmd = grep ! /^-w/, @preprocess_c_cmd;
+    @preprocess_c_cmd = grep ! /^-M/, @preprocess_c_cmd;
 
     @gcc_cmd = grep ! /^-G/, @gcc_cmd;
     @gcc_cmd = grep ! /^-W/, @gcc_cmd;
@@ -163,6 +184,8 @@ if ($as_type ne "armasm") {
     @gcc_cmd = grep ! /^-fp/, @gcc_cmd;
     @gcc_cmd = grep ! /^-EHsc$/, @gcc_cmd;
     @gcc_cmd = grep ! /^-O/, @gcc_cmd;
+    @gcc_cmd = grep ! /^-FS/, @gcc_cmd;
+    @gcc_cmd = grep ! /^-w/, @gcc_cmd;
 
     my @outfiles = grep /\.(o|obj)$/, @gcc_cmd;
     $tempfile = $outfiles[0].".asm";
@@ -195,6 +218,8 @@ if (!$arch) {
 
 # assume we're not cross-compiling if no -arch or the binary doesn't have the arch name
 $arch = qx/arch/ if (!$arch);
+# remove any whitespace, e.g. arch command might print a newline
+$arch =~ s/\s+//g;
 
 die "Unknown target architecture '$arch'" if not exists $canonical_arch{$arch};
 
@@ -206,12 +231,14 @@ $comm = ";" if $as_type =~ /armasm/;
 my %ppc_spr = (ctr    => 9,
                vrsave => 256);
 
+print STDERR join(" ", @preprocess_c_cmd)."\n" if $verbose;
 open(INPUT, "-|", @preprocess_c_cmd) || die "Error running preprocessor";
 
 if ($ENV{GASPP_DEBUG}) {
     open(ASMFILE, ">&STDOUT");
 } else {
     if ($as_type ne "armasm") {
+        print STDERR join(" ", @gcc_cmd)."\n" if $verbose;
         open(ASMFILE, "|-", @gcc_cmd) or die "Error running assembler";
     } else {
         open(ASMFILE, ">", $tempfile);
@@ -265,6 +292,9 @@ my %aarch64_req_alias;
 if ($force_thumb) {
     parse_line(".thumb\n");
 }
+if ($as_type eq "armasm") {
+    parse_line(".text\n");
+}
 
 # pass 1: parse .macro
 # note that the handling of arguments is probably overly permissive vs. gas
@@ -281,12 +311,11 @@ while (<INPUT>) {
     s/\r$//;
 
     foreach my $subline (split(";", $_)) {
-        # Add newlines at the end of lines that don't already have one
         chomp $subline;
-        $subline .= "\n";
-        parse_line($subline);
+        parse_line_continued($subline);
     }
 }
+parse_line_continued("");
 
 sub eval_expr {
     my $expr = $_[0];
@@ -310,7 +339,7 @@ sub handle_if {
             $expr =~ s/\s//g;
             $result ^= $expr eq "";
         } elsif ($type eq "c") {
-            if ($expr =~ /(.*)\s*,\s*(.*)/) {
+            if ($expr =~ /(\S*)\s*,\s*(\S*)/) {
                 $result ^= $1 eq $2;
             } else {
                 die "argument to .ifc not recognized";
@@ -323,7 +352,7 @@ sub handle_if {
             $result = eval_expr($expr) < 0;
         } else {
             chomp($line);
-            die "unhandled .if varient. \"$line\"";
+            die "unhandled .if variant. \"$line\"";
         }
         push (@ifstack, $result);
         return 1;
@@ -369,18 +398,32 @@ sub parse_if_line {
     return 0;
 }
 
+my $last_line = "";
+sub parse_line_continued {
+    my $line = $_[0];
+    $last_line .= $line;
+    if ($last_line =~ /\\$/) {
+        $last_line =~ s/\\$//;
+    } else {
+        # Add newlines at the end of lines after concatenation.
+        $last_line .= "\n";
+        parse_line($last_line);
+        $last_line = "";
+    }
+}
+
 sub parse_line {
     my $line = $_[0];
 
     return if (parse_if_line($line));
 
     if (scalar(@rept_lines) == 0) {
-        if (/\.macro/) {
+        if ($line =~ /\.macro/) {
             $macro_level++;
             if ($macro_level > 1 && !$current_macro) {
                 die "nested macros but we don't have master macro";
             }
-        } elsif (/\.endm/) {
+        } elsif ($line =~ /\.endm/) {
             $macro_level--;
             if ($macro_level < 0) {
                 die "unmatched .endm";
@@ -701,7 +744,10 @@ sub handle_serialized_line {
     }
 
     # mach-o local symbol names start with L (no dot)
-    $line =~ s/(?<!\w)\.(L\w+)/$1/g;
+    # armasm also can't handle labels that start with a dot.
+    if ($as_type =~ /apple-/ or $as_type eq "armasm") {
+        $line =~ s/(?<!\w)\.(L\w+)/$1/g;
+    }
 
     # recycle the '.func' directive for '.thumb_func'
     if ($thumb and $as_type =~ /^apple-/) {
@@ -767,7 +813,7 @@ sub handle_serialized_line {
         # This line seems to possibly have a neon instruction
         foreach (keys %neon_alias_reg) {
             my $alias = $_;
-            # Require the register alias to match as an invididual word, not as a substring
+            # Require the register alias to match as an individual word, not as a substring
             # of a larger word-token.
             if ($line =~ /\b$alias\b/) {
                 $line =~ s/\b$alias\b/$neon_alias_reg{$alias}/g;
@@ -860,7 +906,7 @@ sub handle_serialized_line {
             my $name = "temp_label_$temp_label_next";
             $temp_label_next++;
             # The matching regexp above removes the label from the start of
-            # the line (which might contain an instruction as well), readd
+            # the line (which might contain an instruction as well), re-add
             # it on a separate line above it.
             $line = "$name:\n" . $line;
             $last_temp_labels{$num} = $name;
@@ -879,7 +925,7 @@ sub handle_serialized_line {
 
 
         # Check branch instructions
-        if ($line =~ /(?:^|\n)\s*(\w+\s*:\s*)?(bl?x?\.?(..)?(\.w)?)\s+(\w+)/) {
+        if ($line =~ /(?:^|\n)\s*(\w+\s*:\s*)?(bl?x?\.?([^\s]{2})?(\.w)?)\s+(\w+)/) {
             my $instr = $2;
             my $cond = $3;
             my $width = $4;
@@ -895,7 +941,7 @@ sub handle_serialized_line {
                      ($arch eq "aarch64" and !is_aarch64_register($target))) {
                 $call_targets{$target}++;
             }
-        } elsif ($line =~ /(?:^|\n)\s*(\w+\s*:\s*)?(cbn?z|adr|tbz)\s+(\w+)\s*,(\s*#\d+\s*,)?\s*(\w+)/) {
+        } elsif ($line =~ /(?:^|\n)\s*(\w+\s*:\s*)?(cbn?z|adr|tbn?z)\s+(\w+)\s*,(\s*#\d+\s*,)?\s*(\w+)/) {
             my $instr = $2;
             my $reg = $3;
             my $bit = $4;
@@ -908,12 +954,12 @@ sub handle_serialized_line {
             }
             # Convert tbz with a wX register into an xX register,
             # due to armasm64 bugs/limitations.
-            if ($instr eq "tbz" and $reg =~ /w\d+/) {
+            if (($instr eq "tbz" or $instr eq "tbnz") and $reg =~ /w\d+/) {
                 my $xreg = $reg;
                 $xreg =~ s/w/x/;
                 $line =~ s/\b$reg\b/$xreg/;
             }
-        } elsif ($line =~ /^\s*.h?word.*\b\d+[bf]\b/) {
+        } elsif ($line =~ /^\s*.([hxd]?word|quad).*\b\d+[bf]\b/) {
             while ($line =~ /\b(\d+)([bf])\b/g) {
                 $line = handle_local_label($line, $1, $2);
             }
@@ -922,7 +968,7 @@ sub handle_serialized_line {
         # ALIGN in armasm syntax is the actual number of bytes
         if ($line =~ /\.(?:p2)?align\s+(\d+)/) {
             my $align = 1 << $1;
-            $line =~ s/\.(?:p2)?align\s(\d+)/ALIGN $align/;
+            $line =~ s/\.(?:p2)?align\s+(\d+)/ALIGN $align/;
         }
         # Convert gas style [r0, :128] into armasm [r0@128] alignment specification
         $line =~ s/\[([^\[,]+),?\s*:(\d+)\]/[$1\@$2]/g;
@@ -973,8 +1019,8 @@ sub handle_serialized_line {
                 my $reg = $1;
                 my $sym = $2;
                 my $offset = eval_expr($3);
-                if ($offset < 0) {
-                    # armasm64 is buggy with ldr x0, =sym+offset where the
+                if ($offset < 0 and $ENV{GASPP_ARMASM64_SKIP_NEG_OFFSET}) {
+                    # armasm64 in VS < 15.6 is buggy with ldr x0, =sym+offset where the
                     # offset is a negative value; it does write a negative
                     # offset into the literal pool as it should, but the
                     # negative offset only covers the lower 32 bit of the 64
@@ -1005,7 +1051,7 @@ sub handle_serialized_line {
 
             # Convert e.g. "add x0, x0, w0, uxtw" into "add x0, x0, w0, uxtw #0",
             # or "ldr x0, [x0, w0, uxtw]" into "ldr x0, [x0, w0, uxtw #0]".
-            $line =~ s/(uxtw|sxtw)(\s*\]?\s*)$/\1 #0\2/i;
+            $line =~ s/(uxt[whb]|sxt[whb])(\s*\]?\s*)$/\1 #0\2/i;
 
             # Convert "mov x0, v0.d[0]" into "umov x0, v0.d[0]"
             $line =~ s/\bmov\s+[xw]\d+\s*,\s*v\d+\.[ds]/u$&/i;
@@ -1020,10 +1066,13 @@ sub handle_serialized_line {
             # Convert "cset w0, lo" into "csetlo w0"
             $line =~ s/(cset)\s+([xw]\w+)\s*,\s*($arm_cond_codes)/\1\3 \2/;
 
-            # Strip out prfum; armasm64 fails to assemble any
-            # variant/combination of prfum tested so far, but it can be
-            # left out without any
-            $line =~ s/prfum.*\]//;
+            if ($ENV{GASPP_ARMASM64_SKIP_PRFUM}) {
+                # Strip out prfum; armasm64 (VS < 15.5) fails to assemble any
+                # variant/combination of prfum tested so far, but since it is
+                # a prefetch instruction it can be skipped without changing
+                # results.
+                $line =~ s/prfum.*\]//;
+            }
 
             # Convert "ldrb w0, [x0, #-1]" into "ldurb w0, [x0, #-1]".
             # Don't do this for forms with writeback though.
@@ -1041,12 +1090,30 @@ sub handle_serialized_line {
             if ($ENV{GASPP_ARMASM64_INVERT_SCALE}) {
                 # Instructions like fcvtzs and scvtf store the scale value
                 # inverted in the opcode (stored as 64 - scale), but armasm64
-                # in early versions stores it as-is. Thus convert from
+                # in VS < 15.5 stores it as-is. Thus convert from
                 # "fcvtzs w0, s0, #8" into "fcvtzs w0, s0, #56".
                 if ($line =~ /(?:fcvtzs|scvtf)\s+(\w+)\s*,\s*(\w+)\s*,\s*#(\d+)/) {
                     my $scale = $3;
                     my $inverted_scale = 64 - $3;
                     $line =~ s/#$scale/#$inverted_scale/;
+                }
+            }
+
+            # Convert "ld1 {v0.4h-v3.4h}" into "ld1 {v0.4h,v1.4h,v2.4h,v3.4h}"
+            if ($line =~ /(\{\s*v(\d+)\.(\d+[bhsdBHSD])\s*-\s*v(\d+)\.(\d+[bhsdBHSD])\s*\})/) {
+                my $regspec = $1;
+                my $reg1 = $2;
+                my $layout1 = $3;
+                my $reg2 = $4;
+                my $layout2 = $5;
+                if ($layout1 eq $layout2) {
+                    my $new_regspec = "{";
+                    foreach my $i ($reg1 .. $reg2) {
+                        $new_regspec .= "," if ($i > $reg1);
+                        $new_regspec .= "v$i.$layout1";
+                    }
+                    $new_regspec .= "}";
+                    $line =~ s/$regspec/$new_regspec/;
                 }
             }
         }
@@ -1103,6 +1170,8 @@ sub handle_serialized_line {
     $line =~ s/\.syntax/$comm$&/x      if $as_type =~ /armasm/;
 
     $line =~ s/\.hword/.short/x;
+    $line =~ s/\.xword/.quad/x;
+    $line =~ s/\.dword/.quad/x;
 
     if ($as_type =~ /^apple-/) {
         # the syntax for these is a little different
@@ -1117,6 +1186,7 @@ sub handle_serialized_line {
     }
     if ($as_type eq "armasm") {
         $line =~ s/\.global/EXPORT/x;
+        $line =~ s/\.extern/IMPORT/x;
         $line =~ s/\.int/dcd/x;
         $line =~ s/\.long/dcd/x;
         $line =~ s/\.float/dcfs/x;
@@ -1130,13 +1200,17 @@ sub handle_serialized_line {
         $line =~ s/\.arm/ARM/x;
         # The alignment in AREA is the power of two, just as .align in gas
         $line =~ s/\.text/AREA |.text|, CODE, READONLY, ALIGN=4, CODEALIGN/;
-        $line =~ s/(\s*)(.*)\.rodata/$1AREA |.rodata|, DATA, READONLY, ALIGN=5/;
+        $line =~ s/(\s*)(.*)\.ro?data(\s*,\s*"\w+")?/$1AREA |.rdata|, DATA, READONLY, ALIGN=5/;
         $line =~ s/\.data/AREA |.data|, DATA, ALIGN=5/;
     }
     if ($as_type eq "armasm" and $arch eq "arm") {
         $line =~ s/fmxr/vmsr/;
         $line =~ s/fmrx/vmrs/;
         $line =~ s/fadds/vadd.f32/;
+        # Armasm in VS 2019 16.3 errors out on "it" instructions. But
+        # armasm implicitly adds the necessary it instructions anyway, so we
+        # can just filter them out.
+        $line =~ s/^\s*it[te]*\s+/$comm$&/;
     }
     if ($as_type eq "armasm" and $arch eq "aarch64") {
         # Convert "b.eq" into "beq"
@@ -1170,6 +1244,7 @@ if ($as_type ne "armasm") {
 close(INPUT) or exit 1;
 close(ASMFILE) or exit 1;
 if ($as_type eq "armasm" and ! defined $ENV{GASPP_DEBUG}) {
+    print STDERR join(" ", @gcc_cmd)."\n" if $verbose;
     system(@gcc_cmd) == 0 or die "Error running assembler";
 }
 
