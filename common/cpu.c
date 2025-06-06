@@ -450,7 +450,9 @@ uint32_t x264_cpu_detect( void )
     // x264 instance disables or reinits the counters while x264 is using them,
     // which may result in incorrect detection and the counters stuck enabled.
     // right now Apple does not seem to support performance counters for this test
-#ifndef __MACH__
+    // Don't test this on Windows; performance counters are readable, but
+    // the PMNC is not readable.
+#if !defined(__MACH__) && !defined(_WIN32)
     flags |= x264_cpu_fast_neon_mrc_test() ? X264_CPU_FAST_NEON_MRC : 0;
 #endif
     // TODO: write dual issue test? currently it's A8 (dual issue) vs. A9 (fast mrc)
