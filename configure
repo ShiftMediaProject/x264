@@ -237,6 +237,18 @@ as_check() {
     return $res
 }
 
+as_archext_check() {
+    feature="$1"
+    instr="$2"
+    feature_upper="$(echo $feature | tr a-z A-Z)"
+    header=".arch $as_arch_level ${NL}"
+    if as_check "$header .arch_extension $feature" ; then
+        define HAVE_AS_ARCHEXT_${feature_upper}_DIRECTIVE
+        header="$header .arch_extension $feature ${NL}"
+    fi
+    as_check "$header $instr" && define HAVE_${feature_upper}
+}
+
 rc_check() {
     log_check "whether $RC works"
     echo "$1" > conftest.rc
@@ -411,7 +423,10 @@ NL="
 # list of all preprocessor HAVE values we can define
 CONFIG_HAVE="MALLOC_H ALTIVEC ALTIVEC_H MMX ARMV6 ARMV6T2 NEON AARCH64 BEOSTHREAD POSIXTHREAD WIN32THREAD THREAD LOG2F SWSCALE \
              LAVF FFMS GPAC AVS GPL VECTOREXT INTERLACED CPU_COUNT OPENCL THP LSMASH X86_INLINE_ASM AS_FUNC INTEL_DISPATCHER \
-             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 SVE SVE2 ELF_AUX_INFO GETAUXVAL"
+             MSA LSX MMAP WINRT VSX ARM_INLINE_ASM STRTOK_R CLOCK_GETTIME BITDEPTH8 BITDEPTH10 ELF_AUX_INFO GETAUXVAL \
+             SYSCONF SYNC_FETCH_AND_ADD \
+             DOTPROD I8MM SVE SVE2 \
+             AS_ARCHEXT_DOTPROD_DIRECTIVE AS_ARCHEXT_I8MM_DIRECTIVE AS_ARCHEXT_SVE_DIRECTIVE AS_ARCHEXT_SVE2_DIRECTIVE"
 
 # parse options
 
@@ -645,6 +660,9 @@ if [ $compiler = GNU ]; then
     if cc_check '' -Werror=ignored-attributes ; then
         CHECK_CFLAGS="$CHECK_CFLAGS -Werror=ignored-attributes"
     fi
+    if cc_check '' -Werror=implicit-function-declaration ; then
+        CHECK_CFLAGS="$CHECK_CFLAGS -Werror=implicit-function-declaration"
+    fi
 fi
 
 libm=""
@@ -659,6 +677,10 @@ case $host_os in
         if [ "$pic" = "no" ]; then
             cc_check "" -mdynamic-no-pic && CFLAGS="$CFLAGS -mdynamic-no-pic"
         fi
+        ;;
+    dragonfly*)
+        SYS="DRAGONFLY"
+        libm="-lm"
         ;;
     freebsd*)
         SYS="FREEBSD"
@@ -997,22 +1019,42 @@ if [ $asm = auto -a $ARCH = ARM ] ; then
 fi
 
 if [ $asm = auto -a $ARCH = AARCH64 ] ; then
-    if [ $compiler = CL ] && cpp_check '' '' 'defined(_M_ARM64)' ; then
-        define HAVE_AARCH64
-        define HAVE_NEON
-        as_check "ptrue p0.b, vl16" && define HAVE_SVE
-        as_check "smlalb z10.s, z2.h, z1.h" && define HAVE_SVE2
-    elif cc_check '' '' '__asm__("cmeq v0.8h, v0.8h, #0");' ; then
-        define HAVE_AARCH64
-        define HAVE_NEON
-        cc_check '' '' '__asm__(".arch armv8.2-a+sve  \n ptrue p0.b, vl16");'         && define HAVE_SVE
-        cc_check '' '' '__asm__(".arch armv8.2-a+sve2 \n smlalb z10.s, z2.h, z1.h");' && define HAVE_SVE2
+    if [ $compiler != CL ] ; then
         ASFLAGS="$ASFLAGS -c"
+    fi
+    if as_check "cmeq v0.8h, v0.8h, #0" ; then
+        define HAVE_AARCH64
+        define HAVE_NEON
     else
         echo "no NEON support, try adding -mfpu=neon to CFLAGS"
         echo "If you really want to run on such a CPU, configure with --disable-asm."
         exit 1
     fi
+    # Check for higher .arch levels. We only need armv8.2-a in order to
+    # enable the extensions we want below - we primarily want to control
+    # them via .arch_extension. However:
+    #
+    # Clang before version 17 (Xcode versions before 16) didn't support
+    # controlling the dotprod/i8mm extensions via .arch_extension; thus
+    # try to enable them via the .arch level as well.
+    as_arch_level="armv8-a"
+    for level in armv8.2-a armv8.4-a armv8.6-a; do
+        as_check ".arch ${level}" && as_arch_level="$level"
+    done
+    # Clang before version 17 (Xcode versions before 16) also had a bug
+    # (https://github.com/llvm/llvm-project/issues/32220) causing a plain
+    # ".arch <level>" to not have any effect unless it had an extra
+    # "+<feature>" included - but it was activated on the next
+    # ".arch_extension" directive. Check if we can include "+crc" as dummy
+    # feature to make the .arch directive behave as expected and take
+    # effect right away.
+    as_check ".arch ${as_arch_level}+crc" && as_arch_level="${as_arch_level}+crc"
+    define AS_ARCH_LEVEL "$as_arch_level"
+
+    as_archext_check dotprod "udot v0.4s, v0.16b, v0.16b"
+    as_archext_check i8mm    "usdot v0.4s, v0.16b, v0.16b"
+    as_archext_check sve     "ptrue p0.b, vl16"
+    as_archext_check sve2    "smlalb z10.s, z2.h, z1.h"
 fi
 
 if [ $asm = auto -a \( $ARCH = ARM -o $ARCH = AARCH64 \) ] ; then
@@ -1128,6 +1170,10 @@ if [ "$thread" = "posix" ]; then
 fi
 [ "$thread" != "no" ] && define HAVE_THREAD
 
+if cc_check '' '' 'int *val; __sync_fetch_and_add(&val, 1);' ; then
+    define HAVE_SYNC_FETCH_AND_ADD
+fi
+
 if cc_check 'math.h' '' 'volatile float x = 2; return log2f(x);' ; then
     define HAVE_LOG2F
 fi
@@ -1149,6 +1195,10 @@ fi
 
 if cc_check 'sys/auxv.h' '' 'unsigned long auxv = 0; elf_aux_info(AT_HWCAP, &auxv, sizeof(auxv));' ; then
     define HAVE_ELF_AUX_INFO
+fi
+
+if cc_check 'unistd.h' '' 'sysconf(0);' ; then
+    define HAVE_SYSCONF
 fi
 
 if [ "$SYS" != "WINDOWS" ] && cpp_check "sys/mman.h unistd.h" "" "defined(MAP_PRIVATE)"; then
@@ -1331,7 +1381,7 @@ if [ "$avs" = "auto" ] ; then
         define HAVE_AVS
         AVS_LIBS="-ldl"
         LDFLAGSCLI="$AVS_LIBS $LDFLAGSCLI"
-    elif [ "$SYS" = "FREEBSD" -o "$SYS" = "OPENBSD" -o "$SYS" = "NETBSD" -o "$SYS" = "HAIKU" ] ; then
+    elif [ "$SYS" = "DRAGONFLY" -o "$SYS" = "FREEBSD" -o "$SYS" = "NETBSD" -o "$SYS" = "OPENBSD" -o "$SYS" = "HAIKU" ] ; then
         avs="yes"
         define HAVE_AVS
         # dlopen is exported from libc on both *BSD and Haiku
@@ -1378,7 +1428,7 @@ if [ $SYS = WINDOWS -a $ARCH = X86 -a $compiler = GNU ] ; then
     cc_check '' -fno-zero-initialized-in-bss && CFLAGS="$CFLAGS -fno-zero-initialized-in-bss"
 fi
 
-if cc_check "stdio.h" "" "fseeko(stdin,0,0);" ; then
+if cc_check "stdio.h" "-D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64" "fseeko(stdin,0,0);" ; then
     define fseek fseeko
     define ftell ftello
 elif cc_check "stdio.h" "" "fseeko64(stdin,0,0);" ; then
@@ -1480,9 +1530,9 @@ else
     CLI_LIBX264='$(LIBX264)'
 fi
 
-DEPMM="${QPRE}MM"
-DEPMT="${QPRE}MT"
 if [ $compiler_style = MS ]; then
+    DEPFLAGS=""
+    DEPCMD='@$(SRCPATH)/tools/msvsdepend.sh "$(CC)" "$(CFLAGS)" "$<" "$@" > $(@:.o=.d)'
     AR="lib.exe -nologo -out:"
     LD="link.exe -out:"
     if [ $compiler = ICL ]; then
@@ -1506,7 +1556,8 @@ if [ $compiler_style = MS ]; then
         CFLAGS="-DNDEBUG $CFLAGS"
     fi
 else # gcc/icc
-    DEPMM="$DEPMM -g0"
+    DEPFLAGS="${QPRE}MMD ${QPRE}MF"' $(@:.o=.d)'
+    DEPCMD=""
     AR="$AR rc "
     LD="$CC -o "
     LIBX264=libx264.a
@@ -1559,8 +1610,8 @@ CFLAGSSO=$CFLAGSSO
 CFLAGSCLI=$CFLAGSCLI
 COMPILER=$compiler
 COMPILER_STYLE=$compiler_style
-DEPMM=$DEPMM
-DEPMT=$DEPMT
+DEPCMD=$DEPCMD
+DEPFLAGS=$DEPFLAGS
 LD=$LD
 LDFLAGS=$LDFLAGS
 LDFLAGSCLI=$LDFLAGSCLI

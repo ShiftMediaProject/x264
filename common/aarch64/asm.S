@@ -1,7 +1,7 @@
 /*****************************************************************************
  * asm.S: AArch64 utility macros
  *****************************************************************************
- * Copyright (C) 2008-2024 x264 project
+ * Copyright (C) 2008-2025 x264 project
  *
  * Authors: Mans Rullgard <mans@mansr.com>
  *          David Conrad <lessen42@gmail.com>
@@ -65,6 +65,46 @@
 #else
 #   define FUNC #
 #endif
+
+        .arch AS_ARCH_LEVEL
+#if HAVE_AS_ARCHEXT_DOTPROD_DIRECTIVE
+#define ENABLE_DOTPROD  .arch_extension dotprod
+#define DISABLE_DOTPROD .arch_extension nodotprod
+#else
+#define ENABLE_DOTPROD
+#define DISABLE_DOTPROD
+#endif
+#if HAVE_AS_ARCHEXT_I8MM_DIRECTIVE
+#define ENABLE_I8MM  .arch_extension i8mm
+#define DISABLE_I8MM .arch_extension noi8mm
+#else
+#define ENABLE_I8MM
+#define DISABLE_I8MM
+#endif
+#if HAVE_AS_ARCHEXT_SVE_DIRECTIVE
+#define ENABLE_SVE  .arch_extension sve
+#define DISABLE_SVE .arch_extension nosve
+#else
+#define ENABLE_SVE
+#define DISABLE_SVE
+#endif
+#if HAVE_AS_ARCHEXT_SVE2_DIRECTIVE
+#define ENABLE_SVE2  .arch_extension sve2
+#define DISABLE_SVE2 .arch_extension nosve2
+#else
+#define ENABLE_SVE2
+#define DISABLE_SVE2
+#endif
+
+/* If we do support the .arch_extension directives, disable support for all
+ * the extensions that we may use, in case they were implicitly enabled by
+ * the .arch level. This makes it clear if we try to assemble an instruction
+ * from an unintended extension set; we only allow assmbling such instructions
+ * within regions where we explicitly enable those extensions. */
+DISABLE_DOTPROD
+DISABLE_I8MM
+DISABLE_SVE
+DISABLE_SVE2
 
 .macro  function name, export=0, align=2
     .macro endfunc

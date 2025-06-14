@@ -138,6 +138,13 @@ UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
+# msys2 always reports `uname -m` as `x86_64`
+# but `$MSYSTEM_CARCH` reports the real toolchain target architecture of the msys2 environment
+# Link: https://github.com/msys2/msys2-runtime/issues/171
+if test "$MSYSTEM_CARCH" != ""; then
+	UNAME_MACHINE="$MSYSTEM_CARCH"
+fi
+
 # Note: order is significant - the case branches are not exclusive.
 
 case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in

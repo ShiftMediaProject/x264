@@ -1,7 +1,7 @@
 /*****************************************************************************
  * deblock-a-sve.S: aarch64 deblocking
  *****************************************************************************
- * Copyright (C) 2009-2024 x264 project
+ * Copyright (C) 2009-2025 x264 project
  *
  * Authors: David Chen <david.chen@myais.com.cn>
  *
@@ -26,7 +26,7 @@
 #include "asm.S"
 #include "deblock-a-common.S"
 
-.arch armv8-a+sve
+ENABLE_SVE
 
 .macro h264_loop_filter_chroma_sve
     ptrue           p0.b, vl16

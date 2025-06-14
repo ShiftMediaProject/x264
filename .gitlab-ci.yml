@@ -15,15 +15,17 @@ stages:
 
 .variables-win32: &variables-win32
     _TRIPLET: "i686-w64-mingw32"
+    _ARCH: "i686"
+    _OS: "mingw32"
     _PLATFORMSUFFIX: ".exe"
     _WRAPPER: "wine"
-    _CONTRIB_URL: "https://artifacts.videolan.org/vlc/win32-llvm/"
 
 .variables-win64: &variables-win64
     _TRIPLET: "x86_64-w64-mingw32"
+    _ARCH: "x86_64"
+    _OS: "mingw32"
     _PLATFORMSUFFIX: ".exe"
     _WRAPPER: "wine"
-    _CONTRIB_URL: "https://artifacts.videolan.org/vlc/win64-llvm/"
 
 .variables-win-armv7: &variables-win-armv7
     _TRIPLET: "armv7-w64-mingw32"
@@ -37,21 +39,37 @@ stages:
 
 .variables-macos-x86_64: &variables-macos-x86_64
     _TRIPLET: "x86_64-apple-darwin19"
+    _ARCH: "x86_64"
+    _OS: "darwin"
     _PLATFORMSUFFIX: ""
     _WRAPPER: ""
-    _CONTRIB_URL: "https://artifacts.videolan.org/vlc/macos-x86_64/"
     _XCFLAGS: "-arch x86_64"
     _XLDFLAGS: "-arch x86_64"
     _BIN_PATH: /Users/videolanci/sandbox/bin
 
 .variables-macos-arm64: &variables-macos-arm64
     _TRIPLET: "aarch64-apple-darwin19"
+    _ARCH: "aarch64"
+    _OS: "darwin"
     _PLATFORMSUFFIX: ""
     _WRAPPER: ""
-    _CONTRIB_URL: "https://artifacts.videolan.org/vlc/macos-arm64/"
     _XCFLAGS: "-arch arm64"
     _XLDFLAGS: "-arch arm64"
     _BIN_PATH: /Users/videolanci/sandbox/bin
+
+.variables-android-arm: &variables-android-arm
+    _TRIPLET: "arm-linux-androideabi"
+    _CLANG_TRIPLET: "armv7a-linux-androideabi"
+    _ANDROID_VERSION: "21"
+    _PLATFORMSUFFIX: ""
+    _WRAPPER: ""
+
+.variables-android-aarch64: &variables-android-aarch64
+    _TRIPLET: "aarch64-linux-android"
+    _CLANG_TRIPLET: "aarch64-linux-android"
+    _ANDROID_VERSION: "21"
+    _PLATFORMSUFFIX: ""
+    _WRAPPER: ""
 
 .build:
     stage: build
@@ -61,7 +79,7 @@ stages:
         export PKG_CONFIG_LIBDIR=${LOCAL_INSTALL_DIR}/lib/pkgconfig
         git clone --depth 1 --branch master https://git.ffmpeg.org/ffmpeg.git ffmpeg
         cd ffmpeg
-        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-pic --disable-debug --extra-ldflags="-static" --disable-programs --disable-doc --disable-avdevice --disable-postproc --disable-avfilter --disable-network --disable-encoders --disable-muxers
+        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-pic --disable-debug --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-network --disable-encoders --disable-muxers --extra-ldflags="-static"
         make -j$(getconf _NPROCESSORS_ONLN)
         make -j$(getconf _NPROCESSORS_ONLN) install
         cd ..
@@ -106,12 +124,12 @@ build-debian-aarch64:
         LOCAL_INSTALL_DIR=`pwd`/${_TRIPLET}
         export PKGCONFIG=pkg-config
         export PKG_CONFIG_LIBDIR=${LOCAL_INSTALL_DIR}/lib/pkgconfig
-        curl -f -o vlc-contrib.txt ${_CONTRIB_URL}
-        CONTRIB_NAME=$(sed -n -e "s@.*href=\"\(vlc-contrib-${_TRIPLET}-[^\"]*\.tar\.bz2\)\".*@\1@p" vlc-contrib.txt | sed -n -e '1p')
-        curl -f -o vlc-contrib-${_TRIPLET}-latest.tar.bz2 ${_CONTRIB_URL}${CONTRIB_NAME}
-        bunzip2 vlc-contrib-${_TRIPLET}-latest.tar.bz2
-        tar xvf vlc-contrib-${_TRIPLET}-latest.tar
-        perl -pi -e "s'@@CONTRIB_PREFIX@@'$(sed -e "s/'/\\\\'/g" <<< "${LOCAL_INSTALL_DIR}")'g" ${PKG_CONFIG_LIBDIR}/*.pc
+        git clone --depth 1 --branch master https://git.ffmpeg.org/ffmpeg.git ffmpeg
+        cd ffmpeg
+        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-cross-compile --arch="${_ARCH}" --target-os="${_OS}" --cross-prefix="${_TRIPLET}-" --enable-pic --disable-debug --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-network --disable-encoders --disable-muxers
+        make -j$(getconf _NPROCESSORS_ONLN)
+        make -j$(getconf _NPROCESSORS_ONLN) install
+        cd ..
         git clone --depth 1 --branch master https://github.com/l-smash/l-smash.git lsmash
         cd lsmash
         ./configure --prefix="${LOCAL_INSTALL_DIR}" --target-os="${_TRIPLET}" --cross-prefix="${_TRIPLET}-"
@@ -155,12 +173,12 @@ build-llvm-mingw-aarch64:
         export PATH="${_BIN_PATH}:$PATH"
         LOCAL_INSTALL_DIR=`pwd`/${_TRIPLET}
         export PKG_CONFIG_LIBDIR=${LOCAL_INSTALL_DIR}/lib/pkgconfig
-        curl -f -o vlc-contrib.txt ${_CONTRIB_URL}
-        CONTRIB_NAME=$(sed -n -e "s@.*href=\"\(vlc-contrib-${_TRIPLET}-[^\"]*\.tar\.bz2\)\".*@\1@p" vlc-contrib.txt | sed -n -e '1p')
-        curl -f -o vlc-contrib-${_TRIPLET}-latest.tar.bz2 ${_CONTRIB_URL}${CONTRIB_NAME}
-        bunzip2 vlc-contrib-${_TRIPLET}-latest.tar.bz2
-        tar xvf vlc-contrib-${_TRIPLET}-latest.tar
-        perl -pi -e "s'@@CONTRIB_PREFIX@@'$(sed -e "s/'/\\\\'/g" <<< "${LOCAL_INSTALL_DIR}")'g" ${PKG_CONFIG_LIBDIR}/*.pc
+        git clone --depth 1 --branch master https://git.ffmpeg.org/ffmpeg.git ffmpeg
+        cd ffmpeg
+        ./configure --prefix="${LOCAL_INSTALL_DIR}" --enable-cross-compile --arch="${_ARCH}" --target-os="${_OS}" --extra-cflags="${_XCFLAGS}" --extra-ldflags="${_XLDFLAGS}" --enable-pic --disable-debug --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-network --disable-encoders --disable-muxers
+        make -j$(getconf _NPROCESSORS_ONLN)
+        make -j$(getconf _NPROCESSORS_ONLN) install
+        cd ..
         git clone --depth 1 --branch master https://github.com/l-smash/l-smash.git lsmash
         cd lsmash
         ./configure --prefix="${LOCAL_INSTALL_DIR}" --target-os="${_TRIPLET}" --extra-cflags="${_XCFLAGS}" --extra-ldflags="${_XLDFLAGS}"
@@ -183,6 +201,25 @@ build-macos-arm64:
         - amd64
         - monterey
     variables: *variables-macos-arm64
+
+.build-android:
+    extends: .build
+    image: registry.videolan.org/vlc-debian-android:20241118101328
+    tags:
+        - docker
+        - amd64
+    script: |
+        set -x
+        CC=${_CLANG_TRIPLET}${_ANDROID_VERSION}-clang AR=llvm-ar RANLIB=llvm-ranlib STRIP=llvm-strip PKGCONFIG=pkg-config ./configure --host="${_TRIPLET}" --enable-pic --enable-strip
+        make -j$(getconf _NPROCESSORS_ONLN) x264 checkasm
+
+build-android-arm:
+    extends: .build-android
+    variables: *variables-android-arm
+
+build-android-aarch64:
+    extends: .build-android
+    variables: *variables-android-aarch64
 
 .test: &test
     stage: test

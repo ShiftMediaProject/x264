@@ -1,7 +1,7 @@
 /****************************************************************************
  * dct-a-sve.S: aarch64 transform and zigzag
  *****************************************************************************
- * Copyright (C) 2009-2024 x264 project
+ * Copyright (C) 2009-2025 x264 project
  *
  * Authors: David Chen <david.chen@myais.com.cn>
  *
@@ -26,7 +26,7 @@
 #include "asm.S"
 #include "dct-a-common.S"
 
-.arch armv8-a+sve
+ENABLE_SVE
 
 function sub4x4_dct_sve, export=1
     mov         x3, #FENC_STRIDE
